@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Staff Directory{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Staff Directory</h1><p class="sub">All active staff across GHDI departments.</p></div>
+  <div class="actions">
+    <form method="get" class="inline-form">
+      <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search name or position…" aria-label="Search directory">
+      <button class="btn btn-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-secondary" href="{% url 'hr:orgchart' %}">Org Chart</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body flush">
+    {% if employees %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Staff member</th>
+              <th>Position</th>
+              <th>Department</th>
+              <th>Type</th>
+              <th>Email</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in employees %}
+            <tr>
+              <td><a class="link" href="{{ e.get_absolute_url }}">{{ e.full_name }}</a></td>
+              <td>{{ e.position }}</td>
+              <td>{{ e.department|default:"—" }}</td>
+              <td>{{ e.get_employment_type_display }}</td>
+              <td>{{ e.email|default:"—" }}</td>
+              <td>{{ e.phone|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% include "includes/empty_state.html" with title="No staff found" body="Try a different search, or add staff from the Staff page." action_url=action_url|default:"/app/hr/employees/" action_label="Open Staff" %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

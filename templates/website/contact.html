@@ -1,0 +1,82 @@
+{% extends "website/base_site.html" %}
+{% block title %}Contact us — {{ ghdi_org_name }}{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker="# Contact" hero_title="Contact GHDI" hero_intro="We would love to hear from you — for partnerships, donations, volunteering or community support." hero_cta_label="Send us a message" hero_cta_url="#contact-form" %}
+
+<section class="py-5 py-lg-5">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-start">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            {% if messages %}
+              <div class="alert alert-success mb-4">Thank you — our team will respond shortly.</div>
+            {% endif %}
+
+            <form id="contact-form" method="post" novalidate class="row g-3">
+              {% csrf_token %}
+              {% for field in form %}
+                <div class="col-12">
+                  <label class="form-label fw-semibold text-primary" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="text-danger"> *</span>{% endif %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for e in field.errors %}{{ e }}{% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-primary btn-lg w-100">Send message</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4 p-lg-5">
+            <h3 class="h4 fw-bold text-primary mb-3">Contact details</h3>
+            <div class="d-grid gap-3">
+              <div>
+                <div class="small text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em;">Address</div>
+                <div class="mt-1 text-primary fw-semibold">{{ ghdi_org.address|default:"Damaturu, Yobe State, Nigeria" }}</div>
+              </div>
+              <div>
+                <div class="small text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em;">Email</div>
+                <div class="mt-1"><a class="text-decoration-none text-primary fw-semibold" href="mailto:{{ ghdi_org.email|default:'info@ghdi.org.ng' }}">{{ ghdi_org.email|default:"info@ghdi.org.ng" }}</a></div>
+              </div>
+              <div>
+                <div class="small text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em;">Phone</div>
+                <div class="mt-1"><a class="text-decoration-none text-primary fw-semibold" href="tel:{{ ghdi_org.phone|default:'+2348000000000' }}">{{ ghdi_org.phone|default:"+234 800 000 0000" }}</a></div>
+              </div>
+              {% if ghdi_org.registration_number %}
+              <div>
+                <div class="small text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em;">Registration</div>
+                <div class="mt-1 text-primary fw-semibold">{{ ghdi_org.registration_number }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4 p-lg-5">
+            <h3 class="h4 fw-bold text-primary mb-3">Office hours</h3>
+            <p class="mb-0 text-secondary">Monday – Friday, 9:00 AM – 5:00 PM (WAT)</p>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm overflow-hidden">
+          <div class="card-body p-0">
+            <div class="ratio ratio-4x3">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3230.0481860727823!2d11.969662174048329!3d11.724275240998038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x110151004d87a98f%3A0xed08bbd8844e77e3!2sGarkuwa%20Humanitarian%20and%20Development%20Initiative%20(GHDI)!5e1!3m2!1sen!2sng!4v1790766907914!5m2!1sen!2sng" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

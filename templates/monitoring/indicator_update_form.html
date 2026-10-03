@@ -1,0 +1,94 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ page_title }}</h1>
+    <p class="sub">
+      {% if indicator %}Recording a data point for <strong>{{ indicator.code }}</strong> — {{ indicator.name }}.{% else %}Choose an indicator and record the reported value for the period.{% endif %}
+    </p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{% url 'monitoring:indicator_list' %}">All Indicators</a>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Data Point</h3></div>
+    <div class="card-body">
+      {% if form.non_field_errors %}
+        <div class="alert alert-error mb-4" role="alert">
+          {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+        </div>
+      {% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+          {% if indicator %}
+            <input type="hidden" name="indicator" value="{{ indicator.pk }}">
+          {% else %}
+            <div class="form-group colspan-2">
+              <label class="form-label" for="id_indicator">Indicator <span class="req"> *</span></label>
+              <select class="form-input form-select" name="indicator" id="id_indicator" required>
+                <option value="">— Select an indicator —</option>
+                {% for i in indicators %}
+                  <option value="{{ i.pk }}" {% if request.POST.indicator|stringformat:"s" == i.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ i.code }} — {{ i.name }}{% if i.program %} ({{ i.program.name }}){% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+              {% if not indicators %}
+                <div class="form-hint">No indicators exist yet. Create an indicator first, then log its data here.</div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group {% if field.name == 'notes' %}colspan-2{% endif %}">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}
+              </label>
+              {% if field.field.widget.input_type == "textarea" %}
+                <textarea class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" rows="{{ field.field.widget.attrs.rows|default:4 }}" {% if field.field.required %}required{% endif %}>{{ field.value|default:"" }}</textarea>
+              {% else %}
+                <input type="{{ field.field.widget.input_type|default:'text' }}" class="form-input {% if field.errors %}is-invalid{% endif %}"
+                       name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %}>
+              {% endif %}
+              {% if field.help_text %}<div class="form-hint">{{ field.help_text }}</div>{% endif %}
+              {% if field.errors %}<ul class="field-errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Log Data</button>
+          <a class="btn btn-secondary" href="{{ cancel_url }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>{% if indicator %}Current Performance{% else %}Reporting Guidance{% endif %}</h3></div>
+    <div class="card-body">
+      {% if indicator %}
+        <div class="detail-list">
+          <div class="detail-item"><div class="k">Target</div><div class="v">{{ indicator.target|num }} {{ indicator.unit }}</div></div>
+          <div class="detail-item"><div class="k">Current</div><div class="v">{{ indicator.current|num }} {{ indicator.unit }}</div></div>
+          <div class="detail-item"><div class="k">Achievement</div><div class="v"><span class="badge {% if indicator.is_below_target %}badge-amber{% else %}badge-green{% endif %}">{{ indicator.achievement|pct }}</span></div></div>
+          <div class="detail-item"><div class="k">Frequency</div><div class="v">{{ indicator.get_frequency_display }}</div></div>
+          <div class="detail-item"><div class="k">Data source</div><div class="v">{{ indicator.data_source|default:"—" }}</div></div>
+        </div>
+        <div class="mt-4"><a class="btn btn-ghost btn-sm" href="{{ indicator.get_absolute_url }}">Open indicator</a></div>
+      {% else %}
+        <p class="text-secondary text-sm">Logging a data point records the reported value for a period and rolls the indicator's current value forward automatically.</p>
+        <ul class="text-secondary text-sm" style="padding-left:18px;margin-top:10px">
+          <li>Record figures as verified by your data source.</li>
+          <li>Use the period end date for monthly or quarterly reporting.</li>
+          <li>Add notes for any data quality caveats.</li>
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

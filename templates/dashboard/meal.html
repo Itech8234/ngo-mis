@@ -1,0 +1,91 @@
+{% extends "base.html" %}{% load ghdi_extras charts %}
+{% block title %}MEAL Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--meal">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">Evidence and accountability</span>
+    <h1>{{ greeting }}</h1><p>Follow indicator performance, reporting and community feedback.</p>
+  </div>
+  <div class="dashboard-hero__actions">
+    <a class="btn btn-secondary" href="{% url 'monitoring:report_list' %}">Reports</a>
+    {% if perms.monitoring.view_feedbackcase %}<a class="btn btn-secondary" href="{% url 'monitoring:feedback_list' %}">Feedback register</a>{% endif %}
+    <a class="btn btn-primary" href="{% url 'monitoring:indicator_create' %}">New indicator</a>
+  </div>
+</section>
+
+<div class="kpi-grid dashboard-kpis">
+  {% include "includes/kpi.html" with label="Indicators" value=kpis.indicators|num icon="target" color="teal" %}
+  {% include "includes/kpi.html" with label="Below Target" value=kpis.below_target|num icon="alert" color="red" %}
+  {% include "includes/kpi.html" with label="Reports" value=kpis.reports|num icon="file" color="blue" %}
+  {% include "includes/kpi.html" with label="Pending Reports" value=kpis.pending_reports|num icon="clock" color="amber" %}
+  {% include "includes/kpi.html" with label="Beneficiaries" value=kpis.beneficiaries|num icon="users" color="teal" %}
+  {% if kpis.feedback_pending != None %}{% include "includes/kpi.html" with label="Open Feedback" value=kpis.feedback_pending|num icon="file" color="amber" %}{% endif %}
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Indicator Achievement</h3></div>
+    <div class="card-body">
+      {% for code, achievement in achievements %}
+        <div class="metric-row">
+          <span class="m-label truncate">{{ code }}</span>
+          <span class="m-value">{{ achievement|floatformat:0 }}%</span>
+          <div class="progress" style="width:90px"><div class="progress-bar {% if achievement < 70 %}red{% elif achievement < 90 %}amber{% else %}green{% endif %}" style="width:{% widthratio achievement 100 100 %}%"></div></div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm">No indicators yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Geographic Reach (by LGA)</h3></div>
+    <div class="card-body">
+      <div class="chart-bars" style="height:150px">
+        {% for label, value in by_lga %}
+        <div class="chart-bar">
+          <span class="bar-value">{{ value }}</span>
+          <div class="bar" style="height:{{ value|mul:8 }}%"></div>
+          <span class="bar-label">{{ label|truncatechars:8 }}</span>
+        </div>
+        {% empty %}
+        <div class="text-secondary text-sm">No location data yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Underperforming Indicators</h3></div>
+    <div class="card-body flush">
+      {% for i in below %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ i.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ i.current|floatformat:0 }} / {{ i.target|floatformat:0 }} · {{ i.achievement|floatformat:0 }}% achieved</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ i.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No underperforming indicators. <span class="badge badge-green">Healthy</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Recent Reports</h3></div>
+    <div class="card-body flush">
+      {% for r in recent_reports %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ r.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ r.get_report_type_display }} · {{ r.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ r.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No reports yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% load static %}
+{% load static ghdi_extras %}
+<!DOCTYPE html>
+<html lang="en" class="h-full" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{% if page_title %}{{ page_title }} — {% endif %}{{ ghdi_org_name }} MIS{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}GHDI Management Information System{% endblock %}">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#011f5b">
+<script>
+  // Apply the persisted colour scheme before first paint to avoid a flash.
+  (function () {
+    try {
+      var t = localStorage.getItem('ghdi-theme');
+      if (!t) {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-bs-theme', t);
+    } catch (e) { /* storage disabled */ }
+  })();
+</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-premium.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-compat.css' %}">
+<link rel="stylesheet" href="{% static 'css/navigation-loader.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard-workspace.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% block extra_css %}{% endblock %}
+</head>
+<body class="h-full" data-bs-theme="light">
+{% include "includes/navigation_loader.html" %}
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div id="offlineBanner" class="offline-banner" role="status">
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019 10a10 10 0 00-16.17-7.55L3.707 2.293zM2.1 6.4A9.974 9.974 0 001 10a10 10 0 0016.17 7.55l-1.473-1.473A8 8 0 012.1 6.4z"/><path d="M2 4a1 1 0 011-1h.01a1 1 0 010 2H3a1 1 0 01-1-1z"/></svg>
+  <span>You are offline. Some features may be unavailable. Changes will sync when connection is restored.</span>
+</div>
+
+<div class="app-shell">
+  <aside class="sidebar mobile-hide" aria-label="Primary navigation">
+    <div class="sidebar-brand">
+      <span class="logo-mark" aria-hidden="true">{{ ghdi_acronym|slice:":3" }}</span>
+      <div>
+        <div class="brand-name">{% firstof ghdi_org.acronym ghdi_acronym %} MIS</div>
+        <div class="brand-sub">{{ ghdi_org_name|truncatechars:34 }}</div>
+      </div>
+    </div>
+    <div class="sidebar-nav-label">WORKSPACE</div>
+    <nav class="sidebar-nav">
+      {% if sidebar_items %}
+        {% for item in sidebar_items %}
+          <a href="{{ item.url }}" class="sidebar-link" data-nav="{{ item.url }}">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              {% include "includes/icons.html" with name=item.icon %}
+            </svg>
+            <span>{{ item.label }}</span>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="text-sm text-secondary" style="padding:12px 10px">No modules available for your account. Contact an administrator.</div>
+      {% endif %}
+    </nav>
+    <div class="sidebar-footer">
+      <div>&copy; {{ ghdi_org_name|truncatechars:40 }}</div>
+      <div class="text-xs mt-2">Secure MIS portal</div>
+    </div>
+  </aside>
+
+  <!-- END-SIDEBAR -->
+
+  <div class="app-main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" data-drawer-open aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <div class="workspace-title"><span>GHDI WORKSPACE</span><strong>{{ page_title|default:"Dashboard" }}</strong></div>
+
+      <div class="topbar-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <form action="{% url 'core:search' %}" method="get" role="search" class="topbar-search-form">
+          <input id="globalSearchInput" class="search-input" type="search" placeholder="Search people, projects, reports..." aria-label="Global search"
+            name="q" autocomplete="off" data-suggest-url="{% url 'core:search_suggest' %}">
+          <button class="sr-only" type="submit">Search</button>
+        </form>
+        <div class="search-dropdown" id="searchResults" hidden></div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="dropdown">
+          <button class="icon-btn" type="button" data-dropdown="quickMenu" aria-label="Quick actions" aria-expanded="false" aria-controls="quickMenu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="sr-only">Quick actions</span>
+          </button>
+          <div class="dropdown-menu" id="quickMenu" hidden>
+            <div class="dropdown-head">Quick actions</div>
+            {% for action in quick_actions %}
+              <a class="dropdown-item" href="{{ action.url }}"><span class="t">{{ action.label }}</span></a>
+            {% empty %}
+              <div class="dropdown-item"><span class="b">No quick actions available.</span></div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="icon-btn" type="button" data-dropdown="notificationsMenu" aria-label="Notifications" aria-expanded="false" aria-controls="notificationsMenu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-dot">{% if unread_notifications %}{{ unread_notifications|truncatechars:3 }}{% endif %}</span>
+            <span class="sr-only">Notifications</span>
+          </button>
+          <div class="dropdown-menu" id="notificationsMenu" hidden>
+            <div class="dropdown-head"><div class="flex justify-between items-center"><span>Notifications</span><a class="text-sm text-primary" href="{% url 'notifications:list' %}">View all</a></div></div>
+            {% include "notifications/_panel.html" %}
+            <a class="dropdown-footer" href="{% url 'notifications:list' %}">Open notification center</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="user-chip" type="button" data-dropdown="userMenu" aria-label="Account menu" aria-expanded="false" aria-controls="userMenu">
+            <span class="avatar">{% firstof user.get_initials user.username|slice:":2" %}</span>
+            <span class="meta mobile-hide">
+              <span class="name">{{ user.get_full_name|default:user.username }}</span>
+              <span class="role">{{ user.get_role_display }}</span>
+            </span>
+          </button>
+          <div class="dropdown-menu" id="userMenu" hidden>
+            <div class="dropdown-head">{{ user.email|default:"GHDI Account" }}</div>
+            <a class="dropdown-item" href="{% url 'accounts:profile' %}"><span class="t">My profile</span></a>
+            <a class="dropdown-item" href="{% url 'accounts:change_password' %}"><span class="t">Change password</span></a>
+            {% if user.is_staff or user.is_superuser %}
+            <a class="dropdown-item" href="/admin/"><span class="t">Django admin</span></a>
+            {% endif %}
+            <a class="dropdown-item" href="{% url 'accounts:logout' %}"><span class="t">Sign out</span></a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- END-TOPBAR -->
+
+    <div class="app-content" id="main-content">
+      {% if messages %}
+        <div class="toast-stack" role="status" aria-live="polite">
+          {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+              <div>{{ message }}</div>
+              <button class="btn-ghost" type="button" style="margin-left:auto;padding:0;border:none;background:none" data-dismiss-alert aria-label="Dismiss">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<!-- Mobile drawer -->
+<div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
+<aside id="mobileDrawer" class="drawer" hidden aria-label="Mobile navigation">
+  <div class="sidebar-brand">
+    <span class="logo-mark" aria-hidden="true">{{ ghdi_acronym }}</span>
+    <div>
+      <div class="brand-name">{{ ghdi_acronym }} MIS</div>
+    <div class="brand-sub">{{ ghdi_org_name|truncatechars:34 }}</div>
+    </div>
+    <button class="icon-btn" type="button" data-drawer-close aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    {% for item in sidebar_items %}
+      <a href="{{ item.url }}" class="sidebar-link" data-drawer-close>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          {% include "includes/icons.html" with name=item.icon %}
+        </svg>
+        <span>{{ item.label }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'accounts:profile' %}" class="text-primary">My profile</a>
+    &middot; <a href="{% url 'accounts:logout' %}" class="text-primary">Sign out</a>
+  </div>
+</aside>
+
+<!-- Mobile bottom navigation (role-aware, permission-filtered) -->
+{% if bottom_nav %}
+<nav class="bottom-nav" aria-label="Mobile navigation">
+  {% for item in bottom_nav %}
+  <a href="{{ item.url }}" aria-label="{{ item.label }}" data-nav="{{ item.url }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      {% include "includes/icons.html" with name=item.icon %}
+    </svg>{{ item.label }}
+  </a>
+  {% endfor %}
+</nav>
+{% endif %}
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/ghdi-ui.js' %}"></script>
+<script src="{% static 'js/app.js' %}" defer></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Staff records{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--hr">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">People directory</span><h1>Staff records</h1><p>Search and manage staff profiles, employment details and personnel files.</p></div>
+  <div class="dashboard-hero__actions"><a class="btn btn-secondary" href="{% url 'hr:directory' %}">Staff directory</a>{% if perms.hr.add_employee %}<a class="btn btn-primary" href="{% url 'hr:employee_create' %}">Add staff member</a>{% endif %}</div>
+</section>
+<section class="card hr-employee-list">
+  <div class="card-body">
+    <form method="get" class="hr-filter-bar" role="search">
+      <label class="sr-only" for="employee-q">Search staff</label><input class="form-input" id="employee-q" type="search" name="q" value="{{ query }}" placeholder="Search name, staff ID or position">
+      <label class="sr-only" for="employee-department">Department</label><select class="form-input" id="employee-department" name="department"><option value="">All departments</option>{% for d in departments %}<option value="{{ d.pk }}" {% if request.GET.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+      <label class="sr-only" for="employee-type">Employment type</label><select class="form-input" id="employee-type" name="employment_type"><option value="">All employment types</option>{% for value,label in employment_types %}<option value="{{ value }}" {% if selected_employment_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      <label class="sr-only" for="employee-status">Status</label><select class="form-input" id="employee-status" name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      <button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-ghost" href="{% url 'hr:employee_list' %}">Clear</a>
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Staff member</th><th>Department</th><th>Position</th><th>Employment</th><th>Hire date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for employee in object_list %}
+        <tr>
+          <td><a class="hr-employee-name" href="{{ employee.get_absolute_url }}">{{ employee.full_name }}</a><span class="hr-employee-id">{{ employee.employee_id }}</span></td>
+          <td>{{ employee.department|default:"Unassigned" }}</td><td>{{ employee.position }}</td><td>{{ employee.get_employment_type_display }}</td>
+          <td>{{ employee.hire_date|date:"d M Y"|default:"—" }}</td><td><span class="badge status-{{ employee.status }}">{{ employee.get_status_display }}</span></td>
+          <td><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{{ employee.get_absolute_url }}">View</a>{% if perms.hr.change_employee %}<a class="btn btn-ghost btn-sm" href="{% url 'hr:employee_edit' employee.pk %}">Edit</a>{% endif %}</div></td>
+        </tr>
+        {% empty %}<tr><td colspan="7">{% include "includes/empty_state.html" with title="No staff records found" body="Adjust the filters or add a staff record." %}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Search results{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Search results</h1><p class="sub">{% if query %}{{ result_count }} result{{ result_count|pluralize }} for "{{ query }}"{% else %}Type to search across GHDI modules{% endif %}</p></div>
+</div>
+
+<form method="get" action="{% url 'core:search' %}" class="flex gap-2 mb-4">
+  <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search employees, programs, transactions..." aria-label="Search">
+  <button class="btn btn-primary" type="submit">Search</button>
+</form>
+
+{% if results %}
+  {% regroup results by label as groups %}
+  {% for group in groups %}
+    <div class="card mb-4">
+      <div class="card-head"><h3>{{ group.grouper }}</h3></div>
+      <div class="card-body flush">
+        {% for item in group.list %}
+          <a class="dropdown-item" href="{{ item.url }}">
+            <div class="feed-body" style="flex:1"><div class="feed-title">{{ item.title }}</div></div>
+            <span class="text-sm text-primary">&rarr;</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+{% elif query %}
+  {% include "includes/empty_state.html" with title="No results" body="Try different keywords or check your search spelling." %}
+{% endif %}
+{% endblock %}

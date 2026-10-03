@@ -1,0 +1,5 @@
+HTMX FILES:
+  templates\base.html :: 7
+  templates\ghdi\_list_results.html :: 11
+  templates\includes\pagination.html :: 12
+  templates\programs\_activity_row.html :: 4

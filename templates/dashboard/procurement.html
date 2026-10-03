@@ -1,0 +1,109 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Procurement Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--procurement">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">Sourcing and purchasing</span>
+    <h1>{{ greeting }}</h1><p>Review requests, track purchase orders and keep vendor activity moving.</p>
+  </div>
+  <div class="dashboard-hero__actions">
+    <a class="btn btn-secondary" href="{% url 'procurement:po_list' %}">Purchase Orders</a>
+    <a class="btn btn-primary" href="{% url 'procurement:request_create' %}">New Request</a>
+  </div>
+</section>
+
+<div class="kpi-grid dashboard-kpis">
+  {% include "includes/kpi.html" with label="Pending Approvals" value=kpis.pending|num icon="clock" color="amber" %}
+  {% include "includes/kpi.html" with label="Active Procurements" value=kpis.active|num icon="cart" color="blue" %}
+  {% include "includes/kpi.html" with label="Open POs" value=kpis.open_pos|num icon="box" color="teal" %}
+  {% include "includes/kpi.html" with label="Active Vendors" value=kpis.vendors|num icon="store" color="green" %}
+  {% include "includes/kpi.html" with label="Committed (POs, YTD)" value=kpis.committed|cur icon="wallet" color="blue" %}
+  {% include "includes/kpi.html" with label="Requested (YTD)" value=kpis.estimated_value|cur icon="chart" color="teal" %}
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Request Pipeline</h3></div>
+    <div class="card-body">
+      <div class="chart-bars" style="height:150px">
+        {% for label, count in pipeline_counts %}
+        <div class="chart-bar">
+          <span class="bar-value">{{ count }}</span>
+          <div class="bar {% if label == 'Rejected' %}red{% elif label == 'Approved' or label == 'Completed' %}green{% else %}{% endif %}" style="height:{% widthratio count max_count 100 %}%"></div>
+          <span class="bar-label">{{ label|truncatechars:9 }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Awaiting Approval</h3></div>
+    <div class="card-body flush">
+      {% for r in pending_approvals %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title truncate">{{ r.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ r.estimated_cost|cur }} · {{ r.get_priority_display }} · {{ r.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ r.get_absolute_url }}">Review</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">Nothing awaiting approval. <span class="badge badge-green">Clear</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Open Purchase Orders</h3></div>
+    <div class="card-body flush">
+      {% for po in open_pos %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ po.po_number }} · {{ po.vendor.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ po.amount|cur }} · expected {{ po.expected_delivery|default:"—" }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ po.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No open purchase orders.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Top Vendors</h3></div>
+    <div class="card-body flush">
+      {% for v in top_vendors %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ v.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ v.category|default:"General" }} · {{ v.po_count }} PO{{ v.po_count|pluralize }}{% if v.rating %} · rated {{ v.rating }}/5{% endif %}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ v.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No active vendors yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Recent Requests</h3></div>
+    <div class="card-body flush">
+      {% for r in recent %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title truncate">{{ r.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ r.requested_by|default:"—" }} · {{ r.estimated_cost|cur }} · {{ r.created_at|date:"d M Y" }}</div>
+          </div>
+          <span class="badge {{ r.status|badge }}">{{ r.get_status_display }}</span>
+        </div>
+      {% empty %}
+        {% include "includes/empty_state.html" with title="No procurement requests yet" body="Create the first request to start the procurement pipeline." %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

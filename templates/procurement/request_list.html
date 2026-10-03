@@ -1,0 +1,9 @@
+{% extends "ghdi/generic_list.html" %}
+{% block list_filters %}
+<form method="get" class="card-body d-flex flex-wrap align-items-end gap-3 mb-3" aria-label="Filter procurement requests">
+  <div class="form-group mb-0"><label class="form-label" for="request-status">Status</label><select class="form-input" id="request-status" name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+  <button class="btn btn-secondary" type="submit">Apply filter</button>
+  {% if request.GET.status or query %}<a class="btn btn-ghost" href="{% url 'procurement:request_list' %}">Clear</a>{% endif %}
+</form>
+{% endblock %}

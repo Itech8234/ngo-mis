@@ -1,0 +1,88 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}Events — {{ ghdi_org_name }}{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker="# Events" hero_title="Events" hero_intro="Community meetings, trainings, launches and field visits across GHDI's areas of operation." hero_cta_label="Enquire about an event" hero_cta_url="/contact/" %}
+
+{% if upcoming %}
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-12 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Upcoming</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">What's happening next</h2>
+    </div>
+    <div style="display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      {% for e in upcoming %}
+      <article class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft overflow-hidden p-0">
+        <div class="ghdi-media-card__media">
+          {% if e.image|file_url %}
+          <img src="{{ e.image|file_url }}" alt="{{ e.name }}" loading="lazy" decoding="async">
+          {% else %}
+          <div class="ghdi-media-card__media--fallback"><span>{{ e.date|date:"d M Y" }}</span></div>
+          {% endif %}
+        </div>
+        <div>
+          <div>
+            <span class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-amber-soft text-amber" aria-hidden="true">
+              <span style="display:grid;text-align:center;line-height:1">
+                <b style="font-size:17px">{{ e.date|date:"d" }}</b>
+                <span style="font-size:10px;font-weight:700;text-transform:uppercase">{{ e.date|date:"M" }}</span>
+              </span>
+            </span>
+            <h3 class="text-lg font-semibold text-navy"><a href="{% url 'website:event_detail' e.slug %}" style="color:inherit;text-decoration:none">{{ e.name }}</a></h3>
+          </div>
+          <p class="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">{{ e.date|date:"l, d M Y" }}{% if e.start_time %} · {{ e.start_time|date:"H:i" }}{% endif %}</p>
+          <p class="mt-3 text-sm leading-relaxed text-slate-500">{{ e.venue|default:e.city|default:"Venue to be confirmed" }}</p>
+          {% if e.description %}<p class="mt-3 text-sm leading-relaxed text-slate-500">{{ e.description|truncatechars:150 }}</p>{% endif %}
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-navy/15 bg-white px-6 py-3 text-navy hover:border-navy hover:bg-navy-soft" href="{% url 'website:event_detail' e.slug %}">Event details</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% else %}
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="rounded-2xl bg-white p-10 text-center ring-1 ring-slate-200 shadow-soft">
+      <strong>No events scheduled right now</strong>
+      Upcoming GHDI events will be listed here as soon as they are published.
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if past %}
+<section class="bg-navy-soft py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-12 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Archive</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Past events</h2>
+    </div>
+    <div class="ghdi-rail" role="region" aria-label="Past events carousel" tabindex="0">
+      <div class="ghdi-rail__track">
+        {% for e in past %}
+        <article class="ghdi-media-card">
+          <div class="ghdi-media-card__media">
+            {% if e.image|file_url %}
+            <img src="{{ e.image|file_url }}" alt="{{ e.name }}" loading="lazy" decoding="async">
+            {% else %}
+            <div class="ghdi-media-card__media--fallback"><span>{{ e.date|date:"M Y" }}</span></div>
+            {% endif %}
+          </div>
+          <div class="ghdi-media-card__body">
+            <span class="ghdi-media-card__date">{{ e.date|date:"d M Y" }}</span>
+            <h3 class="ghdi-media-card__title"><a href="{% url 'website:event_detail' e.slug %}">{{ e.name }}</a></h3>
+            <p class="ghdi-media-card__excerpt">{{ e.venue|default:e.city|default:"GHDI event" }}</p>
+            <a class="ghdi-media-card__more" href="{% url 'website:event_detail' e.slug %}">Event details<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5"/></svg></a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

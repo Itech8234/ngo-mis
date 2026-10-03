@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You are offline — {{ ghdi_org_name }} MIS</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+<link rel="stylesheet" href="{% static 'css/ghdi.css' %}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="logo-mark" aria-hidden="true">{{ ghdi_acronym|slice:":3" }}</span>
+      <div><div class="font-bold" style="font-size:16px">{{ ghdi_org_name }}</div><div class="text-xs text-muted">Offline</div></div>
+    </div>
+    <div class="empty-state" style="padding:28px 16px">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019 10a10 10 0 00-16.17-7.55L3.707 2.293zM2.1 6.4A9.974 9.974 0 001 10a10 10 0 0016.17 7.55l-1.473-1.473A8 8 0 012.1 6.4z"/><path d="M2 4a1 1 0 011-1h.01a1 1 0 010 2H3a1 1 0 01-1-1z"/></svg>
+      </div>
+      <h3>You are offline</h3>
+      <p>Some features may be unavailable. Changes you make will sync when your connection is restored.</p>
+      <button class="btn btn-primary" onclick="location.reload()">Try again</button>
+    </div>
+    <div class="text-center"><a class="text-sm text-primary" href="/app/">Back to the app</a></div>
+  </div>
+</div>
+</body>
+</html>

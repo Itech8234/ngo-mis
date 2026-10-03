@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Contact Messages{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Contact Messages</h1><p class="sub">{{ messages_qs|length }} message{{ messages_qs|length|pluralize }} from the public website</p></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h3>All messages</h3></div>
+  <div class="card-body flush">
+    {% if messages_qs %}
+      {% for m in messages_qs %}
+        <div class="feed-item">
+          <div class="feed-body" style="flex:1;min-width:0">
+            <div class="feed-title">{{ m.subject }}</div>
+            <div class="feed-meta">from {{ m.name }} &lt;{{ m.email }}&gt; · {{ m.created_at|date:"d M Y H:i" }}</div>
+            <div class="text-secondary text-sm" style="white-space:pre-wrap">{{ m.body|truncatechars:300 }}</div>
+          </div>
+          <div class="feed-meta">
+            {% if m.is_handled %}
+              <span class="badge badge-green">Handled</span>
+            {% else %}
+              <span class="badge badge-amber">New</span>
+            {% endif %}
+            <form method="post" action="{% url 'cms:message_handle' m.pk %}" class="ml-3">{% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-sm">
+                {% if m.is_handled %}Mark as open{% else %}Mark as handled{% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      {% include "includes/empty_state.html" with title="No messages" body="Messages submitted through the public contact form will appear here." %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{% endblock %} — {{ ghdi_org_name }}</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+<link rel="stylesheet" href="{% static 'css/ghdi.css' %}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card" style="text-align:center">
+    <div class="auth-brand" style="justify-content:center"><span class="logo-mark" aria-hidden="true">{{ ghdi_acronym|slice:":3" }}</span></div>
+    {% block content %}{% endblock %}
+    <p class="text-xs text-muted text-center" style="margin-top:20px">GHDI Management Information System</p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+{% block content %}
+<div class="empty-state" style="padding:24px 8px">
+  <h1 style="font-size:3rem;letter-spacing:-.04em">404</h1>
+  <h3>{{ title|default:"Page not found" }}</h3>
+  <p>{{ message|default:"The page you are looking for does not exist or has been moved." }}</p>
+  <a class="btn btn-primary" href="{% url 'website:home' %}">Back to home</a>
+</div>
+{% endblock %}

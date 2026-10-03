@@ -1,0 +1,77 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}{{ event.name }} — {{ ghdi_org_name }}{% endblock %}
+{% block seo %}
+<meta name="description" content="{{ event.description|truncatechars:160 }}">
+<meta property="og:title" content="{{ event.name }}">
+<meta property="og:description" content="{{ event.description|truncatechars:160 }}">
+<meta property="og:type" content="event">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if event.image|file_url %}<meta property="og:image" content="{{ request.build_absolute_uri }}{{ event.image|file_url }}">{% endif %}
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker=event.get_status_display hero_title=event.name hero_parent_url="/events/" hero_parent_label="Events" hero_image=event.image|media_url %}
+
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div style="display:grid;gap:44px;grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start">
+      <article>
+        {% if event.image|file_url %}
+        <img src="{{ event.image|file_url }}" alt="{{ event.name }}" loading="lazy" decoding="async" style="width:100%;border-radius:20px;box-shadow:0 24px 50px -30px rgba(1,31,91,.55);margin-bottom:32px">
+        {% endif %}
+        <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-azure">{{ event.description|default:event.name|linebreaks }}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:38px;padding-top:26px;border-top:1px solid rgba(1,31,91,.1)">
+          <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-navy/15 bg-white px-6 py-3 text-navy hover:border-navy hover:bg-navy-soft" href="{% url 'website:events_list' %}">All events</a>
+          {% if event.registration_link %}
+          <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-magenta px-6 py-3 text-white shadow-soft hover:bg-magenta-dark" href="{{ event.registration_link }}" target="_blank" rel="noopener">Register for this event</a>
+          {% endif %}
+        </div>
+      </article>
+
+      <aside aria-label="Event details">
+        <div class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-6">
+          <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">{{ event.get_status_display }}</span>
+          <h2 class="mt-3 text-lg font-semibold text-navy">Event details</h2>
+          <dl style="margin:18px 0 0;display:grid;gap:14px;font-size:14px">
+            <div>
+              <dt style="font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Date</dt>
+              <dd style="margin:4px 0 0;color:#011f5b">{{ event.date|date:"l, d F Y" }}</dd>
+            </div>
+            {% if event.start_time %}
+            <div>
+              <dt style="font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Time</dt>
+              <dd style="margin:4px 0 0;color:#011f5b">{{ event.start_time|date:"H:i" }}{% if event.end_time %} – {{ event.end_time|date:"H:i" }}{% endif %}</dd>
+            </div>
+            {% endif %}
+            <div>
+              <dt style="font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Venue</dt>
+              <dd style="margin:4px 0 0;color:#011f5b">{{ event.venue|default:"To be confirmed" }}{% if event.city %}, {{ event.city }}{% endif %}</dd>
+            </div>
+            {% if event.organizer %}
+            <div>
+              <dt style="font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8">Organiser</dt>
+              <dd style="margin:4px 0 0;color:#011f5b">{{ event.organizer }}</dd>
+            </div>
+            {% endif %}
+          </dl>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-azure px-6 py-3 text-white hover:bg-azure/90" href="{% url 'website:contact' %}">Ask a question</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="relative overflow-hidden bg-navy py-20">
+  <div class="mx-auto max-w-6xl px-5 text-center">
+    <span class="text-xs font-semibold uppercase tracking-widest text-amber">More from GHDI</span>
+    <h2 class="mt-2 text-3xl font-bold text-white md:text-4xl" style="font-family:'Sora',sans-serif">See our programs and results</h2>
+    <div>
+      <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-magenta px-6 py-3 text-white shadow-soft hover:bg-magenta-dark" href="{% url 'website:programs' %}">Our programs</a>
+      <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-white/40 bg-white/10 px-6 py-3 text-white backdrop-blur hover:bg-white/20" href="{% url 'website:impact' %}">Our impact</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ object.reference }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Transaction {{ object.reference }}</h1>
+    <p class="sub">{{ object.get_direction_display }} &middot; {{ object.date|date:"d M Y" }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'finance:transaction_list' %}">&larr; All transactions</a>
+  </div>
+</div>
+
+<div class="card" style="max-width:860px">
+  <div class="card-head">
+    <h3>Details</h3>
+    <span class="badge status-{{ object.status }}">{{ object.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    <div class="detail-list">
+      <div class="detail-item"><div class="k">Amount</div><div class="v">{{ object.amount|cur_full }}</div></div>
+      <div class="detail-item"><div class="k">Direction</div><div class="v">{{ object.get_direction_display }}</div></div>
+      <div class="detail-item"><div class="k">Account</div><div class="v">{{ object.account|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Program</div><div class="v">{{ object.program|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Project</div><div class="v">{{ object.project|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Donor</div><div class="v">{{ object.donor|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Payment method</div><div class="v">{{ object.get_payment_method_display }}</div></div>
+      <div class="detail-item"><div class="k">Requested by</div><div class="v">{{ object.requested_by|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Description</div><div class="v">{{ object.description }}</div></div>
+      {% if object.review_note %}<div class="detail-item"><div class="k">Review note</div><div class="v">{{ object.review_note }}</div></div>{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if perms.finance.approve_payment and object.is_pending %}
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-head"><h3>Approval workflow</h3></div>
+  <div class="card-body">
+    <form method="post" action="{% url 'finance:transaction_review' object.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="note">Note (optional)</label>
+        <textarea class="form-input" id="note" name="note" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        {% if object.status == "submitted" %}
+        <button class="btn btn-secondary" type="submit" name="action" value="review">Review</button>
+        {% endif %}
+      </div>
+    </form>
+    <form method="post" action="{% url 'finance:transaction_approve' object.pk %}">
+      {% csrf_token %}
+      <div class="form-actions" style="border-top:none;margin-top:0;padding-top:0">
+        <button class="btn btn-success" type="submit" data-confirm="Approve this transaction?">Approve</button>
+      </div>
+    </form>
+    <form method="post" action="{% url 'finance:transaction_reject' object.pk %}">
+      {% csrf_token %}
+      <div class="form-actions" style="border-top:none;margin-top:0;padding-top:0">
+        <button class="btn btn-danger" type="submit" name="note" value="{{ request.POST.reject_reason }}" data-confirm="Reject this transaction?">Reject</button>
+      </div>
+    </form>
+    {% if object.status == "approved" %}
+    <form method="post" action="{% url 'finance:transaction_pay' object.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit" data-confirm="Mark payment as completed?">Mark as paid</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% elif object.status == "approved" and perms.finance.approve_payment %}
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-body">
+    <form method="post" action="{% url 'finance:transaction_pay' object.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit" data-confirm="Mark payment as completed?">Mark as paid</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

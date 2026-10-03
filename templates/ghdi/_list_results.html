@@ -1,0 +1,62 @@
+{% load ghdi_extras %}
+{% comment %}
+Results block for GHDIListView: search form + table + pagination.
+Rendered as part of the full page so it works without JavaScript.
+{% endcomment %}
+<div id="list-results">
+  <form method="get" action="{{ request.get_full_path }}"
+        class="flex gap-2">
+    <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search..." aria-label="Search">
+    {% for key, value in request.GET.items %}{% if key != "q" and key != "page" and value %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
+    <button class="btn btn-secondary" type="submit">Search</button>
+  </form>
+
+  <div class="card-body flush">
+    {% if object_list %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              {% if object_list.0 %}{% for field in object_list.0|fieldnames %}<th>{{ field|humanize_code }}</th>{% endfor %}{% endif %}
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for obj in object_list %}
+            <tr>
+              {% if obj %}{% for value in obj|fieldvalues %}<td>{{ value }}</td>{% endfor %}{% endif %}
+              <td><div class="row-actions">
+                {% if obj.is_cms_page %}
+                  <a class="btn btn-secondary btn-sm" href="{% url 'cms:page_detail' obj.pk %}">View</a><a class="btn btn-secondary btn-sm" href="{% url 'cms:page_edit' obj.pk %}">Edit</a>
+                  {% if perms.cms.change_page %}{% if obj.status == "published" %}<form method="post" action="{% url 'cms:page_unpublish' obj.pk %}">{% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">Unpublish</button></form>{% else %}<form method="post" action="{% url 'cms:page_publish' obj.pk %}">{% csrf_token %}<button class="btn btn-primary btn-sm" type="submit">Publish</button></form>{% endif %}{% endif %}
+                  {% if perms.cms.delete_page %}<form method="post" action="{% url 'cms:page_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_cms_article %}
+                  <a class="btn btn-secondary btn-sm" href="{% url 'cms:news_detail' obj.pk %}">View</a><a class="btn btn-secondary btn-sm" href="{% url 'cms:news_edit' obj.pk %}">Edit</a>
+                  {% if perms.cms.publish_article %}{% if obj.status == "published" %}<form method="post" action="{% url 'cms:news_unpublish' obj.pk %}">{% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">Unpublish</button></form>{% else %}<form method="post" action="{% url 'cms:news_publish' obj.pk %}">{% csrf_token %}<button class="btn btn-primary btn-sm" type="submit">Publish</button></form>{% endif %}{% endif %}
+                  {% if perms.cms.delete_newsarticle %}<form method="post" action="{% url 'cms:news_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_cms_event %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:event_edit' obj.pk %}">Edit</a>{% if perms.cms.delete_event %}<form method="post" action="{% url 'cms:event_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_cms_impact %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:impact_edit' obj.pk %}">Edit</a>{% if perms.cms.delete_impactstat %}<form method="post" action="{% url 'cms:impact_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_cms_team_member %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:team_edit' obj.pk %}">Edit</a>{% if perms.cms.delete_teammember %}<form method="post" action="{% url 'cms:team_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_cms_partner %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:partner_edit' obj.pk %}">Edit</a>{% if perms.partners.delete_partner %}<form method="post" action="{% url 'cms:partner_delete' obj.pk %}" data-confirm="Delete this partner record?">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>{% endif %}
+                {% elif obj.is_carousel_slide %}<a class="btn btn-secondary btn-sm" href="{{ obj.get_absolute_url }}">Edit</a>
+                {% elif obj.is_organizational_document %}<a class="btn btn-secondary btn-sm" href="{{ obj.get_absolute_url }}">View</a><a class="btn btn-primary btn-sm" href="{% url 'documents:document_download' obj.pk %}">Download</a>
+                {% else %}<a class="btn btn-secondary btn-sm" href="{{ obj.get_absolute_url }}">View</a>{% endif %}
+                {% if obj.is_carousel_slide and perms.cms.delete_carouselslide %}
+                  <form method="post" action="{% url 'cms:carousel_delete' obj.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Delete</button></form>
+                {% endif %}
+              </div></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% if query %}
+        {% include "includes/empty_state.html" with title="No results" body="Nothing matched your search. Try different keywords or clear the search." %}
+      {% else %}
+        {% include "includes/empty_state.html" with title="Nothing here yet" body="Records created by your organization will appear here." %}
+      {% endif %}
+    {% endif %}
+  </div>
+  {% include "includes/pagination.html" %}
+</div>

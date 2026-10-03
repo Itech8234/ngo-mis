@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Bank Reconciliation{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Bank Reconciliation</h1><p class="sub">Compare book balances against bank statements</p></div>
+  <div class="actions"><a class="btn btn-primary" href="{% url 'finance:reconciliation_create' %}">New Reconciliation</a></div>
+</div>
+
+<div class="card">
+  <div class="card-body flush">
+    {% if items %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Period end</th>
+              <th>Book balance</th>
+              <th>Bank balance</th>
+              <th>Difference</th>
+              <th>By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>{{ item.account_name }}</td>
+              <td>{{ item.period_end|date:"d M Y" }}</td>
+              <td>${{ item.book_balance|floatformat:2 }}</td>
+              <td>${{ item.bank_balance|floatformat:2 }}</td>
+              <td><span class="badge {% if item.difference == 0 %}badge-green{% else %}badge-amber{% endif %}">${{ item.difference|floatformat:2 }}</span></td>
+              <td>{{ item.reconciled_by.get_full_name|default:item.reconciled_by }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% include "includes/empty_state.html" with title="No reconciliations yet" body="Record monthly bank reconciliations to track financial accuracy." %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

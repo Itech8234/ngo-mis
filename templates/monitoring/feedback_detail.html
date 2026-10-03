@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load ghdi_extras %}
+{% block content %}
+<div class="page-head"><div><h1>Feedback case {{ object.reference }}</h1><p class="sub">{{ object.get_category_display }} · {{ object.get_status_display }} · received {{ object.received_at|date:"d M Y" }}</p></div><div class="actions"><a class="btn btn-secondary" href="{% url 'monitoring:feedback_list' %}">All cases</a></div></div>
+<div class="grid-2">
+  <section class="card"><div class="card-head"><h3>Case details</h3><span class="badge {{ object.status|badge }}">{{ object.get_status_display }}</span></div><div class="card-body">
+    <div class="detail-list"><div class="detail-item"><div class="k">Channel</div><div class="v">{{ object.get_channel_display }}</div></div><div class="detail-item"><div class="k">Project</div><div class="v">{{ object.project|default:"—" }}</div></div><div class="detail-item"><div class="k">Reporter</div><div class="v">{% if object.is_anonymous %}Anonymous{% elif perms.beneficiaries.view_pii %}{{ object.reporter_name|default:"Not recorded" }}{% else %}Confidential{% endif %}</div></div>{% if perms.beneficiaries.view_pii and object.reporter_phone %}<div class="detail-item"><div class="k">Contact phone</div><div class="v">{{ object.reporter_phone }}</div></div>{% endif %}{% if perms.beneficiaries.view_pii and object.beneficiary %}<div class="detail-item"><div class="k">Beneficiary record</div><div class="v">{{ object.beneficiary.code }}</div></div>{% endif %}<div class="detail-item"><div class="k">Follow-up consent</div><div class="v">{% if object.consent_to_follow_up %}Yes{% else %}No{% endif %}</div></div></div>
+    <h4 class="h6 mt-4">Feedback</h4><p class="pre-wrap">{{ object.details }}</p>
+    {% if object.response %}<h4 class="h6 mt-4">Response / action taken</h4><p class="pre-wrap">{{ object.response }}</p>{% endif %}
+  </div></section>
+  {% if perms.monitoring.manage_feedbackcase and object.status != "closed" %}<section class="card"><div class="card-head"><h3>Update case</h3></div><div class="card-body"><form method="post" action="{% url 'monitoring:feedback_review' object.pk %}">{% csrf_token %}
+    <div class="form-group"><label class="form-label" for="case-status">Next status</label><select class="form-input" id="case-status" name="status">{% for value,label in review_form.status.field.choices %}<option value="{{ value }}" {% if review_form.status.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label class="form-label" for="case-response">Response / action note</label><textarea class="form-input" id="case-response" name="response" rows="5">{{ object.response }}</textarea><div class="form-hint">A resolution note is required before resolving or closing this case.</div></div>
+    <button class="btn btn-primary" type="submit">Save case update</button>
+  </form></div></section>{% endif %}
+</div>
+{% endblock %}

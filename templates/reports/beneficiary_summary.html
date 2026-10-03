@@ -1,0 +1,58 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">Total beneficiaries</div><div class="kpi-value">{{ total|num }}</div></div>
+  <div class="kpi"><div class="kpi-label">Boys / Men</div><div class="kpi-value">{{ male|default:"—" }}</div></div>
+  <div class="kpi"><div class="kpi-label">Girls / Women</div><div class="kpi-value">{{ female|default:"—" }}</div></div>
+</div>
+
+<div class="grid-3 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>By gender</h3></div>
+    <div class="card-body">
+      {% for g in by_gender %}<div class="metric-row"><span class="m-label">{{ g.gender|humanize_code }}</span><span class="m-value">{{ g.total }}</span></div>{% empty %}<div class="text-secondary text-sm">No data</div>{% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>By age group</h3></div>
+    <div class="card-body">
+      {% for a in by_age %}<div class="metric-row"><span class="m-label">{{ a.age_group|humanize_code }}</span><span class="m-value">{{ a.total }}</span></div>{% empty %}<div class="text-secondary text-sm">No data</div>{% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>By vulnerability</h3></div>
+    <div class="card-body">
+      {% for c in by_category %}<div class="metric-row"><span class="m-label">{{ c.vulnerability_category|humanize_code }}</span><span class="m-value">{{ c.total }}</span></div>{% empty %}<div class="text-secondary text-sm">No data</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Geographic reach</h3></div>
+  <div class="card-body">
+    {% for l in by_lga %}<div class="metric-row"><span class="m-label">{{ l.location__lga|default:"Unassigned" }}</span><span class="m-value">{{ l.total }}</span></div>{% empty %}<div class="text-secondary text-sm">No location data.</div>{% endfor %}
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Beneficiary register</h3></div>
+  <div class="card-body flush">
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Gender</th><th>Age group</th><th>Category</th><th>Location</th><th>Project</th></tr></thead>
+        <tbody>{% for r in rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" %}{% endif %}
+  </div>
+</div>
+{% endblock %}

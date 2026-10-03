@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h3>Donor portfolio</h3></div>
+  <div class="card-body flush">
+    {% if donors %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Donor</th><th>Type</th><th>Committed</th><th>Received</th><th>Spent</th><th>Grants</th></tr></thead>
+        <tbody>
+          {% for d in donors %}
+          <tr>
+            <td class="cell-main">{{ d.name }}</td>
+            <td>{{ d.get_donor_type_display }}</td>
+            <td>{{ d.total_funding|cur }}</td>
+            <td>{{ d.funds_received|cur }}</td>
+            <td>{{ d.funds_spent|cur }}</td>
+            <td>{{ d.grants.count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" with title="No donors" body="Donors will appear here once added." %}{% endif %}
+  </div>
+</div>
+{% endblock %}

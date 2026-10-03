@@ -1,0 +1,143 @@
+{% extends "base.html" %}{% load ghdi_extras charts %}
+{% block title %}Finance Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ greeting }}</h1>
+    <p class="sub">Your financial position at a glance.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{% url 'finance:budget_list' %}">Budgets</a>
+    <a class="btn btn-primary" href="{% url 'finance:transaction_create' %}">New transaction</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  {% include "includes/kpi.html" with label="Funds Received" value=kpis.income|cur icon="wallet" color="emerald" %}
+  {% include "includes/kpi.html" with label="Total Expenditure" value=kpis.expenditure|cur icon="pie" color="amber" %}
+  {% include "includes/kpi.html" with label="Available Balance" value=kpis.balance|cur icon="box" color="teal" %}
+  {% include "includes/kpi.html" with label="Total Budget" value=kpis.total_budget|cur icon="target" color="violet" %}
+  {% include "includes/kpi.html" with label="Budget Utilisation" value=kpis.utilisation|floatformat:0 icon="chart" color="blue" %}
+  {% include "includes/kpi.html" with label="Pending Payments" value=kpis.pending_payments|num icon="alert" color="amber" %}
+  {% include "includes/kpi.html" with label="Pending Approvals" value=kpis.pending_approvals|num icon="clock" color="red" %}
+  {% include "includes/kpi.html" with label="Outstanding Advances" value=kpis.advances_outstanding|cur icon="cart" color="amber" %}
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Income vs Expenditure (6 months)</h3></div>
+    <div class="card-body">
+      {% line_chart income_trend %}
+      <div class="chart-legend">
+        <span class="lg"><span class="swatch" style="background:#0d9488"></span>Income</span>
+        <span class="lg"><span class="swatch" style="background:#f59e0b"></span>Expenditure</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Budget vs Actual</h3></div>
+    <div class="card-body flush">
+      {% if budget_rows %}
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Budget</th><th>Planned</th><th>Actual</th><th>Utilisation</th></tr></thead>
+            <tbody>
+              {% for row in budget_rows %}
+              <tr>
+                <td class="cell-main truncate" style="max-width:160px">{{ row.budget.name }}</td>
+                <td>{{ row.amount|cur }}</td>
+                <td>{{ row.actual|cur }}</td>
+                <td><span class="badge {% if row.budget.utilisation > 95 %}badge-red{% elif row.budget.utilisation > 75 %}badge-amber{% else %}badge-green{% endif %}">{{ row.budget.utilisation|floatformat:0 }}%</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {% include "includes/empty_state.html" with title="No approved budgets" body="Approved budgets will appear here." %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- END-FIN-1 -->
+
+<div class="grid-3 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Expenses by Category</h3></div>
+    <div class="card-body">{% doughnut_chart category_data %}</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Spending by Project</h3></div>
+    <div class="card-body">
+      <div class="chart-bars" style="height:140px">
+        {% for label, value in project_spend %}
+          {% if value %}
+          <div class="chart-bar">
+            <span class="bar-value">{{ value|cur }}</span>
+            <div class="bar" style="height:{{ value|div:1000000|mul:100 }}%"></div>
+            <span class="bar-label">{{ label }}</span>
+          </div>
+          {% endif %}
+        {% empty %}
+          <div class="text-secondary text-sm">No project spending yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Funding by Donor</h3></div>
+    <div class="card-body">
+      <div class="chart-bars" style="height:140px">
+        {% for label, value in donor_funding %}
+          {% if value %}
+          <div class="chart-bar">
+            <span class="bar-value">{{ value|cur }}</span>
+            <div class="bar alt" style="height:{{ value|div:1000000|mul:100 }}%"></div>
+            <span class="bar-label">{{ label }}</span>
+          </div>
+          {% endif %}
+        {% empty %}
+          <div class="text-secondary text-sm">No donor funding data.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Pending Transactions</h3></div>
+    <div class="card-body flush">
+      {% for t in pending_txn %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ t.description|truncatechars:42 }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ t.reference }} · {{ t.amount|cur }} · {{ t.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ t.get_absolute_url }}">Review</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No transactions awaiting approval.</div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'finance:transaction_list' %}">All transactions &rarr;</a></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Outstanding Advances</h3></div>
+    <div class="card-body flush">
+      {% for a in advances %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ a.employee.full_name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ a.purpose|truncatechars:38 }} · Balance {{ a.balance|cur }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{% url 'finance:advance_list' %}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No outstanding advances.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% load ghdi_extras %}
+{% comment %}
+Pagination strip for GHDIListView. Expects `page_obj` and `request`.
+
+`query_params` already returns the leading "?" — include it exactly once per
+URL (writing `?{% query_params %}` produced "??page=2", which Django parsed
+with the key "?page", silently reloading page 1).
+
+Links are ordinary full-page navigations that carry the current query string,
+so active filters survive paging.
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="pagination" aria-label="Pagination">
+  {% if page_obj.has_previous %}
+    <a class="page-link" href="{% query_params request page=page_obj.previous_page_number %}" aria-label="Previous page">&laquo;</a>
+  {% else %}
+    <span class="page-link disabled" aria-disabled="true">&laquo;</span>
+  {% endif %}
+  {% for num in page_obj.paginator.page_range %}
+    {% if num == page_obj.number %}
+      <span class="page-link current" aria-current="page">{{ num }}</span>
+    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"4" %}
+      <a class="page-link" href="{% query_params request page=num %}">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+    <a class="page-link" href="{% query_params request page=page_obj.next_page_number %}" aria-label="Next page">&raquo;</a>
+  {% else %}
+    <span class="page-link disabled" aria-disabled="true">&raquo;</span>
+  {% endif %}
+</nav>
+{% endif %}

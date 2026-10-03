@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Record Attendance{% endblock %}
+{% block content %}
+{% url 'hr:attendance_list' as cancel_url %}
+<div class="page-head">
+  <div><h1>Record Attendance</h1><p class="sub">Record today’s staff attendance. The date is set automatically.</p></div>
+</div>
+<div class="card">
+  <div class="card-body">
+    <p class="form-hint" style="margin-bottom:1rem">Attendance date: <strong>{{ today_date|date:"l, d M Y" }}</strong></p>
+    {% include "includes/form.html" with submit_label="Save attendance record" cancel_url=cancel_url %}
+  </div>
+</div>
+{% endblock %}

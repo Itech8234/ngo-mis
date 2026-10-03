@@ -1,0 +1,156 @@
+{% extends "base.html" %}{% load ghdi_extras charts %}
+{% block title %}Program Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--programs">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">Program delivery</span>
+    <h1>{{ greeting }}</h1><p>Track implementation progress, field activities, outcomes and project risk.</p>
+  </div>
+  <div class="dashboard-hero__actions">
+    <a class="btn btn-secondary" href="{% url 'programs:activity_list' %}">Activities</a>
+    <a class="btn btn-primary" href="{% url 'programs:project_create' %}">New project</a>
+  </div>
+</section>
+
+<div class="kpi-grid dashboard-kpis">
+  {% include "includes/kpi.html" with label="Active Projects" value=kpis.projects|num icon="briefcase" color="teal" %}
+  {% include "includes/kpi.html" with label="Activities" value=kpis.activities|num icon="activity" color="blue" %}
+  {% include "includes/kpi.html" with label="Completed Activities" value=kpis.completed_activities|num icon="check" color="emerald" %}
+  {% include "includes/kpi.html" with label="Delayed" value=kpis.delayed|num icon="alert" color="red" %}
+  {% include "includes/kpi.html" with label="Beneficiaries" value=kpis.beneficiaries|num icon="users" color="teal" %}
+  {% include "includes/kpi.html" with label="Budget" value=kpis.budget|cur icon="wallet" color="violet" %}
+  {% include "includes/kpi.html" with label="Spent" value=kpis.spent|cur icon="pie" color="amber" %}
+  {% include "includes/kpi.html" with label="Budget Utilisation" value=kpis.utilisation|floatformat:0 icon="target" color="blue" %}
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Project Progress</h3></div>
+    <div class="card-body flush">
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Project</th><th>Program</th><th>Progress</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for p in projects %}
+            <tr>
+              <td><a class="cell-main" href="{{ p.get_absolute_url }}">{{ p.name }}</a><div class="cell-sub">{{ p.code }}</div></td>
+              <td>{{ p.program.title|truncatechars:26 }}</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="progress" style="width:56px"><div class="progress-bar {% if p.completion > 90 %}green{% elif p.completion < 30 and p.status == 'active' %}amber{% else %}green{% endif %}" style="width:{{ p.completion }}%"></div></div>
+                  <span class="text-xs">{{ p.completion }}%</span>
+                </div>
+              </td>
+              <td><span class="badge status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Upcoming Activities</h3></div>
+    <div class="card-body flush">
+      {% for a in upcoming %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ a.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ a.start_date|date:"d M Y" }} · {{ a.project.name|truncatechars:28 }} · {{ a.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ a.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No upcoming activities.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- END-PROG-1 -->
+
+<div class="grid-3 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Projects at Risk</h3></div>
+    <div class="card-body flush">
+      {% for p in at_risk %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ p.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">Ends {{ p.end_date|date:"d M Y" }}</div>
+          </div>
+          <a class="btn btn-secondary btn-sm" href="{{ p.get_absolute_url }}">Review</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No projects at risk. <span class="badge badge-green">All good</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Delayed Activities</h3></div>
+    <div class="card-body flush">
+      {% for a in delayed %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ a.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">Due {{ a.end_date|date:"d M Y" }} · {{ a.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ a.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No delayed activities.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Indicators Below Target</h3></div>
+    <div class="card-body flush">
+      {% for i in below_indicators %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ i.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ i.current|floatformat:0 }} / {{ i.target|floatformat:0 }} · {{ i.achievement|floatformat:0 }}%</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ i.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">All indicators on track. <span class="badge badge-green">On target</span></div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'monitoring:indicator_list' %}">All indicators &rarr;</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>My Open Tasks</h3></div>
+    <div class="card-body flush">
+      {% for t in open_tasks %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ t.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{% if t.is_overdue %}<span class="badge badge-red">Overdue</span>{% endif %} Due {{ t.due_date|date:"d M Y"|default:"anytime" }} · {{ t.get_priority_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ t.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No open tasks assigned to you.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Announcements</h3></div>
+    <div class="card-body flush">
+      {% for a in announcements %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ a.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }} · {{ a.get_audience_display }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No announcements.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

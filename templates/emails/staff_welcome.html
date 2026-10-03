@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f3f6fa;font-family:Arial,sans-serif;color:#243247">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 12px;background:#f3f6fa">
+      <tr><td align="center">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border-radius:12px;overflow:hidden">
+          <tr><td style="padding:24px 32px;border-bottom:1px solid #e7edf4">
+            <img src="{{ logo_url }}" alt="GHDI" width="150" style="display:block;max-width:150px;height:auto">
+          </td></tr>
+          <tr><td style="padding:32px">
+            <p style="margin:0 0 8px;color:#a32661;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase">Staff account</p>
+            <h1 style="margin:0 0 16px;color:#092c59;font-size:25px">Welcome, {{ full_name }}</h1>
+            <p style="font-size:15px;line-height:1.6">Your GHDI account is ready. Set a password with the secure link below, then sign in using your email address.</p>
+            <p style="margin:24px 0"><a href="{{ setup_url }}" style="display:inline-block;padding:13px 22px;border-radius:6px;background:#a32661;color:#fff;text-decoration:none;font-weight:bold">Set up your password</a></p>
+            <table role="presentation" cellspacing="0" cellpadding="5" style="margin:20px 0;font-size:14px">
+              <tr><td style="color:#65748a">Email</td><td>{{ email }}</td></tr>
+              {% if job_title %}<tr><td style="color:#65748a">Position</td><td>{{ job_title }}</td></tr>{% endif %}
+              <tr><td style="color:#65748a">Staff ID</td><td>{{ employee_id }}</td></tr>
+              <tr><td style="color:#65748a">Department</td><td>{{ department }}</td></tr>
+            </table>
+            <p style="font-size:14px;line-height:1.6">The setup link is single-use and expires automatically. Do not share it. If you did not expect this account, contact your GHDI administrator.</p>
+            <p style="font-size:14px">Login page: <a href="{{ login_url }}" style="color:#1469a8">{{ login_url }}</a></p>
+          </td></tr>
+          <tr><td style="padding:18px 32px;background:#092c59;color:#e8eef7;font-size:12px;line-height:1.5">Garkuwa Humanitarian and Development Initiative<br>Secure staff access</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>

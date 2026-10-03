@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Audit log</h1><p class="sub">Immutable trail of security- and business-relevant events</p></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="/app/audit/export/" {% if not perms.accounts.export_report %}title="Export requires permission"{% endif %}>Export CSV</a>
+  </div>
+</div>
+
+<form method="get" class="flex gap-2 mb-4">
+  <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search user, object..." aria-label="Search">
+  <select class="form-input" name="module" style="max-width:200px" aria-label="Filter by module">
+    <option value="">All modules</option>
+    {% for m in modules %}<option value="{{ m }}" {% if module == m %}selected{% endif %}>{{ m|title }}</option>{% endfor %}
+  </select>
+  <select class="form-input" name="action" style="max-width:200px" aria-label="Filter by action">
+    <option value="">All actions</option>
+    {% for value, label in actions %}<option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-secondary" type="submit">Filter</button>
+</form>
+
+<div class="card">
+  <div class="card-body flush">
+    {% if entries %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>When</th><th>User</th><th>Action</th><th>Module</th><th>Object</th><th>IP</th></tr></thead>
+          <tbody>
+            {% for e in entries %}
+            <tr>
+              <td>{{ e.created_at|date:"d M Y H:i" }}</td>
+              <td>{{ e.username|default:"System" }}</td>
+              <td><span class="badge {{ e.action_badge }}">{{ e.get_action_display }}</span></td>
+              <td>{{ e.module|default:"—" }}</td>
+              <td>{{ e.object_repr|truncatechars:44 }}</td>
+              <td>{{ e.ip_address|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% include "includes/empty_state.html" with title="No audit entries" body="Security and business events will be recorded here." %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

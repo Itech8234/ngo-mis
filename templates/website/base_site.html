@@ -1,0 +1,171 @@
+{% load ghdi_extras %}
+{% load static ghdi_extras %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ ghdi_org_name }}{% endblock %}</title>
+<script>
+  // Apply the persisted colour scheme before first paint to avoid a flash.
+  (function () {
+    try {
+      var t = localStorage.getItem('ghdi-theme');
+      if (!t) {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-bs-theme', t);
+    } catch (e) { /* storage disabled */ }
+  })();
+</script>
+{% block seo %}
+<meta name="description" content="{{ ghdi_org.tagline|default:'GHDI is a humanitarian and development NGO protecting and empowering vulnerable communities in Yobe State, Nigeria.' }}">
+<meta property="og:title" content="{{ ghdi_org_name }}">
+<meta property="og:description" content="{{ ghdi_org.tagline|default:'Humanitarian and development NGO - Nigeria.' }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+<meta name="theme-color" content="#011F5B">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="{% static 'img/garkuwa_logo.png' %}" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-site.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-hero-polish.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-premium.css' %}">
+<link rel="stylesheet" href="{% static 'css/ghdi-compat.css' %}">
+<link rel="stylesheet" href="{% static 'css/navigation-loader.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% block extra_css %}{% endblock %}
+</head>
+<body class="h-full" data-bs-theme="light">
+{% include "includes/navigation_loader.html" %}
+<a class="ghdi-skip" href="#main">Skip to content</a>
+
+<header class="ghdi-topbar{% block topbar_overlay %}{% endblock %}" id="siteTopbar">
+  <nav class="ghdi-topbar__inner" aria-label="Main navigation">
+    <a href="{% url 'website:home' %}" class="ghdi-brand" aria-label="{{ ghdi_org_name }} home">
+      {% with logo_url=ghdi_org.logo|file_url %}
+      {% if logo_url %}
+      <img src="{{ logo_url }}" alt="{{ ghdi_org_name }} logo" class="ghdi-brand__logo">
+      {% else %}
+      <span class="ghdi-brand__mark" role="img" aria-label="{{ ghdi_org_name }} logo placeholder">{{ ghdi_acronym|slice:":3" }}</span>
+      {% endif %}
+      {% endwith %}
+    </a>
+
+    <div class="ghdi-menu d-none d-xl-flex">
+      {% for item in site_nav %}{% if item.primary and item.url != '/donate/' %}
+      <a href="{{ item.url }}" class="ghdi-menu__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      {% endif %}{% endfor %}
+    </div>
+
+    <a class="btn ghdi-btn-magenta ms-auto d-none d-xl-inline-flex" href="{% url 'website:donate' %}">Donate</a>
+    <a class="ghdi-menu__link d-none d-xl-inline-flex" href="{% url 'accounts:login' %}">Staff login</a>
+
+    <button class="ghdi-burger" type="button" data-bs-toggle="offcanvas" data-bs-target="#siteDrawer" aria-controls="siteDrawer" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </nav>
+</header>
+
+<div class="offcanvas offcanvas-start ghdi-drawer" tabindex="-1" id="siteDrawer" aria-label="Mobile navigation">
+  <div class="ghdi-drawer__head">
+    <span class="ghdi-brand__mark" aria-hidden="true">{{ ghdi_acronym|slice:":3" }}</span>
+    <div class="flex-grow-1">
+      <div class="ghdi-brand__name">{{ ghdi_acronym }}</div>
+      <div class="ghdi-brand__sub">Humanitarian &amp; Dev. Initiative</div>
+    </div>
+    <button type="button" class="ghdi-drawer__close" data-bs-dismiss="offcanvas" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="ghdi-drawer__body">
+    {% for item in site_nav %}{% if item.url != '/donate/' %}
+    <a href="{{ item.url }}" class="ghdi-drawer__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+    {% endif %}{% endfor %}
+    <a href="{% url 'website:leadership' %}" class="ghdi-drawer__link">Leadership</a>
+    <a href="{% url 'website:careers' %}" class="ghdi-drawer__link">Careers</a>
+    <a href="{% url 'website:governance' %}" class="ghdi-drawer__link">Governance</a>
+    {% for p in nav_pages %}<a href="{% url 'website:page_detail' p.slug %}" class="ghdi-drawer__link">{{ p.title }}</a>{% endfor %}
+    <a href="{% url 'accounts:login' %}" class="ghdi-drawer__link">Staff portal</a>
+    <a class="ghdi-drawer__cta" href="{% url 'website:donate' %}">Donate</a>
+  </div>
+</div>
+
+<main id="main">
+{% if messages %}
+<div class="mx-auto max-w-6xl px-5" role="status" aria-live="polite">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}" data-ghdi-autodismiss>
+    <div>{{ message }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% block content %}{% endblock %}
+</main>
+<!-- FOOTER -->
+<footer class="ghdi-footer">
+  <div class="ghdi-footer__inner">
+    <div>
+      <a href="{% url 'website:home' %}" aria-label="{{ ghdi_org_name }} home" style="display:inline-flex;align-items:center;gap:12px;text-decoration:none">
+        {% with logo_url=ghdi_org.logo|file_url %}
+        {% if logo_url %}
+        <img src="{{ logo_url }}" alt="{{ ghdi_org_name }} logo" class="ghdi-brand__logo">
+        {% else %}
+        <span class="ghdi-brand__mark" role="img" aria-label="{{ ghdi_org_name }} logo placeholder">{{ ghdi_acronym|slice:":3" }}</span>
+        {% endif %}
+        {% endwith %}
+        <span class="ghdi-footer__title mb-2">{{ ghdi_acronym }}</span>
+      </a>
+      <p class="ghdi-footer__text">{{ ghdi_org.tagline|default:"Protecting and empowering vulnerable communities in Yobe State." }}</p>
+      {% if ghdi_org.registration_number %}
+      <p class="ghdi-footer__text">{{ ghdi_org.registration_number }}</p>
+      {% endif %}
+    </div>
+    <nav aria-label="Explore">
+      <p class="ghdi-footer__title">Explore</p>
+      <ul class="ghdi-footer__links">
+        {% for item in site_nav %}{% if item.primary and item.url != '/donate/' %}
+        <li><a href="{{ item.url }}">{{ item.label }}</a></li>
+        {% endif %}{% endfor %}
+        <li><a href="{% url 'website:stories' %}">Stories</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Organisation">
+      <p class="ghdi-footer__title">Organisation</p>
+      <ul class="ghdi-footer__links">
+        <li><a href="{% url 'website:about' %}">About us</a></li>
+        <li><a href="{% url 'website:leadership' %}">Leadership</a></li>
+        <li><a href="{% url 'website:governance' %}">Governance</a></li>
+        <li><a href="{% url 'website:partners' %}">Partners</a></li>
+        <li><a href="{% url 'website:careers' %}">Careers</a></li>
+        {% for p in nav_pages %}<li><a href="{% url 'website:page_detail' p.slug %}">{{ p.title }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+    <div>
+      <p class="ghdi-footer__title">Contact</p>
+      <p class="ghdi-footer__text">{{ ghdi_org.address|default:"Damaturu, Yobe State, Nigeria" }}</p>
+      <p class="ghdi-footer__text"><a href="mailto:{{ ghdi_org.email|default:'info@ghdi.org.ng' }}">{{ ghdi_org.email|default:"info@ghdi.org.ng" }}</a></p>
+      <p class="ghdi-footer__text"><a href="tel:{{ ghdi_org.phone|default:'+2348000000000' }}">{{ ghdi_org.phone|default:"+234 800 000 0000" }}</a></p>
+      <p class="ghdi-footer__text"><a class="fw-bold" href="{% url 'website:donate' %}">Donate</a><span class="ms-2" aria-hidden="true">·</span><a class="ms-2" href="{% url 'website:contact' %}">Contact us</a></p>
+    </div>
+  </div>
+  <div class="ghdi-footer__bottom">
+    <span>© {% now "Y" %} {{ ghdi_org_name }}. All rights reserved.</span>
+    <span><a href="{% url 'website:privacy' %}">Privacy policy</a><span class="ms-2 me-2" aria-hidden="true">·</span><a href="{% url 'website:terms' %}">Terms of use</a><span class="ms-2 me-2" aria-hidden="true">·</span><a href="{% url 'accounts:login' %}">Staff login</a></span>
+  </div>
+</footer>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/ghdi-ui.js' %}"></script>
+<script src="{% static 'js/ghdi-site.js' %}" defer></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">Total employees</div><div class="kpi-value">{{ total|num }}</div></div>
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>By department</h3></div>
+    <div class="card-body">
+      {% for d in by_department %}
+        <div class="metric-row"><span class="m-label">{{ d.department__name|default:"Unassigned" }}</span><span class="m-value">{{ d.total }}</span></div>
+      {% empty %}<div class="text-secondary text-sm">No data</div>{% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>By employment type</h3></div>
+    <div class="card-body">
+      {% for t in by_type %}
+        <div class="metric-row"><span class="m-label">{{ t.employment_type|humanize_code }}</span><span class="m-value">{{ t.total }}</span></div>
+      {% empty %}<div class="text-secondary text-sm">No data</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Staff list</h3></div>
+  <div class="card-body flush">
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>ID</th><th>Name</th><th>Position</th><th>Department</th><th>Type</th><th>Hire date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" %}{% endif %}
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Recent leave requests</h3></div>
+  <div class="card-body flush">
+    {% for l in leave_rows %}
+      <div class="feed-item">
+        <div class="feed-body"><div class="feed-title">{{ l.employee.full_name }} — {{ l.leave_type }}</div><div class="feed-meta">{{ l.start_date|date:"d M Y" }} – {{ l.end_date|date:"d M Y" }} · {{ l.get_status_display }}</div></div>
+      </div>
+    {% empty %}<div class="text-secondary text-sm" style="padding:20px">No leave records.</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

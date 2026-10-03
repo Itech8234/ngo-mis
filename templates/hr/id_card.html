@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static ghdi_extras %}
+{% block title %}Staff ID card — {{ ghdi_org_name }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ghdi-id-card.css' %}">
+{% endblock %}
+{% block content %}
+<div class="idcard-wrap">
+  <div class="idcard-toolbar">
+    <div><h1 class="h4 mb-1">Staff ID card</h1><p class="text-secondary mb-0">Print this page or choose “Save as PDF” in your print dialog.</p></div>
+    <div class="d-flex gap-2"><a class="btn btn-secondary" href="{% url 'hr:employee_detail' employee.pk %}">Back to profile</a><a class="btn btn-secondary" href="{% url 'hr:employee_id_card_pdf' employee.pk %}">Download PDF</a><button class="btn btn-primary" type="button" onclick="window.print()">Print cards</button></div>
+  </div>
+  <article class="idcard" aria-label="Front of {{ employee.full_name }} staff identity card">
+    <div class="idcard__bar"></div>
+    <header class="idcard__head">
+      {% if ghdi_org.logo|file_url %}<img class="idcard__logo" src="{{ ghdi_org.logo|file_url }}" alt="{{ ghdi_org.name }} logo">{% else %}<img class="idcard__logo" src="{% static 'img/garkuwa_logo.png' %}" alt="GHDI logo">{% endif %}
+      <div class="idcard__org">{{ ghdi_org_name }}<br>STAFF IDENTIFICATION</div>
+    </header>
+    <div class="idcard__body">
+      {% if employee.photo|file_url %}<img class="idcard__photo" src="{{ employee.photo|file_url }}" alt="Photo of {{ employee.full_name }}">{% else %}<div class="idcard__initials" aria-hidden="true">{{ employee.first_name|slice:":1" }}{{ employee.last_name|slice:":1" }}</div>{% endif %}
+      <div>
+        <h2 class="idcard__name">{{ employee.full_name }}</h2>
+        <p class="idcard__position">{{ employee.position }}</p>
+        <div class="idcard__meta">Department: {{ employee.department.name|default:"To be assigned" }}<br>Employed: {{ employee.hire_date|date:"d M Y"|default:"—" }}<br>Valid: {% if employee.contract_end %}through {{ employee.contract_end|date:"d M Y" }}{% else %}while employed{% endif %}</div>
+      </div>
+    </div>
+    <div class="idcard__id">{{ employee.employee_id }}</div>
+  </article>
+  <article class="idcard idcard--back" aria-label="Back of {{ employee.full_name }} staff identity card">
+    <div class="idcard__bar"></div>
+    <h2 class="idcard__back-title">GHDI Staff Identification</h2>
+    <p class="idcard__back-copy">This card belongs to the staff member named on the front. If found, please return it to {{ ghdi_org_name }}.</p>
+    {% if ghdi_org.phone %}<p class="idcard__back-copy mb-1">Telephone: {{ ghdi_org.phone }}</p>{% endif %}
+    {% if ghdi_org.email %}<p class="idcard__back-copy mb-1">Email: {{ ghdi_org.email }}</p>{% endif %}
+    <img class="idcard__qr" src="data:image/png;base64,{{ qr_data }}" alt="QR code containing staff ID only">
+    <div class="idcard__back-footer">This card confirms organizational affiliation only. It does not grant access to restricted premises or information.</div>
+  </article>
+</div>
+{% endblock %}

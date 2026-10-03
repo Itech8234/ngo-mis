@@ -1,0 +1,13 @@
+{% load ghdi_extras %}
+{% for n in notifications %}
+  <a class="dropdown-item" href="{{ n.url|default:'/app/notifications/' }}" {% if not n.is_read %}style="background:var(--ghdi-primary-soft)"{% endif %}>
+    <span class="dot {% if n.is_read %}is-read{% else %}is-unread{% endif %}"></span>
+    <div style="min-width:0">
+      <div class="t">{{ n.title }}</div>
+      <div class="b truncate">{{ n.body|truncatechars:90 }}</div>
+      <div class="time">{{ n.created_at|timesince }} ago</div>
+    </div>
+  </a>
+{% empty %}
+  <div class="dropdown-item"><span class="b">You're all caught up.</span></div>
+{% endfor %}

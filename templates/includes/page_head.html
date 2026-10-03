@@ -1,0 +1,17 @@
+{% comment %}
+Shared page header. Usage:
+{% include "includes/page_head.html" with title="Employees" sub="All staff records" actions=... %}
+{% endcomment %}
+<div class="page-head">
+  <div>
+    <h1>{{ title|default:page_title }}</h1>
+    {% if sub %}<p class="sub">{{ sub }}</p>{% endif %}
+  </div>
+  {% if actions %}
+  <div class="actions">
+    {% for action in actions %}
+      {% if action.0 %}<a class="btn btn-primary" href="{{ action.0 }}">{{ action.1 }}</a>{% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,48 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Programs</h3></div>
+  <div class="card-body flush">
+    <div class="grid-3">
+      {% for p in programs %}
+        <div class="card">
+          <div class="card-body">
+            <div class="font-semibold">{{ p.title }}</div>
+            <div class="text-xs text-muted">{{ p.code }} · {{ p.get_status_display }}</div>
+            <div class="mt-2 text-sm text-secondary">{{ p.projects.count }} project(s) · {{ p.budget|cur }}</div>
+          </div>
+        </div>
+      {% empty %}<div class="text-secondary text-sm">No programs.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Activity status</h3></div>
+  <div class="card-body">
+    {% for a in activity_counts %}<div class="metric-row"><span class="m-label">{{ a.status|humanize_code }}</span><span class="m-value">{{ a.total }}</span></div>{% empty %}<div class="text-secondary text-sm">No activities.</div>{% endfor %}
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Projects</h3></div>
+  <div class="card-body flush">
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Project</th><th>Program</th><th>Donor</th><th>Budget</th><th>Spent</th><th>Completion</th><th>Status</th></tr></thead>
+        <tbody>{% for r in rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" %}{% endif %}
+  </div>
+</div>
+{% endblock %}

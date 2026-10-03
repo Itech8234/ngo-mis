@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}New Performance Review{% endblock %}
+{% block content %}
+{% url 'hr:performance_list' as cancel_url %}
+<div class="page-head">
+  <div><h1>New Performance Review</h1><p class="sub">Evaluate a staff member's performance</p></div>
+</div>
+<div class="card">
+  <div class="card-body">
+    {% include "includes/form.html" with submit_label="Save review" cancel_url=cancel_url %}
+  </div>
+</div>
+{% endblock %}

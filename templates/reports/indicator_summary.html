@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h3>Indicators</h3></div>
+  <div class="card-body flush">
+    {% if indicators %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Code</th><th>Indicator</th><th>Target</th><th>Current</th><th>Achievement</th><th>Unit</th></tr></thead>
+        <tbody>
+          {% for i in indicators %}
+          <tr>
+            <td>{{ i.code }}</td>
+            <td class="cell-main">{{ i.name }}</td>
+            <td>{{ i.target|floatformat:0 }}</td>
+            <td>{{ i.current|floatformat:0 }}</td>
+            <td><span class="badge {% if i.achievement < 70 %}badge-red{% elif i.achievement < 90 %}badge-amber{% else %}badge-green{% endif %}">{{ i.achievement|floatformat:0 }}%</span></td>
+            <td>{{ i.unit }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" with title="No indicators" body="Indicators will appear here once created." %}{% endif %}
+  </div>
+</div>
+{% endblock %}

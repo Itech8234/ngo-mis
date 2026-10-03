@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Performance Appraisals{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Performance Appraisals</h1><p class="sub">Staff performance review records</p></div>
+  <div class="actions"><a class="btn btn-primary" href="{% url 'hr:performance_create' %}">New Review</a></div>
+</div>
+
+<div class="card">
+  <div class="card-body flush">
+    {% if reviews %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Staff member</th>
+              <th>Period</th>
+              <th>Reviewer</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reviews %}
+            <tr>
+              <td><a class="link" href="{{ r.employee.get_absolute_url }}">{{ r.employee.full_name }}</a></td>
+              <td>{{ r.period }}</td>
+              <td>{{ r.reviewer.get_full_name|default:r.reviewer }}</td>
+              <td><span class="badge {% if r.status == 'completed' %}badge-green{% elif r.status == 'draft' %}badge-gray{% else %}badge-blue{% endif %}">{{ r.get_status_display }}</span></td>
+              <td>{{ r.created_at|date:"d M Y" }}</td>
+              <td>{% if perms.hr.change_performancereview %}<a class="btn btn-ghost btn-sm" href="{% url 'hr:performance_edit' r.pk %}">Edit</a>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% include "includes/empty_state.html" with title="No appraisals yet" body="Create a performance review to begin evaluating staff." %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

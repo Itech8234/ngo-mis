@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{{ title }} | GHDI Administration{% endblock %}
+{% block branding %}
+<div id="site-name" class="ghdi-admin-brand"><a href="{% url 'admin:index' %}"><span class="ghdi-admin-mark">G</span><span><strong>GHDI</strong><small>Management console</small></span></a></div>
+{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin-premium.css' %}">{% endblock %}

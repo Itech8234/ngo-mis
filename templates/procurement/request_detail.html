@@ -1,0 +1,100 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ object.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ object.title }}</h1>
+    <p class="sub">{{ object.get_status_display }} &middot; requested by {{ object.requested_by|default:"—" }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'procurement:request_list' %}">&larr; All requests</a>
+  </div>
+</div>
+
+<div class="card" style="max-width:860px">
+  <div class="card-head">
+    <h3>Request details</h3>
+    <span class="badge status-{{ object.status }}">{{ object.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    <div class="detail-list">
+      <div class="detail-item"><div class="k">Estimated cost</div><div class="v">{{ object.estimated_cost|cur }}</div></div>
+      <div class="detail-item"><div class="k">Quantity</div><div class="v">{{ object.quantity }}</div></div>
+      <div class="detail-item"><div class="k">Project</div><div class="v">{{ object.project|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Needed by</div><div class="v">{{ object.needed_by|date:"d M Y"|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Priority</div><div class="v"><span class="badge status-{{ object.priority }}">{{ object.get_priority_display }}</span></div></div>
+      <div class="detail-item"><div class="k">Selected vendor</div><div class="v">{{ object.selected_vendor|default:"—" }}</div></div>
+    </div>
+    {% if object.description %}<p class="mt-4 pre-wrap">{{ object.description }}</p>{% endif %}
+    {% if object.review_note %}<div class="alert alert-info mt-4">Review note: {{ object.review_note }}</div>{% endif %}
+  </div>
+</div>
+
+{% if perms.procurement.approve_request and object.status != "completed" and object.status != "rejected" and object.status != "cancelled" %}
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-head"><h3>Procurement decision</h3></div>
+  <div class="card-body">
+    <div class="form-group">
+      <label class="form-label" for="pnote">Note (optional)</label>
+      <input class="form-input" id="pnote" name="note" form="proc-form" value="">
+    </div>
+    <form id="proc-form" method="post" action="{% url 'procurement:request_review' object.pk %}">
+      {% csrf_token %}
+      {% if object.status == "submitted" %}<button class="btn btn-secondary" type="submit" name="action" value="review">Move to review</button>{% endif %}
+      {% if object.status == "submitted" or object.status == "under_review" %}
+      <button class="btn btn-success" type="submit" name="action" value="approve" data-confirm="Approve this procurement request?">Approve</button>
+      <button class="btn btn-danger" type="submit" name="action" value="reject" data-confirm="Reject this request?">Reject</button>
+      {% endif %}
+      {% if object.status == "approved" %}
+      <button class="btn btn-secondary" type="submit" name="action" value="procurement">Start procurement</button>
+      {% endif %}
+      {% if object.status == "procurement" %}<button class="btn btn-secondary" type="submit" name="action" value="purchase">Mark purchased</button>{% endif %}
+      {% if object.status == "purchased" %}<button class="btn btn-primary" type="submit" name="action" value="complete">Complete</button>{% endif %}
+      <button class="btn btn-ghost" type="submit" name="action" value="cancel" data-confirm="Cancel this request?">Cancel</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-head"><h3>Quotations</h3></div>
+  <div class="card-body flush">
+    {% for q in quotations %}
+      <div class="feed-item">
+        <div class="feed-body">
+          <div class="feed-title">{{ q.vendor.name }}</div>
+          <div class="feed-meta">{{ q.amount|cur }}{% if q.is_selected %} · <span class="badge badge-green">Selected</span>{% endif %}{% if q.notes %} · {{ q.notes }}{% endif %}</div>
+        </div>
+        {% if perms.procurement.add_quotation and object.status == "procurement" and not q.is_selected %}
+        <form method="post" action="{% url 'procurement:quotation_select' object.pk q.pk %}">{% csrf_token %}<button class="btn btn-secondary btn-sm" type="submit">Select quote</button></form>
+        {% endif %}
+      </div>
+    {% empty %}<div class="text-secondary text-sm" style="padding:20px">No quotations yet.</div>{% endfor %}
+  </div>
+  {% if perms.procurement.add_quotation and object.status == "procurement" %}
+  <div class="card-body border-top">
+    <h4 class="h6">Add vendor quotation</h4>
+    <form method="post" enctype="multipart/form-data" action="{% url 'procurement:quotation_add' object.pk %}">{% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label" for="quote-vendor">Vendor</label><select class="form-input" id="quote-vendor" name="vendor" required>{% for value,label in quotation_form.vendor.field.choices %}{% if value %}<option value="{{ value }}">{{ label }}</option>{% endif %}{% endfor %}</select></div>
+        <div class="form-group"><label class="form-label" for="quote-amount">Amount</label><input class="form-input" id="quote-amount" type="number" name="amount" min="0.01" step="0.01" required></div>
+        <div class="form-group"><label class="form-label" for="quote-document">Quotation document</label><input class="form-input" id="quote-document" type="file" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.jpg,.jpeg,.png"></div>
+        <div class="form-group"><label class="form-label" for="quote-notes">Notes</label><input class="form-input" id="quote-notes" name="notes" maxlength="255"></div>
+      </div><button class="btn btn-primary" type="submit">Save quotation</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% if perms.procurement.add_purchaseorder and object.status == "procurement" and selected_quotation %}
+<div class="card mt-4" style="max-width:860px"><div class="card-head"><h3>Create purchase order</h3></div><div class="card-body">
+  <form method="post" action="{% url 'procurement:po_create' object.pk %}">{% csrf_token %}
+    <input type="hidden" name="vendor" value="{{ selected_quotation.vendor_id }}">
+    <div class="form-grid"><div class="form-group"><label class="form-label">Selected vendor</label><input class="form-input" value="{{ selected_quotation.vendor.name }}" readonly></div>
+      <div class="form-group"><label class="form-label">Quoted amount</label><input class="form-input" type="number" name="amount" value="{{ selected_quotation.amount }}" step="0.01" readonly></div>
+      <div class="form-group"><label class="form-label" for="po-delivery">Expected delivery</label><input class="form-input" id="po-delivery" type="date" name="expected_delivery"></div>
+      <div class="form-group"><label class="form-label" for="po-notes">Notes</label><input class="form-input" id="po-notes" name="notes"></div></div>
+    <button class="btn btn-primary" type="submit">Create purchase order</button>
+  </form>
+</div></div>
+{% endif %}
+{% endblock %}

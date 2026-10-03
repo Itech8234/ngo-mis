@@ -1,0 +1,12 @@
+{% comment %}
+Empty state. Usage:
+{% include "includes/empty_state.html" with title="No projects yet" body="Projects created by your organization will appear here." action_url=... action_label="Create Project" %}
+{% endcomment %}
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+  </div>
+  <h3>{{ title|default:"Nothing here yet" }}</h3>
+  <p>{{ body|default:"Items created by your organization will appear here." }}</p>
+  {% if action_url %}<a class="btn btn-primary" href="{{ action_url }}">{{ action_label|default:"Create" }}</a>{% endif %}
+</div>

@@ -1,0 +1,83 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}Support GHDI — {{ ghdi_org_name }}{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker="Support our work" hero_title="Give with confidence" hero_intro="Your gift funds protection, education and community resilience for vulnerable people in northeast Nigeria — delivered by teams who live and work in the communities they serve." hero_cta_label="Talk to our team" hero_cta_url="/contact/" hero_cta2_label="See our impact" hero_cta2_url="/impact/" %}
+
+<section class="py-16 md:py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-start">
+
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Ways to give</span>
+        <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Choose the giving option that suits you</h2>
+        <p class="mt-4 leading-relaxed text-slate-500">Record your pledge below and our partnerships team will contact you with verified transfer details. We never collect card or bank credentials on this website.</p>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2">
+          {% for value, label in form.kind.field.choices %}
+          <article class="rounded-2xl bg-white p-6 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-azure">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl {% cycle 'bg-azure-soft text-azure' 'bg-magenta-soft text-magenta' 'bg-amber-soft text-amber' 'bg-navy-soft text-navy' %}">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.6a5 5 0 0 0-8.8-3.4A5 5 0 0 0 3.2 8.6c0 5.4 8.8 10.4 8.8 10.4s8.8-5 8.8-10.4z"/></svg>
+            </span>
+            <h3 class="mt-4 text-lg font-semibold text-navy">{{ label }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-500">
+              {% if value == 'one_off' %}A single gift that we can put to work immediately where the need is greatest.
+              {% elif value == 'monthly' %}Regular giving that lets us plan ahead and sustain long-term programs.
+              {% elif value == 'in_kind' %}Goods, materials, equipment, transport or professional services.
+              {% else %}Corporate social investment, employee giving and matched-funding partnerships.{% endif %}
+            </p>
+          </article>
+          {% endfor %}
+        </div>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-3">
+          <div class="rounded-2xl bg-navy-soft p-6">
+            <div class="text-2xl font-bold text-navy" style="font-family:'Sora',sans-serif">100%</div>
+            <p class="mt-1 text-sm text-slate-500">of pledges are acknowledged and tracked by our partnerships team.</p>
+          </div>
+          <div class="rounded-2xl bg-navy-soft p-6">
+            <div class="text-2xl font-bold text-navy" style="font-family:'Sora',sans-serif">M&amp;E led</div>
+            <p class="mt-1 text-sm text-slate-500">Every funded activity is measured against agreed indicators.</p>
+          </div>
+          <div class="rounded-2xl bg-navy-soft p-6">
+            <div class="text-2xl font-bold text-navy" style="font-family:'Sora',sans-serif">Reported</div>
+            <p class="mt-1 text-sm text-slate-500">Results are shared openly with donors, partners and communities.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft">
+        <h2 class="text-xl font-bold text-navy" style="font-family:'Sora',sans-serif">Record your pledge</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">Fill in your details and how you would like to support GHDI. Nothing is charged on this page.</p>
+
+        {% if messages %}
+        <div class="mt-6 rounded-xl bg-green/10 p-4 text-sm text-green">Thank you — your pledge has been recorded and our team will be in touch.</div>
+        {% endif %}
+
+        <form method="post" novalidate class="mt-6 space-y-5">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="form-hint">{{ field.help_text }}</p>{% endif %}
+            {% if field.errors %}<ul class="field-errors">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="w-full rounded-full bg-magenta px-8 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-magenta-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber">Submit pledge</button>
+          <p class="text-center text-xs leading-relaxed text-slate-400">GHDI does not collect payment credentials online. We will contact you with verified transfer details.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="relative overflow-hidden bg-navy py-20">
+  <div class="relative mx-auto max-w-6xl px-5 text-center">
+    <span class="text-xs font-semibold uppercase tracking-widest text-amber">Institutional giving</span>
+    <h2 class="mt-2 text-3xl font-bold text-white md:text-4xl" style="font-family:'Sora',sans-serif">Donors, trusts and foundations</h2>
+    <p class="mx-auto mt-4 max-w-xl leading-relaxed text-slate-200">We welcome restricted and unrestricted funding, and can provide program budgets, indicator frameworks and reporting to suit your requirements.</p>
+    <a class="mt-8 inline-block rounded-full bg-magenta px-8 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-magenta-dark" href="{% url 'website:contact' %}">Start a conversation</a>
+  </div>
+</section>
+{% endblock %}

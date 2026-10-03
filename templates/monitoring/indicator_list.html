@@ -1,0 +1,9 @@
+{% extends "ghdi/generic_list.html" %}
+{% block list_filters %}
+<form method="get" class="card-body d-flex flex-wrap align-items-end gap-3 mb-3" aria-label="Filter indicators">
+  <div class="form-group mb-0"><label class="form-label" for="indicator-performance">Performance</label><select class="form-input" id="indicator-performance" name="performance"><option value="">All</option>{% for value,label in performance_choices %}<option value="{{ value }}" {% if request.GET.performance == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="form-group mb-0"><label class="form-label" for="indicator-program">Program</label><select class="form-input" id="indicator-program" name="program"><option value="">All programs</option>{% for program in programs %}<option value="{{ program.pk }}" {% if request.GET.program == program.pk|stringformat:"s" %}selected{% endif %}>{{ program.title }}</option>{% endfor %}</select></div>
+  {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}<button class="btn btn-secondary" type="submit">Apply filters</button>
+  {% if request.GET.performance or request.GET.program or query %}<a class="btn btn-ghost" href="{% url 'monitoring:indicator_list' %}">Clear</a>{% endif %}
+</form>
+{% endblock %}

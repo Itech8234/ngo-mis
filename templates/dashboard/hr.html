@@ -1,0 +1,128 @@
+{% extends "base.html" %}{% load ghdi_extras charts %}
+{% block title %}HR Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--hr">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">People and culture</span>
+    <h1>{{ greeting }}</h1><p>Workforce health, staff support and recruitment in one view.</p>
+  </div>
+  <div class="dashboard-hero__actions">
+    <a class="btn btn-secondary" href="{% url 'hr:directory' %}">Directory</a>
+    <a class="btn btn-secondary" href="{% url 'hr:attendance_list' %}">Attendance</a>
+    <a class="btn btn-secondary" href="{% url 'hr:leave_balances' %}">Leave balances</a>
+    <a class="btn btn-primary" href="{% url 'hr:employee_create' %}">Add staff member</a>
+  </div>
+</section>
+
+<div class="kpi-grid dashboard-kpis">
+  {% include "includes/kpi.html" with label="Active Staff" value=kpis.total|num icon="users" color="teal" %}
+  {% include "includes/kpi.html" with label="On Leave Today" value=kpis.on_leave|num icon="calendar" color="amber" %}
+  {% include "includes/kpi.html" with label="New This Month" value=kpis.new_this_month|num icon="userplus" color="blue" %}
+  {% include "includes/kpi.html" with label="Contracts Expiring (60d)" value=kpis.contracts_expiring|num icon="alert" color="amber" %}
+  {% include "includes/kpi.html" with label="Open Vacancies" value=kpis.open_vacancies|num icon="briefcase" color="violet" %}
+  {% include "includes/kpi.html" with label="Applications" value=kpis.applications|num icon="mail" color="blue" %}
+  {% include "includes/kpi.html" with label="Attendance Today" value=kpis.attendance_today|num icon="calendar" color="teal" %}
+  {% include "includes/kpi.html" with label="Documents Expiring (30d)" value=kpis.documents_expiring|num icon="alert" color="amber" %}
+</div>
+
+<div class="card mt-6"><div class="card-head"><div><h3>Personnel documents expiring</h3><p class="sub">Files that need renewal within 30 days.</p></div><a class="btn btn-ghost" href="{% url 'hr:employee_list' %}">Staff records</a></div><div class="card-body flush">{% for document in documents_expiring %}<div class="feed-item"><div class="feed-body"><div class="feed-title">{{ document.title }} · {{ document.employee.full_name }}</div><div class="text-secondary">Expires {{ document.expires_at|date:"d M Y" }}</div></div><a class="btn btn-ghost btn-sm" href="{{ document.employee.get_absolute_url }}#personnel-files">Review file</a></div>{% empty %}<p class="muted" style="padding:1rem">No HR documents expire in the next 30 days.</p>{% endfor %}</div></div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Staff Distribution</h3></div>
+    <div class="card-body">
+      {% doughnut_chart department_data %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Employment Type</h3></div>
+    <div class="card-body">
+      {% doughnut_chart type_data %}
+    </div>
+  </div>
+</div>
+
+<!-- END-HR-1 -->
+
+<div class="grid-3 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Pending Leave Requests</h3></div>
+    <div class="card-body flush">
+      {% for leave in pending_leave %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ leave.employee.full_name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ leave.leave_type }} · {{ leave.start_date|date:"d M" }} – {{ leave.end_date|date:"d M" }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ leave.get_absolute_url }}">Review</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No leave requests awaiting review.</div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'hr:leave_list' %}">All leave requests &rarr;</a></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Contracts Expiring</h3></div>
+    <div class="card-body flush">
+      {% for emp in contracts_expiring %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ emp.full_name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">Ends {{ emp.contract_end|date:"d M Y" }} · {{ emp.contract_end|days_until }} days</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ emp.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No contracts expiring in the next 60 days.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Upcoming Birthdays</h3></div>
+    <div class="card-body flush">
+      {% for emp in upcoming_birthdays %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ emp.full_name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ emp.date_of_birth|date:"d M" }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No upcoming birthdays.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Recruitment Pipeline</h3></div>
+    <div class="card-body">
+      {% for label, count in pipeline %}
+        <div class="metric-row">
+          <span class="m-label">{{ label }}</span>
+          <span class="m-value">{{ count }}</span>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm">No applications yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Recent Training</h3></div>
+    <div class="card-body flush">
+      {% for t in trainings %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ t.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ t.start_date|date:"d M Y" }} · {{ t.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ t.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No training activities.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

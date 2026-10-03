@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}System settings{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>System settings</h1><p class="sub">Runtime configuration, notifications and security policy</p></div>
+</div>
+
+<div class="tabs mb-6">
+  <a class="tab" href="{% url 'core:settings_org' %}">Organization</a>
+  <span class="tab active">System</span>
+</div>
+
+<div class="card" style="max-width:860px">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {% for setting in settings_list %}
+        <div class="form-group">
+          <label class="form-label" for="s-{{ setting.key }}">{{ setting.key|title|cut:"" }}
+            {% if setting.description %}<span class="form-hint" style="display:block">{{ setting.description }}</span>{% endif %}
+          </label>
+          <input class="form-input" type="text" id="s-{{ setting.key }}" name="{{ setting.key }}" value="{{ setting.value }}">
+        </div>
+      {% empty %}
+        <p class="text-secondary text-sm">No system settings defined yet.</p>
+      {% endfor %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save settings</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+.idcard-wrap { width:min(100%,980px); margin:0 auto; }
+.idcard-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
+.idcard-toolbar h1 { color:#102b55; font-weight:800; letter-spacing:-.03em; }
+.idcard-toolbar .d-flex { flex-wrap:wrap; }
+.idcard {
+  position:relative; isolation:isolate; width:min(100%,570px); aspect-ratio:85.6/54; overflow:hidden;
+  margin:0 auto 28px; border:1px solid #d9e3ef; border-radius:22px; color:#102b55;
+  background:radial-gradient(ellipse at 100% 0%,#e8f3fb 0,transparent 37%),linear-gradient(135deg,#fff 0%,#fbfdff 56%,#f0f6fb 100%);
+  box-shadow:0 28px 65px -32px #092c5960,0 3px 10px #092c5914;
+}
+.idcard::after { position:absolute; z-index:-1; right:-13%; bottom:-42%; width:62%; aspect-ratio:1; border:1px solid #0b3a7412; border-radius:50%; content:""; box-shadow:0 0 0 18px #0b3a7405,0 0 0 38px #0b3a7404; }
+.idcard__bar { position:absolute; inset:0 0 auto; height:10px; background:linear-gradient(90deg,#092c59 0 72%,#a32661 72% 88%,#e8b849 88%); }
+.idcard__head { display:flex; height:25%; align-items:center; justify-content:space-between; gap:14px; padding:19px 25px 5px; }
+.idcard__logo { max-width:112px; max-height:36px; object-fit:contain; object-position:left center; }
+.idcard__org { max-width:62%; color:#092c59; font-size:clamp(9px,1.55vw,12px); font-weight:800; line-height:1.45; letter-spacing:.055em; text-align:right; text-transform:uppercase; }
+.idcard__body { display:grid; grid-template-columns:27% 1fr; align-items:center; gap:20px; padding:7px 25px 31px; }
+.idcard__photo,.idcard__initials { width:100%; aspect-ratio:4/5; border:3px solid #fff; border-radius:15px; background:#e6eef6; box-shadow:0 7px 20px #092c591c; object-fit:cover; }
+.idcard__initials { display:grid; place-items:center; color:#092c59; font-size:clamp(24px,5vw,36px); font-weight:850; }
+.idcard__name { margin:0 0 4px; color:#092c59; font-size:clamp(16px,3vw,25px); font-weight:850; letter-spacing:-.035em; line-height:1.15; }
+.idcard__position { margin:0 0 11px; color:#a32661; font-size:clamp(10px,1.8vw,14px); font-weight:700; }
+.idcard__meta { padding-left:10px; border-left:2px solid #e8b849; color:#50627a; font-size:clamp(8px,1.35vw,10.5px); line-height:1.65; }
+.idcard__id { position:absolute; right:25px; bottom:13px; color:#092c59; font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.12em; }
+.idcard--back { padding:29px 31px; border-color:#142f57; background:radial-gradient(ellipse at 100% 15%,#254b76 0,transparent 42%),linear-gradient(145deg,#092c59,#071f43 75%); color:#fff; }
+.idcard--back::after { right:-13%; bottom:-55%; border-color:#ffffff18; box-shadow:0 0 0 18px #ffffff07,0 0 0 38px #ffffff04; }
+.idcard--back .idcard__bar { height:10px; }
+.idcard__back-title { max-width:67%; margin:8px 0 14px; color:#fff; font-size:clamp(14px,2.5vw,19px); font-weight:800; letter-spacing:-.02em; }
+.idcard__back-copy { max-width:68%; margin:0 0 8px; color:#dbe5f0; font-size:clamp(9px,1.5vw,11px); line-height:1.6; }
+.idcard__qr { position:absolute; top:50%; right:25px; width:23%; max-width:108px; aspect-ratio:1; padding:7px; transform:translateY(-50%); border:1px solid #ffffff55; border-radius:13px; background:#fff; object-fit:contain; }
+.idcard__back-footer { position:absolute; right:31px; bottom:13px; left:31px; padding-top:8px; border-top:1px solid #ffffff30; color:#c6d3e2; font-size:8px; line-height:1.4; }
+@media(max-width:600px) {
+  .idcard-toolbar { align-items:flex-start; flex-direction:column; }
+  .idcard { border-radius:17px; }
+  .idcard__head { padding:15px 17px 4px; }
+  .idcard__body { gap:12px; padding:6px 17px 28px; }
+  .idcard__meta { line-height:1.5; }
+  .idcard__id { right:17px; bottom:10px; font-size:9px; }
+  .idcard--back { padding:23px 20px; }
+  .idcard__qr { right:17px; width:22%; padding:5px; }
+  .idcard__back-footer { right:20px; bottom:9px; left:20px; font-size:7px; }
+}
+@media print {
+  @page { size:A4 portrait; margin:15mm; }
+  body { background:#fff!important; }
+  .sidebar,.topbar,.bottom-nav,.drawer,.skip-link,.idcard-toolbar,.toast-stack { display:none!important; }
+  .app-shell,.app-main,.app-content { display:block!important; width:auto!important; margin:0!important; padding:0!important; }
+  .idcard-wrap { width:auto; max-width:none; }
+  .idcard { width:85.6mm; height:54mm; aspect-ratio:auto; margin:10mm auto; border-radius:3mm; box-shadow:none; break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}

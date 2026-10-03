@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Activity feed{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Activity feed</h1><p class="sub">Recent actions from across the organization</p></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{% url 'audit:log_list' %}" {% if not perms.audit.view_auditlog %}title="Audit log access is restricted"{% endif %}>Audit log</a>
+  </div>
+</div>
+
+<form method="get" class="flex gap-2 mb-4">
+  <select class="form-input" name="module" style="max-width:220px" aria-label="Filter by module">
+    <option value="">All modules</option>
+    {% for m in modules %}<option value="{{ m }}" {% if module == m %}selected{% endif %}>{{ m|title }}</option>{% endfor %}
+  </select>
+  <select class="form-input" name="action" style="max-width:220px" aria-label="Filter by action">
+    <option value="">All actions</option>
+    <option value="create" {% if action == "create" %}selected{% endif %}>Create</option>
+    <option value="update" {% if action == "update" %}selected{% endif %}>Update</option>
+    <option value="delete" {% if action == "delete" %}selected{% endif %}>Delete</option>
+    <option value="submit" {% if action == "submit" %}selected{% endif %}>Submit</option>
+    <option value="approve" {% if action == "approve" %}selected{% endif %}>Approve</option>
+    <option value="reject" {% if action == "reject" %}selected{% endif %}>Reject</option>
+    <option value="login" {% if action == "login" %}selected{% endif %}>Login</option>
+    <option value="logout" {% if action == "logout" %}selected{% endif %}>Logout</option>
+  </select>
+  <select class="form-input" name="days" style="max-width:160px" aria-label="Filter by period">
+    <option value="">Any time</option>
+    <option value="7" {% if days == "7" %}selected{% endif %}>Last 7 days</option>
+    <option value="30" {% if days == "30" %}selected{% endif %}>Last 30 days</option>
+    <option value="90" {% if days == "90" %}selected{% endif %}>Last 90 days</option>
+  </select>
+  <button class="btn btn-secondary" type="submit">Filter</button>
+</form>
+
+<div class="card">
+  <div class="card-body flush">
+    {% for entry in entries %}
+      <div class="feed-item">
+        <div class="feed-icon" style="background:var(--ghdi-gray-soft)"></div>
+        <div class="feed-body">
+          <div class="feed-title"><span class="badge {{ entry.action_badge }}">{{ entry.get_action_display }}</span> {{ entry.object_repr|truncatechars:70 }}</div>
+          <div class="feed-meta">{{ entry.username|default:"System" }} · {{ entry.created_at|date:"d M Y H:i" }} · {{ entry.module|default:"—" }}</div>
+        </div>
+      </div>
+    {% empty %}
+      {% include "includes/empty_state.html" with title="No activity yet" body="Actions from across the organization will appear here." %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

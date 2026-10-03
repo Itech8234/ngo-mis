@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Reports</h1><p class="sub">Organisational reporting hub — export ahead of donor and board deadlines</p></div>
+</div>
+
+<div class="grid-3">
+  {% for label, url, icon, desc in reports %}
+    <a href="{{ url }}" class="card" style="text-decoration:none;transition:transform .12s, box-shadow .12s">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="kpi-icon" style="background:var(--ghdi-primary-soft);color:var(--ghdi-primary);width:44px;height:44px;border-radius:12px;display:grid;place-items:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{% include "includes/icons.html" with name=icon %}</svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="font-semibold" style="font-size:15px">{{ label }}</div>
+            <div class="text-xs text-muted">{{ desc }}</div>
+          </div>
+        </div>
+      </div>
+    </a>
+  {% empty %}
+    {% include "includes/empty_state.html" with title="No reports available" body="Reports require the relevant module permissions." %}
+  {% endfor %}
+</div>
+{% endblock %}

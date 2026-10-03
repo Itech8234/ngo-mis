@@ -1,0 +1,47 @@
+{% load ghdi_extras %}
+{% comment %}
+Shared interior page hero band (2026 GHDI design system).
+
+Usage:
+  {% include "website/_page_hero.html" with hero_kicker="About us" hero_title=page.title hero_intro=page.summary hero_image=page.featured_image|file_url crop="46%" %}
+
+Optional: hero_parent_url / hero_parent_label (breadcrumb middle step),
+          hero_cta_label / hero_cta_url, hero_cta2_label / hero_cta2_url.
+{% endcomment %}
+<section class="position-relative overflow-hidden bg-primary text-white" style="background: linear-gradient(135deg, #011f5b 0%, #062d72 45%, #0a3d8f 100%); color: aliceblue;">
+  {% if hero_image %}
+  <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image:url('{{ hero_image }}');background-position:center {{ crop|default:'center' }};background-size:cover;opacity:.35;" aria-hidden="true"></div>
+  {% endif %}
+  <div class="position-absolute top-0 start-0 w-100 h-100" aria-hidden="true" style="background: linear-gradient(90deg, rgba(1,31,91,0.92) 0%, rgba(1,31,91,0.82) 42%, rgba(1,31,91,0.62) 100%);"></div>
+
+  <div class="container position-relative py-5 py-lg-5">
+    <nav aria-label="Breadcrumb" class="d-flex flex-wrap align-items-center gap-2 small text-white-50">
+      <a class="text-white-50 text-decoration-none" href="{% url 'website:home' %}">Home</a>
+      <span aria-hidden="true">/</span>
+      {% if hero_parent_url %}<a class="text-white-50 text-decoration-none" href="{{ hero_parent_url }}">{{ hero_parent_label }}</a><span aria-hidden="true">/</span>{% endif %}
+      <span class="text-white" aria-current="page">{{ hero_title }}</span>
+    </nav>
+
+    {% if hero_kicker %}
+    <div class="mt-4 d-inline-flex align-items-center gap-2 rounded-pill border border-white border-opacity-25 bg-white bg-opacity-10 px-3 py-2 text-uppercase small fw-bold text-white" style="letter-spacing:0.14em;">
+      <span class="d-inline-block rounded-circle bg-danger" style="width:8px;height:8px;" aria-hidden="true"></span>
+      {{ hero_kicker }}
+    </div>
+    {% endif %}
+
+    <h1 class="mt-4 mb-3 display-5 fw-bold lh-1 text-white" style="font-family:'Sora',sans-serif; max-width: 780px;">{{ hero_title }}</h1>
+
+    {% if hero_intro %}
+    <p class="mb-0 text-white-50 lead" style="max-width: 640px; line-height: 1.7;">{{ hero_intro }}</p>
+    {% endif %}
+
+    {% if hero_cta_label %}
+    <div class="mt-4 d-flex flex-wrap align-items-center gap-3">
+      <a class="btn btn-primary btn-lg px-4 px-md-5 shadow-sm" href="{{ hero_cta_url }}">{{ hero_cta_label }}</a>
+      {% if hero_cta2_label %}
+      <a class="btn btn-outline-light btn-lg px-4 px-md-5" href="{{ hero_cta2_url }}">{{ hero_cta2_label }}</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>

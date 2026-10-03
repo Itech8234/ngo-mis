@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+{% block content %}
+<div class="empty-state" style="padding:24px 8px">
+  <h1 style="font-size:3rem;letter-spacing:-.04em">405</h1>
+  <h3>{{ title|default:"Method not allowed" }}</h3>
+  <p>{{ message|default:"This request method is not allowed for this page." }}</p>
+  <a class="btn btn-primary" href="{% url 'accounts:login' %}">Back to sign in</a>
+</div>
+{% endblock %}

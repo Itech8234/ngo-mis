@@ -1,0 +1,21 @@
+/* Clearer hierarchy and calmer spacing for the home carousel copy. */
+.ghdi-hero__inner{padding-top:clamp(112px,15vh,164px);padding-bottom:clamp(112px,14vh,150px)}
+.ghdi-hero__copy{max-width:min(880px,100%)}
+.ghdi-hero__eyebrow{gap:11px;padding:9px 17px;border-color:#ffffff36;background:linear-gradient(110deg,#ffffff19,#ffffff0b);box-shadow:0 8px 24px #031b3b18;font-size:11px;letter-spacing:.16em}
+.ghdi-hero__eyebrow .dot{width:8px;height:8px;box-shadow:0 0 0 4px #ffad251e}
+.ghdi-hero__title{max-width:900px;margin-top:25px;font-size:clamp(2.7rem,5vw,5rem);font-weight:780;line-height:1.035;letter-spacing:-.052em;text-wrap:balance;text-shadow:0 3px 24px #00173830}
+.ghdi-hero__title-hl{position:relative;display:inline-block;color:#fff;text-decoration:none}
+.ghdi-hero__title-hl:after{position:absolute;right:0;bottom:-.045em;left:0;height:.075em;border-radius:99px;background:linear-gradient(90deg,#ffb32f,#ed1268);content:"";transform:scaleX(.82);transform-origin:left center;opacity:.95}
+.ghdi-hero__lead{max-width:660px;margin-top:23px;color:#e1e9f4;font-size:clamp(1.05rem,1.42vw,1.28rem);font-weight:450;line-height:1.72;text-shadow:0 2px 16px #00173835}
+.ghdi-hero__actions--overlay{align-items:center;gap:14px;margin-top:31px}
+.ghdi-hero__actions--overlay .ghdi-hero__cta{display:inline-flex;min-height:56px;align-items:center;justify-content:center;gap:13px;padding:0 28px;border:1px solid #ec0860;border-radius:999px;background:linear-gradient(115deg,#f30060,#d90a58);box-shadow:0 12px 28px #cc07533b;color:#fff;font-size:14px;font-weight:750;letter-spacing:-.01em;text-decoration:none;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+.ghdi-hero__actions--overlay .ghdi-hero__cta:hover{transform:translateY(-2px);background:linear-gradient(115deg,#ff176f,#df075b);box-shadow:0 16px 34px #cc07534d;color:#fff}
+.ghdi-hero__actions--overlay .ghdi-hero__cta svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2;transition:transform .2s ease}
+.ghdi-hero__actions--overlay .ghdi-hero__cta:hover svg{transform:translateX(3px)}
+.ghdi-hero__actions--overlay .ghdi-hero__cta--secondary{border-color:#ffffff72;background:#ffffff12;box-shadow:inset 0 1px #ffffff18;color:#fff;backdrop-filter:blur(12px)}
+.ghdi-hero__actions--overlay .ghdi-hero__cta--secondary:hover{border-color:#fff;background:#ffffff23;color:#fff}
+.ghdi-hero__actions--overlay .ghdi-hero__cta:focus-visible{outline:3px solid #ffc457;outline-offset:4px}
+@media(max-width:991px){.ghdi-hero__inner{padding-top:120px;padding-bottom:112px}.ghdi-hero__copy{max-width:760px}.ghdi-hero__title{font-size:clamp(2.55rem,7.5vw,4.4rem)}}
+@media(max-width:767px){.ghdi-hero__inner{padding:108px 22px 106px}.ghdi-hero__copy{max-width:600px}.ghdi-hero__eyebrow{padding:8px 13px;font-size:9px}.ghdi-hero__title{margin-top:21px;font-size:clamp(2.25rem,10.4vw,3.5rem);line-height:1.06;letter-spacing:-.045em}.ghdi-hero__lead{max-width:520px;margin-top:17px;font-size:1rem;line-height:1.65}.ghdi-hero__actions--overlay{gap:10px;margin-top:23px}.ghdi-hero__actions--overlay .ghdi-hero__cta{min-height:49px;padding:0 19px;font-size:12px}}
+@media(max-width:420px){.ghdi-hero__inner{padding-right:18px;padding-left:18px}.ghdi-hero__actions--overlay .ghdi-hero__cta{min-height:46px;padding:0 15px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.ghdi-hero__actions--overlay .ghdi-hero__cta,.ghdi-hero__actions--overlay .ghdi-hero__cta svg{transition:none}}

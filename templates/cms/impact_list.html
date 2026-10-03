@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><div><h1>{{ page_title|default:"Impact statistics" }}</h1></div><div class="actions"><a class="btn btn-primary" href="{% if perms.cms.add_impactstat %}{% url 'cms:impact_create' %}{% endif %}">Add stat</a></div></div>
+<div class="card"><div class="card-body flush">
+  <div class="grid-3">
+  {% for obj in object_list %}
+    <div class="card"><div class="card-body">
+      <div class="stat"><div class="num">{{ obj.display_value }}</div><div class="lbl">{{ obj.label }}</div></div>
+      <a class="btn btn-secondary btn-sm" href="{% if perms.cms.change_impactstat %}{% url 'cms:impact_edit' obj.pk %}{% endif %}">Edit</a>
+    </div></div>
+  {% empty %}{% include "includes/empty_state.html" with title="No impact statistics" body="Public-facing impact numbers will appear here." %}{% endfor %}
+  </div>
+</div></div>
+{% endblock %}

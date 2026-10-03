@@ -1,0 +1,67 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}{{ page.title }} — {{ ghdi_org_name }}{% endblock %}
+{% block seo %}
+<meta name="description" content="{{ page.seo_description|default:page.summary }}">
+<meta property="og:title" content="{{ page.title }}">
+<meta property="og:description" content="{{ page.seo_description|default:page.summary }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker="Governance" hero_title=page.title hero_intro=page.summary hero_image=page.featured_image|media_url hero_cta_label="Meet the leadership" hero_cta_url="/leadership/" %}
+
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div>
+      <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-azure">{{ page.content|linebreaks }}</div>
+    </div>
+  </div>
+</section>
+
+{% if sections %}
+<section class="bg-navy-soft py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-12 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Accountability</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">How GHDI is governed</h2>
+    </div>
+    <div style="display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+      {% for s in sections %}
+      <article class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-7">
+        <span class="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-azure-soft text-azure" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <h3 class="mt-3 text-lg font-semibold text-navy">{{ s.heading }}</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">{{ s.body|truncatechars:260 }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <article class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-7">
+      <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">Policies</span>
+      <h2 class="mt-3 text-lg font-semibold text-navy">Transparency &amp; compliance</h2>
+      <p class="mt-3 text-sm leading-relaxed text-slate-500">GHDI operates to recognised humanitarian standards, with documented policies on safeguarding, accountability and financial control.</p>
+      <div class="mt-5 flex flex-wrap gap-3"><a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-azure px-6 py-3 text-white hover:bg-azure/90" href="{% url 'website:contact' %}">Request our policies</a></div>
+    </article>
+    <article class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-7">
+      <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">Board</span>
+      <h2 class="mt-3 text-lg font-semibold text-navy">Board &amp; management</h2>
+      <p class="mt-3 text-sm leading-relaxed text-slate-500">An independent board provides oversight, while the management team leads day-to-day delivery across programs.</p>
+      <div class="mt-5 flex flex-wrap gap-3"><a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-azure px-6 py-3 text-white hover:bg-azure/90" href="{% url 'website:leadership' %}">View leadership</a></div>
+    </article>
+    <article class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-7">
+      <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">Results</span>
+      <h2 class="mt-3 text-lg font-semibold text-navy">Monitoring &amp; evaluation</h2>
+      <p class="mt-3 text-sm leading-relaxed text-slate-500">Every project is tracked against indicators and targets, and results are reported to partners and communities.</p>
+      <div class="mt-5 flex flex-wrap gap-3"><a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-azure px-6 py-3 text-white hover:bg-azure/90" href="{% url 'website:impact' %}">See our results</a></div>
+    </article>
+  </div>
+</section>
+{% endblock %}

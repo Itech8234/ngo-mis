@@ -1,0 +1,27 @@
+========================================================================
+GHDI -> BOOTSTRAP ASSET GENERATOR
+========================================================================
+
+1. CLASS TOKEN INVENTORY
+   templates scanned : 161
+   unique tokens     : 464
+   resolved by layer : 236
+   unresolved        : 228
+   truly missing     : 0
+
+2. WRITING static/css/ghdi-compat.css
+   written: static/css/ghdi-compat.css (17380 bytes)
+
+3. WRITING static/css/ghdi-theme.css
+   written: static/css/ghdi-theme.css (6067 bytes)
+
+4. WRITING static/js/ghdi-ui.js
+   written: static/js/ghdi-ui.js (6703 bytes)
+
+5. SUMMARY
+   compat rules generated : 330
+   state variants         : 19
+   responsive variants    : 23
+   truly missing tokens   : 0
+
+   Assets ready. Templates are NOT modified by this script.

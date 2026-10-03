@@ -1,0 +1,5 @@
+# GHDI NGO Management Information System - core requirements
+Django>=5.2
+Pillow>=10.0
+reportlab>=4.2
+qrcode[pil]>=7.4

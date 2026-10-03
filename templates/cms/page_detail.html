@@ -1,0 +1,35 @@
+{% extends "ghdi/generic_detail.html" %}{% load ghdi_extras %}
+{% block detail_actions %}
+  {% if perms.cms.change_page %}<a class="btn btn-secondary" href="{% url 'cms:page_edit' object.pk %}">Edit</a>{% if object.status == "published" %}<form method="post" action="{% url 'cms:page_unpublish' object.pk %}">{% csrf_token %}<button class="btn btn-ghost" type="submit">Unpublish</button></form>{% else %}<form method="post" action="{% url 'cms:page_publish' object.pk %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Publish</button></form>{% endif %}{% endif %}
+  {% if perms.cms.delete_page %}<form method="post" action="{% url 'cms:page_delete' object.pk %}" data-confirm="Delete this page permanently?">{% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button></form>{% endif %}
+{% endblock %}
+{% block detail_extra %}
+<section class="card mt-6" aria-labelledby="page-sections-heading">
+  <div class="card-head"><div><h3 id="page-sections-heading">Page sections</h3><p class="sub">These sections appear below the main page content. Use them for thematic area focus cards and additional About page details.</p></div></div>
+  <div class="card-body">
+    {% if sections %}
+      <div class="grid-2 mb-6">
+        {% for section in sections %}
+        <article class="detail-item">
+          <div class="flex items-start justify-between gap-3">
+            <div><h4 class="font-semibold text-primary">{{ section.heading|default:"Untitled section" }}</h4><p class="mt-2 text-secondary">{{ section.body|linebreaksbr }}</p>{% if section.image|file_url %}<img class="mt-3" src="{{ section.image|file_url }}" alt="" style="max-width:100%;max-height:180px;border-radius:10px">{% endif %}</div>
+            {% if perms.cms.change_page %}<form method="post" action="{% url 'cms:page_section_delete' object.pk section.pk %}" data-confirm="Remove this page section?">{% csrf_token %}<button class="btn btn-danger btn-sm" type="submit">Remove</button></form>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    {% else %}<p class="text-secondary mb-5">No sections yet. Add one below to build out this page.</p>{% endif %}
+
+    {% if perms.cms.change_page %}
+    <form method="post" enctype="multipart/form-data" action="{% url 'cms:page_section_add' object.pk %}" class="form-grid">
+      {% csrf_token %}
+      <div class="form-group"><label class="form-label" for="id_heading">Section heading</label>{{ section_form.heading }}{{ section_form.heading.errors }}</div>
+      <div class="form-group"><label class="form-label" for="id_sort_order">Display order</label>{{ section_form.sort_order }}{{ section_form.sort_order.errors }}</div>
+      <div class="form-group colspan-2"><label class="form-label" for="id_body">Description</label>{{ section_form.body }}{{ section_form.body.errors }}</div>
+      <div class="form-group colspan-2"><label class="form-label" for="id_image">Optional image</label>{{ section_form.image }}{{ section_form.image.errors }}</div>
+      <div class="form-group colspan-2"><button class="btn btn-primary" type="submit">Add section</button></div>
+    </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

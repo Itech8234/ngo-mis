@@ -1,0 +1,188 @@
+/* ==========================================================================
+   GHDI premium theme layer. Load AFTER bootstrap.min.css.
+   Provides brand tokens, premium surfaces and dark/light mode support.
+   ========================================================================== */
+:root,
+[data-bs-theme="light"] {
+  --ghdi-navy:           #011f5b;
+  --ghdi-navy-700:       #032a76;
+  --ghdi-navy-600:       #0a3a92;
+  --ghdi-accent:         #eb0160;
+  --ghdi-accent-600:     #c80052;
+  --ghdi-azure:          #0081d2;
+  --ghdi-amber:          #fd9a01;
+
+  --ghdi-surface:        #ffffff;
+  --ghdi-surface-2:      #f6f8fc;
+  --ghdi-surface-3:      #eef2f9;
+  --ghdi-border:         #dfe6f2;
+  --ghdi-text:           #0d1b33;
+  --ghdi-text-muted:     #5a6b87;
+  --ghdi-shadow:         3, 10, 24;
+
+  --bs-primary:          #011f5b;
+  --bs-primary-rgb:      1, 31, 91;
+  --bs-link-color:       #0081d2;
+  --bs-link-hover-color: #011f5b;
+  --bs-body-color:       #0d1b33;
+  --bs-body-bg:          #f6f8fc;
+  --bs-border-color:     #dfe6f2;
+  --bs-body-font-family: sans-serif;
+}
+
+[data-bs-theme="dark"] {
+  --ghdi-surface:        #0b1424;
+  --ghdi-surface-2:      #070e1a;
+  --ghdi-surface-3:      #121e33;
+  --ghdi-border:         #1d2c47;
+  --ghdi-text:           #e8eefb;
+  --ghdi-text-muted:     #93a4c3;
+  --ghdi-shadow:         0, 0, 0;
+
+  --bs-body-color:       #e8eefb;
+  --bs-body-bg:          #070e1a;
+  --bs-border-color:     #1d2c47;
+  --bs-secondary-bg:     #0b1424;
+  --bs-tertiary-bg:      #121e33;
+  --bs-emphasis-color:   #ffffff;
+  --bs-link-color:       #5eb3ef;
+  --bs-link-hover-color: #9cd2f7;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- premium buttons ---------- */
+.ghdi-btn {
+  --bs-btn-padding-y: .58rem;
+  --bs-btn-padding-x: 1.15rem;
+  --bs-btn-font-weight: 600;
+  --bs-btn-border-radius: .625rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  letter-spacing: .01em;
+  transition: transform .16s cubic-bezier(.4, 0, .2, 1),
+              box-shadow .16s cubic-bezier(.4, 0, .2, 1),
+              background-color .16s ease, color .16s ease;
+}
+.ghdi-btn:active { transform: translateY(1px); }
+.ghdi-btn--sm { --bs-btn-padding-y: .36rem; --bs-btn-padding-x: .7rem; font-size: .8125rem; }
+.ghdi-btn--lg { --bs-btn-padding-y: .78rem; --bs-btn-padding-x: 1.5rem; font-size: 1.0625rem; }
+
+.ghdi-btn--primary {
+  background: var(--ghdi-navy); border-color: var(--ghdi-navy); color: #fff;
+  box-shadow: 0 6px 18px -8px rgba(1, 31, 91, .65);
+}
+.ghdi-btn--primary:hover,
+.ghdi-btn--primary:focus-visible {
+  background: var(--ghdi-navy-600); border-color: var(--ghdi-navy-600); color: #fff;
+  box-shadow: 0 12px 26px -10px rgba(1, 31, 91, .7);
+}
+.ghdi-btn--accent {
+  background: var(--ghdi-accent); border-color: var(--ghdi-accent); color: #fff;
+  box-shadow: 0 6px 18px -8px rgba(235, 1, 96, .6);
+}
+.ghdi-btn--accent:hover,
+.ghdi-btn--accent:focus-visible {
+  background: var(--ghdi-accent-600); border-color: var(--ghdi-accent-600); color: #fff;
+}
+.ghdi-btn--azure {
+  background: var(--ghdi-azure); border-color: var(--ghdi-azure); color: #fff;
+}
+.ghdi-btn--azure:hover,
+.ghdi-btn--azure:focus-visible {
+  background: #0169ab; border-color: #0169ab; color: #fff;
+}
+.ghdi-btn--amber {
+  background: var(--ghdi-amber); border-color: var(--ghdi-amber);
+  color: #201400; font-weight: 700;
+}
+.ghdi-btn--amber:hover,
+.ghdi-btn--amber:focus-visible {
+  background: #e08800; border-color: #e08800; color: #201400;
+}
+.ghdi-btn--ghost {
+  background: transparent; border-color: var(--ghdi-border); color: var(--ghdi-text);
+}
+.ghdi-btn--ghost:hover,
+.ghdi-btn--ghost:focus-visible {
+  background: var(--ghdi-surface-3); border-color: var(--ghdi-border);
+  color: var(--ghdi-navy);
+}
+[data-bs-theme="dark"] .ghdi-btn--ghost:hover,
+[data-bs-theme="dark"] .ghdi-btn--ghost:focus-visible { color: #fff; }
+
+/* ---------- surfaces ---------- */
+.ghdi-panel {
+  background: var(--ghdi-surface);
+  border: 1px solid var(--ghdi-border);
+  border-radius: .875rem;
+  box-shadow: 0 1px 2px rgba(var(--ghdi-shadow), .04),
+              0 12px 32px -24px rgba(var(--ghdi-shadow), .4);
+}
+.ghdi-panel__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--ghdi-border);
+}
+.ghdi-panel__title {
+  font-size: .95rem; font-weight: 700; margin: 0; letter-spacing: -.01em;
+}
+.ghdi-panel__body { padding: 1.25rem; }
+
+.ghdi-stat {
+  background: var(--ghdi-surface);
+  border: 1px solid var(--ghdi-border);
+  border-radius: .875rem;
+  padding: 1.25rem;
+}
+.ghdi-stat__value {
+  font-size: 1.75rem; font-weight: 800; line-height: 1.1;
+  letter-spacing: -.03em; color: var(--ghdi-text);
+}
+.ghdi-stat__label {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ghdi-text-muted);
+}
+
+.ghdi-divider { height: 1px; background: var(--ghdi-border); border: 0; }
+
+.ghdi-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---------- focus visibility (a11y) ---------- */
+:focus-visible {
+  outline: 2px solid var(--ghdi-azure);
+  outline-offset: 2px;
+  border-radius: .25rem;
+}
+
+/* ---------- page-load progress bar ---------- */
+#ghdi-progress {
+  position: fixed;
+  top: 0; left: 0; right: auto; bottom: auto;
+  height: 3px; width: 0;
+  background: linear-gradient(90deg, var(--ghdi-navy), var(--ghdi-azure) 55%,
+              var(--ghdi-accent));
+  z-index: 3000;
+  opacity: 0;
+  transition: width .25s ease, opacity .3s ease;
+  box-shadow: 0 0 12px rgba(0, 129, 210, .7);
+  pointer-events: none;
+}
+#ghdi-progress.is-active { opacity: 1; }
+#ghdi-progress.is-done { width: 100%; opacity: 0; }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

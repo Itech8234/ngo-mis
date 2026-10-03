@@ -1,0 +1,96 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}{{ article.title }} — {{ ghdi_org_name }}{% endblock %}
+{% block seo %}
+<meta name="description" content="{{ article.summary }}">
+<meta property="og:title" content="{{ article.title }}">
+<meta property="og:description" content="{{ article.summary }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if article.featured_image|file_url %}<meta property="og:image" content="{{ request.build_absolute_uri }}{{ article.featured_image|file_url }}">{% endif %}
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker=article.get_category_display hero_title=article.title hero_parent_url="/news/" hero_parent_label="News" hero_image=article.featured_image|media_url %}
+
+<section class="py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div style="display:grid;gap:48px;grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start">
+      <article>
+        <div>
+          <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">{{ article.get_category_display }}</span>
+          <span class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ article.author|default:"GHDI Communications" }}</span>
+          <span class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ article.publish_at|date:"d M Y"|default:article.created_at|date:"d M Y" }}</span>
+          <span class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ article.views }} views</span>
+        </div>
+
+        {% if article.featured_image|file_url %}
+        <img src="{{ article.featured_image|file_url }}" alt="{{ article.title }}" loading="lazy" decoding="async">
+        {% endif %}
+
+        {% if article.video_url %}
+        {% with embed_url=article.video_url|video_embed_url %}
+          {% if embed_url %}
+          <div class="relative mt-6 aspect-video overflow-hidden rounded-2xl bg-navy shadow-soft">
+            <iframe class="absolute inset-0 h-full w-full" src="{{ embed_url }}" title="{{ article.video_caption|default:article.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+          {% endif %}
+        {% endwith %}
+        {% endif %}
+
+        {% if article.summary %}<p class="mt-4 leading-relaxed text-slate-500">{{ article.summary }}</p>{% endif %}
+        <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-azure">{{ article.content|linebreaks }}</div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:40px;padding-top:26px;border-top:1px solid rgba(1,31,91,.1)">
+          <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-navy/15 bg-white px-6 py-3 text-navy hover:border-navy hover:bg-navy-soft" href="{% url 'website:news_list' %}">All news</a>
+          <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-white/40 bg-white/10 px-6 py-3 text-white backdrop-blur hover:bg-white/20" href="{% url 'website:stories' %}">Stories of change</a>
+          <a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition border border-white/40 bg-white/10 px-6 py-3 text-white backdrop-blur hover:bg-white/20" href="{% url 'website:events_list' %}">Events</a>
+        </div>
+      </article>
+
+      <aside aria-label="Article sidebar">
+        <div class="rounded-2xl bg-white ring-1 ring-slate-200 shadow-soft p-6">
+          <span class="inline-block rounded-full bg-azure-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-azure">About GHDI</span>
+          <h2 class="mt-3 text-lg font-semibold text-navy">{{ ghdi_org_name }}</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-500">Protecting and empowering vulnerable communities in northeast Nigeria through protection, education and community resilience.</p>
+          <div class="mt-5 flex flex-wrap gap-3"><a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-azure px-6 py-3 text-white hover:bg-azure/90" href="{% url 'website:about' %}">About us</a></div>
+        </div>
+        <div class="mt-5 rounded-2xl bg-navy p-6 ring-1 ring-navy">
+          <h2 class="text-lg font-semibold text-white">Work with us</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-300">Partner, volunteer or support our programs across Yobe State.</p>
+          <div class="mt-5 flex flex-wrap gap-3"><a class="inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition bg-magenta px-6 py-3 text-white shadow-soft hover:bg-magenta-dark" href="{% url 'website:contact' %}">Contact GHDI</a></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% if related %}
+<section class="bg-navy-soft py-20">
+  <div class="mx-auto max-w-6xl px-5">
+    <div style="margin-bottom:26px">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Keep reading</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Related updates</h2>
+    </div>
+    <div style="display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      {% for r in related %}
+      <article class="ghdi-media-card">
+        <div class="ghdi-media-card__media">
+          {% if r.featured_image|file_url %}
+          <img src="{{ r.featured_image|file_url }}" alt="{{ r.title }}" loading="lazy" decoding="async">
+          {% else %}
+          <div class="ghdi-media-card__media--fallback"><span>{{ r.get_category_display }}</span></div>
+          {% endif %}
+        </div>
+        <div class="ghdi-media-card__body">
+          <span class="ghdi-media-card__date">{{ r.publish_at|date:"d M Y"|default:r.created_at|date:"d M Y" }}</span>
+          <h3 class="ghdi-media-card__title"><a href="{% url 'website:news_detail' r.slug %}">{{ r.title }}</a></h3>
+          <a class="ghdi-media-card__more" href="{% url 'website:news_detail' r.slug %}">Read more<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5"/></svg></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

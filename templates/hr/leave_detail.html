@@ -1,0 +1,67 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ object.employee.full_name }} — Leave request{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ object.employee.full_name }} — Leave request</h1>
+    <p class="sub">{{ object.get_status_display }} &middot; submitted {{ object.created_at|date:"d M Y H:i" }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'hr:leave_list' %}">&larr; All leave</a>
+  </div>
+</div>
+
+<div class="card" style="max-width:820px">
+  <div class="card-head">
+    <h3>Request details</h3>
+    <span class="badge status-{{ object.status }}">{{ object.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    <div class="detail-list">
+      <div class="detail-item"><div class="k">Leave type</div><div class="v">{{ object.leave_type }}</div></div>
+      <div class="detail-item"><div class="k">Staff member</div><div class="v">{{ object.employee.full_name }}</div></div>
+      <div class="detail-item"><div class="k">Start date</div><div class="v">{{ object.start_date|date:"d M Y" }}</div></div>
+      <div class="detail-item"><div class="k">End date</div><div class="v">{{ object.end_date|date:"d M Y" }}</div></div>
+      <div class="detail-item"><div class="k">Days</div><div class="v">{{ object.days }}</div></div>
+      {% if leave_balance %}<div class="detail-item"><div class="k">Balance for {{ leave_balance.year }}</div><div class="v">{{ leave_balance.days_remaining }} days remaining of {{ leave_balance.entitled_days|add:leave_balance.carry_forward_days }} days</div></div>{% endif %}
+      {% if object.reason %}<div class="detail-item"><div class="k">Reason</div><div class="v">{{ object.reason }}</div></div>{% endif %}
+      {% if object.attachment %}<div class="detail-item"><div class="k">Supporting document</div><div class="v"><a class="btn btn-secondary btn-sm" href="{% url 'hr:leave_attachment_download' object.pk %}">Download privately</a></div></div>{% endif %}
+      {% if object.review_note %}<div class="detail-item"><div class="k">Review note</div><div class="v">{{ object.review_note }}</div></div>{% endif %}
+    </div>
+    {% if object.status == "approved" and object.approved_by %}
+      <p class="text-sm text-secondary mt-4">Approved by {{ object.approved_by.get_full_name|default:object.approved_by }} on {{ object.approved_at|date:"d M Y H:i" }}.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if can_review and object.is_pending %}
+<div class="card mt-4" style="max-width:820px">
+  <div class="card-head"><h3>Review decision</h3></div>
+  <div class="card-body">
+    <form method="post" action="{% url 'hr:leave_review' object.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="note">Note (optional)</label>
+        <textarea class="form-input" id="note" name="note" rows="2" placeholder="Decision note for the staff member..."></textarea>
+      </div>
+      <div class="form-actions">
+        {% if object.status == "submitted" %}
+        <button class="btn btn-secondary" type="submit" name="action" value="review">Move to HR review</button>
+        {% endif %}
+        <button class="btn btn-success" type="submit" name="action" value="approve" data-confirm="Approve this leave request?">Approve</button>
+        <button class="btn btn-danger" type="submit" name="action" value="reject" data-confirm="Reject this leave request?">Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% elif object.status == "draft" or object.status == "rejected" %}
+<div class="card mt-4" style="max-width:820px">
+  <div class="card-body">
+    <form method="post" action="{% url 'hr:leave_review' object.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit" name="action" value="cancel" data-confirm="Cancel this leave request?">Cancel request</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

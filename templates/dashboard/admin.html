@@ -1,0 +1,120 @@
+{% extends "base.html" %}{% load ghdi_extras charts static %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}">{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+<section class="admin-command">
+  <div class="admin-command__content">
+    <span class="admin-command__eyebrow">GHDI MANAGEMENT CONSOLE</span>
+    <h1>{{ greeting }}</h1>
+    <p>A live overview of people, programs, approvals and system activity.</p>
+    <div class="admin-command__actions">
+      <a class="btn btn-light" href="{% url 'accounts:user_list' %}">Manage staff <span aria-hidden="true">→</span></a>
+      <a class="admin-command__link" href="{% url 'audit:feed' %}">Review activity</a>
+    </div>
+  </div>
+  <div class="admin-command__aside">
+    <span class="admin-command__pulse"><i></i> Live operational snapshot</span>
+    <div class="admin-command__summary"><span>{{ kpis.active_users }} active accounts</span><span>{{ kpis.pending_approvals }} items need review</span></div>
+    <a href="{% url 'core:settings_org' %}">Organization settings <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
+
+<div class="kpi-grid dashboard-kpis admin-kpi-grid">
+  {% include "includes/kpi.html" with label="Active Staff" value=kpis.staff|num icon="idcard" color="blue" %}
+  {% include "includes/kpi.html" with label="Active Projects" value=kpis.projects|num icon="briefcase" color="violet" %}
+  {% include "includes/kpi.html" with label="Pending Approvals" value=kpis.pending_approvals|num icon="alert" color="amber" %}
+  {% include "includes/kpi.html" with label="Open Tasks" value=kpis.open_tasks|num icon="layout" color="blue" %}
+  {% include "includes/kpi.html" with label="Attendance Today" value=kpis.attendance_today|num icon="calendar" color="teal" %}
+  {% include "includes/kpi.html" with label="Pending Leave" value=kpis.pending_leave|num icon="clock" color="amber" %}
+  {% include "includes/kpi.html" with label="MEAL Reports To Review" value=kpis.meal_reports_pending|num icon="file" color="violet" %}
+  {% include "includes/kpi.html" with label="Indicators Below 70%" value=kpis.indicators_below_target|num icon="chart" color="red" %}
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Configuration Hub</h3></div>
+    <div class="card-body flush">
+      <div class="list-links">
+        <a class="link" href="{% url 'accounts:user_list' %}">Users &amp; Roles</a>
+        <a class="link" href="{% url 'hr:employee_list' %}">Staff Records</a>
+        <a class="link" href="{% url 'core:settings_org' %}">Organisation Settings</a>
+        <a class="link" href="{% url 'core:settings_system' %}">System Settings</a>
+        <a class="link" href="{% url 'cms:dashboard' %}">Content Management</a>
+        <a class="link" href="{% url 'reports:hub' %}">Reports &amp; Exports</a>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>System Activity</h3></div>
+    <div class="card-body flush">
+      {% for log in recent_audit %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title"><span class="badge {{ log.action_badge }}">{{ log.get_action_display }}</span> {{ log.object_repr|default:log.model|truncatechars:40 }}</div>
+            <div class="feed-meta">{{ log.username|default:"System" }} · {{ log.created_at|timesince }} ago{% if log.module %} · {{ log.module }}{% endif %}</div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No recent system activity.</div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'audit:feed' %}">View full activity feed &rarr;</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Recently Created Users</h3></div>
+    <div class="card-body flush">
+      {% for u in recent_users %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ u.full_name|default:u.username }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ u.get_role_display }} · joined {{ u.date_joined|date:"d M Y" }}</div>
+          </div>
+          <span class="badge {% if u.is_active %}badge-green{% else %}badge-red{% endif %}">{{ u.is_active|yesno:"Active,Disabled" }}</span>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No users created yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Expiring Projects (60 days)</h3></div>
+    <div class="card-body flush">
+      {% for p in expiring_projects %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ p.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ p.program.title }} · ends {{ p.end_date|date:"d M Y" }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ p.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No projects expiring soon.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 dashboard-panels">
+  <div class="card">
+    <div class="card-head"><h3>Open Tasks Assigned to You</h3></div>
+    <div class="card-body flush">
+      {% for t in open_tasks %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ t.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">due {{ t.due_date|date:"d M Y" }} · {{ t.get_priority_display }}</div>
+          </div>
+          <span class="badge badge-blue">{{ t.get_status_display }}</span>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No open tasks assigned to you.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+ </div>
+{% endblock %}

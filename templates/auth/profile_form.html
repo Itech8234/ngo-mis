@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Edit profile — {{ ghdi_org_name }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px">
+  <div class="card-head"><h3>Edit profile</h3></div>
+  <div class="card-body">
+    {% if form.non_field_errors %}
+      <div class="alert alert-error mb-4">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}</label>
+          {% if field.field.widget.input_type == "textarea" %}
+            <textarea class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" rows="3">{{ field.value|default:"" }}</textarea>
+          {% elif field.field.widget.input_type == "checkbox" %}
+            <div class="flex items-center gap-2"><input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %}><label for="{{ field.id_for_label }}" class="text-sm">{{ field.label }}</label></div>
+          {% elif field.field.widget.input_type == "file" %}
+            {# File inputs cannot take a value attribute; render the control
+               directly and show the currently stored file alongside a clear box. #}
+            {% if field.value %}
+              <div class="flex items-center gap-2 mb-2 text-sm">
+                <span>Current file:</span>
+                <a href="{{ field.value.url }}" target="_blank" rel="noopener">{{ field.value.name|default:"view" }}</a>
+                <label class="flex items-center gap-1">
+                  <input type="checkbox" name="{{ field.name }}-clear" id="{{ field.id_for_label }}-clear">
+                  <span>Remove</span>
+                </label>
+              </div>
+            {% endif %}
+            <input type="file" class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                   {% if field.field.widget.attrs.accept %}accept="{{ field.field.widget.attrs.accept }}"{% endif %}>
+          {% else %}
+            <input type="{{ field.field.widget.input_type|default:'text' }}" class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}">
+          {% endif %}
+          {% if field.help_text %}<div class="form-hint">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}<ul class="field-errors">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      {% endfor %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-secondary" href="{% url 'accounts:profile' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

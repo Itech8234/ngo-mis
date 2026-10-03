@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ page_title }}</h1></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="?export=csv">Export CSV</a>
+    <a class="btn btn-ghost" href="javascript:window.print()">Print</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">Income</div><div class="kpi-value">{{ income|cur }}</div></div>
+  <div class="kpi"><div class="kpi-label">Expenditure</div><div class="kpi-value">{{ expense|cur }}</div></div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Transactions</h3></div>
+  <div class="card-body flush">
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Reference</th><th>Date</th><th>Description</th><th>Direction</th><th>Amount</th><th>Account</th><th>Project</th><th>Status</th></tr></thead>
+        <tbody>{% for r in rows %}<tr>{% for c in r %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}{% include "includes/empty_state.html" %}{% endif %}
+  </div>
+</div>
+{% endblock %}

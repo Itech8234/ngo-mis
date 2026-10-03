@@ -1,0 +1,68 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Inbox{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Inbox</h1><p class="sub">{{ unread_count }} unread message{{ unread_count|pluralize }}</p></div>
+</div>
+
+<div class="tabs mb-6">
+  <span class="tab active">Received</span>
+  <a class="tab" href="#sent">Sent</a>
+  <a class="tab" href="#compose">Compose</a>
+</div>
+
+<div class="card">
+  <div class="card-head"><h3>Received</h3></div>
+  <div class="card-body flush">
+    {% if received %}
+      {% for m in received %}
+        <a class="dropdown-item" href="{% url 'communications:message_detail' m.pk %}" style="{% if not m.is_read %}background:var(--ghdi-primary-soft){% endif %}">
+          <div style="min-width:0;flex:1">
+            <div class="t">{{ m.subject }}</div>
+            <div class="b">from {{ m.sender }} · {{ m.created_at|timesince }} ago</div>
+          </div>
+          {% if not m.is_read %}<span class="badge badge-blue">New</span>{% endif %}
+        </a>
+      {% endfor %}
+    {% else %}
+      {% include "includes/empty_state.html" with title="No messages" body="Messages sent to you will appear here." %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="card mt-6" id="sent">
+  <div class="card-head"><h3>Sent</h3></div>
+  <div class="card-body flush">
+    {% if sent %}
+      {% for m in sent %}
+        <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ m.subject }}</div><div class="feed-meta">to {{ m.recipient }} · {{ m.created_at|date:"d M Y H:i" }}</div></div></div>
+      {% endfor %}
+    {% else %}<div class="text-secondary text-sm" style="padding:20px">No sent messages.</div>{% endif %}
+  </div>
+</div>
+
+<div class="card mt-6" id="compose">
+  <div class="card-head"><h3>Compose message</h3></div>
+  <div class="card-body">
+    <form method="post" action="{% url 'communications:inbox' %}">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}</label>
+          {% if field.field.widget.input_type == "select" %}
+            <select class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}">
+              {% for value, label in field.field.choices %}<option value="{{ value }}" {% if field.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          {% elif field.field.widget.input_type == "textarea" %}
+            <textarea class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" rows="3">{{ field.value|default:"" }}</textarea>
+          {% else %}
+            <input type="{{ field.field.widget.input_type|default:'text' }}" class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}">
+          {% endif %}
+          {% if field.errors %}<ul class="field-errors">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Send message</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

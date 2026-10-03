@@ -1,0 +1,2 @@
+{% extends "base.html" %}
+{% block content %}<div class="page-head"><div><h1>{{ page_title }}</h1><p class="sub">{{ employee.full_name }} · Files are stored privately and require permission to download.</p></div></div><div class="card"><div class="card-body">{% include "includes/form.html" with submit_label="Upload document" cancel_url=employee.get_absolute_url enctype="multipart/form-data" %}</div></div>{% endblock %}

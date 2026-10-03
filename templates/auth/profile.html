@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Profile — {{ ghdi_org_name }}{% endblock %}
+{% block content %}
+<div class="detail-grid">
+  <div>
+    <div class="page-head">
+      <div>
+        <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+        <p class="sub">{{ profile_user.email }}</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="{% url 'accounts:profile_edit' %}">Edit profile</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:change_password' %}">Change password</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Account overview</h3></div>
+      <div class="card-body">
+        <div class="detail-list">
+          <div class="detail-item"><div class="k">Role</div><div class="v">{{ profile_user.get_role_display }}</div></div>
+          <div class="detail-item"><div class="k">Username</div><div class="v">{{ profile_user.username }}</div></div>
+          <div class="detail-item"><div class="k">Active</div><div class="v">{% if profile_user.is_active %}Yes{% else %}No{% endif %}</div></div>
+          <div class="detail-item"><div class="k">Last login</div><div class="v">{{ profile_user.last_login|date:"d M Y H:i"|default:"Never" }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    {% if employee %}
+    <div class="card mt-6">
+      <div class="card-head">
+        <h3>Employee record</h3>
+        <a class="text-sm text-primary" href="{{ employee.get_absolute_url }}">View full record</a>
+      </div>
+      <div class="card-body">
+        <div class="detail-list">
+          <div class="detail-item"><div class="k">Employee ID</div><div class="v">{{ employee.employee_id }}</div></div>
+          <div class="detail-item"><div class="k">Position</div><div class="v">{{ employee.position }}</div></div>
+          <div class="detail-item"><div class="k">Department</div><div class="v">{{ employee.department|default:"—" }}</div></div>
+          <div class="detail-item"><div class="k">Hire date</div><div class="v">{{ employee.hire_date|date:"d M Y"|default:"—" }}</div></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Recent notifications</h3></div>
+      <div class="card-body flush">
+        {% if recent_notifications %}
+          {% for n in recent_notifications %}
+            <a class="dropdown-item" href="{{ n.url|default:'/app/notifications/' }}">
+              <span class="dot {% if n.is_read %}is-read{% else %}is-unread{% endif %}"></span>
+              <div><div class="t">{{ n.title }}</div><div class="time">{{ n.created_at|timesince }} ago</div></div>
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="text-secondary text-sm" style="padding:16px">You have no notifications.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-head"><h3>Security</h3></div>
+      <div class="card-body">
+        <div class="form-group"><a class="btn btn-secondary btn-block" href="{% url 'accounts:change_password' %}">Change password</a></div>
+        <div class="text-xs text-muted">Sign out from all devices by clearing your session from the admin.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

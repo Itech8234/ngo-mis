@@ -1,0 +1,36 @@
+{% load static ghdi_extras %}
+<div class="navigation-loader" id="navigationLoader" aria-hidden="true" role="status" aria-live="polite">
+  <div class="navigation-loader__card">
+    <div class="navigation-loader__brand">
+      {% with loader_logo=ghdi_org.logo|file_url %}
+        {% if loader_logo %}<img class="navigation-loader__logo" src="{{ loader_logo }}" alt="">
+        {% else %}<span class="navigation-loader__monogram" aria-hidden="true">{{ ghdi_acronym|default:"GHDI"|slice:":3" }}</span>{% endif %}
+      {% endwith %}
+      <span class="navigation-loader__orbit navigation-loader__orbit--one"></span>
+      <span class="navigation-loader__orbit navigation-loader__orbit--two"></span>
+    </div>
+    <span class="navigation-loader__name">{{ ghdi_org_name }}</span>
+    <span class="navigation-loader__message">Preparing your workspace</span>
+    <span class="navigation-loader__track" aria-hidden="true"><i></i></span>
+  </div>
+</div>
+<script>
+  (function () {
+    var loader = document.getElementById("navigationLoader");
+    if (!loader) return;
+    function hide() {
+      loader.classList.remove("is-active");
+      loader.setAttribute("aria-hidden", "true");
+      try { sessionStorage.removeItem("ghdi-navigation-pending"); } catch (e) {}
+    }
+    try {
+      if (sessionStorage.getItem("ghdi-navigation-pending") === "1") {
+        loader.classList.add("is-active");
+        loader.setAttribute("aria-hidden", "false");
+        sessionStorage.removeItem("ghdi-navigation-pending");
+      }
+    } catch (e) {}
+    window.addEventListener("load", function () { window.setTimeout(hide, 220); }, { once: true });
+    window.addEventListener("pageshow", function (event) { if (event.persisted) hide(); });
+  })();
+</script>

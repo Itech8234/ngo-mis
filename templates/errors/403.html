@@ -1,0 +1,9 @@
+{% extends "errors/base_error.html" %}
+{% block content %}
+<div class="empty-state" style="padding:24px 8px">
+  <h1 style="font-size:3rem;letter-spacing:-.04em">403</h1>
+  <h3>{{ title|default:"Access denied" }}</h3>
+  <p>{{ message|default:"You do not have permission to view this page." }}</p>
+  <a class="btn btn-primary" href="{% url 'accounts:login' %}">Back to sign in</a>
+</div>
+{% endblock %}

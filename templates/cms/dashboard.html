@@ -1,0 +1,84 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}CMS Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>CMS Dashboard</h1><p class="sub">Manage the GHDI public website without touching code</p></div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{% url 'cms:page_list' %}">Pages</a>
+    <a class="btn btn-primary" href="{% url 'cms:page_create' %}">New page</a>
+    {% if perms.cms.view_page %}<a class="btn btn-secondary" href="{% url 'cms:thematic_list' %}">Thematic areas</a>{% endif %}
+    {% if perms.cms.change_page or perms.cms.add_page %}<a class="btn btn-secondary" href="{% url 'cms:about_page_manage' %}">Manage About page</a>{% endif %}
+  </div>
+</div>
+
+<div class="kpi-grid">
+  {% include "includes/kpi.html" with label="Pages" value=pages icon="file" color="teal" %}
+  {% include "includes/kpi.html" with label="Published" value=published_pages icon="check" color="emerald" %}
+  {% include "includes/kpi.html" with label="News Articles" value=articles icon="rss" color="blue" %}
+  {% include "includes/kpi.html" with label="Published News" value=published_articles icon="check" color="emerald" %}
+  {% include "includes/kpi.html" with label="Events" value=events icon="calendar" color="violet" %}
+  {% include "includes/kpi.html" with label="Media Items" value=media icon="upload" color="amber" %}
+  {% include "includes/kpi.html" with label="Team Members" value=team icon="users" color="blue" %}
+  {% include "includes/kpi.html" with label="Impact Stats" value=stats icon="chart" color="gray" %}
+  {% include "includes/kpi.html" with label="Partners" value=partners icon="users" color="violet" %}
+</div>
+
+<div class="grid-3 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Quick links</h3></div>
+    <div class="card-body">
+      <div class="flex-col gap-2">
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:news_create' %}">Write news</a>
+        {% if perms.cms.add_page %}<a class="btn btn-ghost btn-block" href="{% url 'cms:thematic_create' %}">Add thematic area</a>{% endif %}
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:event_create' %}">Create event</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:media_create' %}">Upload media</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:carousel_list' %}">Manage homepage carousel</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:impact_create' %}">Add impact stat</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:team_create' %}">Add team member</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'cms:partner_list' %}">Manage partners &amp; logos</a>
+      </div>
+      <div class="alert alert-warning mt-4">{% if messages_pending %}{{ messages_pending }} contact message(s) awaiting response.{% else %}No pending contact messages.{% endif %}</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Recent articles</h3></div>
+    <div class="card-body flush">
+      {% for a in recent_articles %}
+        <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ a.title }}</div><div class="feed-meta">{{ a.get_status_display }} · {{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</div></div><a class="btn btn-ghost btn-sm" href="{% url 'cms:news_edit' a.pk %}">Edit</a></div>
+      {% empty %}<div class="text-secondary text-sm" style="padding:20px">No articles yet.</div>{% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Latest messages</h3></div>
+    <div class="card-body flush">
+      {% for m in recent_messages %}
+        <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ m.name }}</div><div class="feed-meta">{{ m.subject|truncatechars:40 }} · {{ m.created_at|date:"d M Y" }}</div></div></div>
+      {% empty %}<div class="text-secondary text-sm" style="padding:20px">No contact messages yet.</div>{% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'cms:message_list' %}">All messages &rarr;</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="card-head"><h3>Pages</h3></div>
+  <div class="card-body flush">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Title</th><th>Slug</th><th>Type</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+        <tbody>
+          {% for p in recent_pages %}
+          <tr>
+            <td class="cell-main">{{ p.title }}</td>
+            <td>/{{ p.slug }}/</td>
+            <td>{{ p.get_page_type_display }}</td>
+            <td><span class="badge status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+            <td>{{ p.updated_at|date:"d M Y" }}</td>
+            <td><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{% url 'cms:page_edit' p.pk %}">Edit</a></div></td>
+          </tr>
+          {% empty %}<tr><td colspan="6">{% include "includes/empty_state.html" with title="No pages yet" %}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

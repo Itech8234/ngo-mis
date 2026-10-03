@@ -1,0 +1,56 @@
+:root {
+  --primary: #102b55;
+  --secondary: #244875;
+  --accent: #e52d70;
+  --header-bg: #102b55;
+  --header-color: #fff;
+  --breadcrumbs-bg: #f0f4fa;
+  --breadcrumbs-fg: #52647d;
+  --link-fg: #1e63a5;
+  --link-hover-color: #e52d70;
+  --hairline-color: #e2e8f0;
+  --darkened-bg: #f5f7fb;
+  --selected-bg: #edf4ff;
+  --body-bg: #f4f7fb;
+  --body-fg: #17263e;
+  --font-family: Inter, "Segoe UI", sans-serif;
+  --border-radius: 10px;
+}
+body { color: #17263e; background: #f4f7fb; }
+#header { min-height: 66px; padding: 0 28px; background: linear-gradient(105deg,#0b2144,#173a68); box-shadow: 0 4px 20px #0b214426; }
+#branding { display:flex; align-items:center; min-height:66px; }
+.ghdi-admin-brand a { display:flex; align-items:center; gap:12px; color:#fff!important; text-decoration:none; }
+.ghdi-admin-mark { display:grid; width:38px; height:38px; place-items:center; border:1px solid #ffffff50; border-radius:12px; background:#ffffff16; font-size:18px; font-weight:800; }
+.ghdi-admin-brand strong,.ghdi-admin-brand small { display:block; line-height:1.2; }
+.ghdi-admin-brand strong { font-size:15px; letter-spacing:.1em; }
+.ghdi-admin-brand small { margin-top:4px; color:#cad6e8; font-size:11px; font-weight:500; letter-spacing:.04em; }
+#user-tools { padding:0; color:#dbe6f5; font-size:12px; }
+#user-tools a { color:#fff; }
+.breadcrumbs { padding:12px 28px; border-bottom:1px solid #e4eaf2; background:#fff; }
+#content { max-width:1500px; padding:30px 32px 56px; }
+#content h1 { margin:0 0 22px; color:#102b55; font-size:28px; font-weight:750; letter-spacing:-.035em; }
+#content-main,#content-related { min-width:0; }
+.module,#changelist-filter,.inline-group,.dashboard .module { overflow:hidden; border:1px solid #e4eaf2; border-radius:14px; background:#fff; box-shadow:0 8px 24px #102b5508; }
+.module h2,.module caption,.inline-group h2 { padding:14px 18px; background:#f7f9fc; color:#243c5d; font-size:13px; font-weight:700; letter-spacing:.025em; }
+.module table th,.module table td { padding:11px 14px; }
+.module table tr:hover td { background:#f7faff; }
+.dashboard #content { padding-top:32px; }
+.dashboard #content-main { width:100%; }
+.dashboard .module table th { width:auto; }
+.dashboard .module table td a { font-weight:650; }
+.object-tools a,.submit-row input,.button, input[type=submit], input[type=button], .submit-row a { min-height:36px; padding:9px 15px; border:0; border-radius:9px; background:#163d70; box-shadow:0 3px 8px #102b5517; font-weight:650; }
+.object-tools a:hover,.submit-row input:hover,.button:hover,input[type=submit]:hover,input[type=button]:hover { background:#24588f; }
+.submit-row { padding:14px; border:1px solid #e4eaf2; border-radius:12px; background:#f7f9fc; }
+.submit-row .deletelink { min-height:36px; padding:9px 15px; border-radius:9px; }
+input,textarea,select,.vTextField,.vLargeTextField { max-width:100%; border-color:#d7e0eb; border-radius:8px; }
+input:focus,textarea:focus,select:focus { border-color:#3476b9!important; box-shadow:0 0 0 3px #3476b91c!important; }
+.form-row { padding:14px 16px; border-bottom-color:#edf1f6; }
+.help,.helptext { color:#728199; }
+.messagelist li { border-radius:10px; box-shadow:0 5px 15px #102b550b; }
+#changelist-filter { padding:8px 0; }
+#changelist-filter h2 { padding:13px 16px; }
+#changelist-filter li { padding:5px 15px; }
+#changelist table thead th { background:#f7f9fc; }
+#changelist table tbody tr:nth-child(even) { background:#fbfcfe; }
+#footer { padding:20px 28px; color:#728199; }
+@media(max-width:767px) { #content { padding:22px 15px 40px; } #header { padding:0 15px; } #user-tools { font-size:0; } #user-tools a { font-size:11px; } }

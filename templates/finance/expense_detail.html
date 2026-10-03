@@ -1,0 +1,78 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ object.purpose }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Payment request</h1>
+    <p class="sub">{{ object.purpose }} &middot; {{ object.get_status_display }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-ghost" href="{% url 'finance:expense_list' %}">&larr; All requests</a>
+  </div>
+</div>
+
+<div class="card" style="max-width:860px">
+  <div class="card-head">
+    <h3>Details</h3>
+    <span class="badge status-{{ object.status }}">{{ object.get_status_display }}</span>
+  </div>
+  <div class="card-body">
+    <div class="detail-list">
+      <div class="detail-item"><div class="k">Amount</div><div class="v">{{ object.amount|cur_full }}</div></div>
+      <div class="detail-item"><div class="k">Requested by</div><div class="v">{{ object.requested_by|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Program</div><div class="v">{{ object.program|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Project</div><div class="v">{{ object.project|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Date needed</div><div class="v">{{ object.date_needed|date:"d M Y"|default:"—" }}</div></div>
+      <div class="detail-item"><div class="k">Payment method</div><div class="v">{{ object.get_payment_method_display }}</div></div>
+      {% if object.review_note %}<div class="detail-item"><div class="k">Review note</div><div class="v">{{ object.review_note }}</div></div>{% endif %}
+      {% if object.paid_at %}<div class="detail-item"><div class="k">Paid at</div><div class="v">{{ object.paid_at|date:"d M Y H:i" }}</div></div>{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if perms.finance.approve_expense %}
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-head"><h3>Approval workflow</h3></div>
+  <div class="card-body">
+    {% if object.status == "submitted" %}
+    <form method="post" action="{% url 'finance:expense_review' object.pk %}" class="mb-4">
+      {% csrf_token %}
+      <button class="btn btn-secondary" type="submit">Move to financial review</button>
+    </form>
+    {% endif %}
+    {% if object.status == "submitted" or object.status == "under_review" %}
+    <form method="post" action="{% url 'finance:expense_approve' object.pk %}" class="mb-4">
+      {% csrf_token %}
+      <button class="btn btn-success" type="submit" data-confirm="Approve this payment request?">Approve</button>
+    </form>
+    <form method="post" action="{% url 'finance:expense_reject' object.pk %}" class="mb-4">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit" data-confirm="Reject this payment request?">Reject</button>
+    </form>
+    {% endif %}
+    {% if object.status == "approved" and perms.finance.approve_payment %}
+    <form method="post" action="{% url 'finance:expense_pay' object.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit" data-confirm="Process payment and record in ledger?">Process payment</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% if history %}
+<div class="card mt-4" style="max-width:860px">
+  <div class="card-head"><h3>Workflow history</h3></div>
+  <div class="card-body flush">
+    {% for record in history %}
+      <div class="feed-item">
+        <div class="feed-body">
+          <div class="feed-title"><span class="badge badge-gray">{{ record.get_step_display }}</span> {{ record.get_action_display }}</div>
+          <div class="feed-meta">{{ record.actor|default:"System" }} · {{ record.created_at|date:"d M Y H:i" }}{% if record.note %} · {{ record.note }}{% endif %}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load ghdi_extras %}
+{% if results %}
+  {% regroup results by label as groups %}
+  {% for group in groups %}
+    <div class="search-group">
+      <div class="search-group-title">{{ group.grouper }}</div>
+      {% for item in group.list %}
+        <a class="search-item" href="{{ item.url }}">{{ item.title|truncatechars:60 }}</a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <div class="search-group" style="text-align:center;padding:8px 12px">
+    <a class="search-item text-primary" href="{% url 'core:search' %}?q={{ query|urlencode }}">See all results for "{{ query }}" &rarr;</a>
+  </div>
+{% elif query %}
+  <div class="search-group"><div class="search-group-title">No matches for "{{ query }}"</div></div>
+{% endif %}

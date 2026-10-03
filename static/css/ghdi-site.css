@@ -1,0 +1,2210 @@
+/* ==========================================================================
+
+   GHDI 2026 — Public website design system (Bootstrap 5)
+
+
+
+   Layer order matters: this stylesheet is loaded AFTER bootstrap.min.css and
+
+   only themes it. Everything here is additive — no Bootstrap component is
+
+   re-implemented from scratch.
+
+
+
+   Contents
+
+     1.  Design tokens
+
+     2.  Base + typography
+
+     3.  Buttons
+
+     4.  Topbar / navigation
+
+     5.  Mobile drawer
+
+     6.  Hero carousel
+
+     7.  Partner marquee
+
+     8.  Sections, cards and media
+
+     9.  Forms
+
+     10. Footer
+
+     11. Motion preferences + print
+
+   ========================================================================== */
+
+
+
+/* ==========================================================================
+
+   1. Design tokens
+
+   ========================================================================== */
+
+:root {
+
+  /* Brand */
+
+  --ghdi-navy: #011f5b;
+
+  --ghdi-navy-deep: #011949;
+
+  --ghdi-navy-dark: #011338;
+
+  --ghdi-navy-soft: #eef4fb;
+
+  --ghdi-azure: #0081d2;
+
+  --ghdi-azure-soft: #e0f1fd;
+
+  --ghdi-magenta: #eb0160;
+
+  --ghdi-magenta-dark: #c4044f;
+
+  --ghdi-magenta-soft: #fde7f0;
+
+  --ghdi-amber: #fd9a01;
+
+  --ghdi-amber-soft: #fff3de;
+
+  --ghdi-green: #10b981;
+
+  --ghdi-green-soft: #dcfce7;
+
+
+
+  /* Ink */
+
+  --ghdi-ink: #0b1a33;
+
+  --ghdi-body: #52627a;
+
+  --ghdi-muted: #78879e;
+
+  --ghdi-line: #e4eaf3;
+
+
+
+  /* Surfaces */
+
+  --ghdi-surface: #ffffff;
+
+  --ghdi-surface-2: #f6f9fd;
+
+  --ghdi-surface-3: #eef4fb;
+
+
+
+  /* Elevation — soft, wide and low-opacity reads as "premium" */
+
+  --ghdi-shadow-xs: 0 1px 2px rgba(1, 31, 91, 0.06);
+
+  --ghdi-shadow-sm: 0 4px 14px -6px rgba(1, 31, 91, 0.16);
+
+  --ghdi-shadow-md: 0 18px 40px -22px rgba(1, 31, 91, 0.32);
+
+  --ghdi-shadow-lg: 0 34px 70px -34px rgba(1, 31, 91, 0.42);
+
+  --ghdi-shadow-ring: 0 0 0 4px rgba(0, 129, 210, 0.16);
+
+
+
+  /* Radii */
+
+  --ghdi-r-xs: 8px;
+
+  --ghdi-r-sm: 12px;
+
+  --ghdi-r-md: 18px;
+
+  --ghdi-r-lg: 26px;
+
+  --ghdi-r-pill: 999px;
+
+
+
+  /* Rhythm */
+
+  --ghdi-gutter: 24px;
+
+  --ghdi-shell: 1240px;
+
+
+
+  --ghdi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --ghdi-t-fast: 160ms;
+
+  --ghdi-t: 260ms;
+
+
+
+  /* Bootstrap theme bridge: map Bootstrap's own vars onto the brand so
+
+     stock components (alerts, focus rings, links) inherit GHDI colours
+
+     without per-component overrides. */
+
+  --bs-primary: #011f5b;
+
+  --bs-primary-rgb: 1, 31, 91;
+
+  --bs-link-color: #0081d2;
+
+  --bs-link-hover-color: #011f5b;
+
+  --bs-body-color: #52627a;
+
+  --bs-body-font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --bs-body-font-size: 1rem;
+
+  --bs-body-line-height: 1.72;
+
+  --bs-border-color: #e4eaf3;
+
+  --bs-border-radius: 12px;
+
+  --bs-focus-ring-color: rgba(0, 129, 210, 0.35);
+
+}
+
+
+
+/* ==========================================================================
+
+   2. Base + typography
+
+   ========================================================================== */
+
+body {
+
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  color: var(--ghdi-body);
+
+  background: var(--ghdi-surface);
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+}
+
+
+
+h1, h2, h3, h4, h5, h6,
+
+.ghdi-display {
+
+  font-family: Sora, Inter, system-ui, sans-serif;
+
+  color: var(--ghdi-navy);
+
+  font-weight: 800;
+
+  letter-spacing: -0.022em;
+
+  line-height: 1.15;
+
+}
+
+
+
+a { text-decoration: none; transition: color var(--ghdi-t-fast) ease; }
+
+
+
+::selection { background: var(--ghdi-amber-soft); color: var(--ghdi-navy-dark); }
+
+
+
+/* Visible, consistent keyboard affordance everywhere on the public site. */
+
+a:focus-visible,
+
+button:focus-visible,
+
+input:focus-visible,
+
+select:focus-visible,
+
+textarea:focus-visible,
+
+[tabindex]:focus-visible {
+
+  outline: 3px solid var(--ghdi-amber);
+
+  outline-offset: 2px;
+
+  border-radius: var(--ghdi-r-xs);
+
+}
+
+
+
+.ghdi-skip {
+
+  position: absolute;
+
+  left: -9999px;
+
+  top: 0;
+
+  z-index: 200;
+
+  padding: 12px 20px;
+
+  background: var(--ghdi-navy);
+
+  color: #fff;
+
+  font-weight: 600;
+
+}
+
+.ghdi-skip:focus { left: 12px; top: 12px; }
+
+
+
+/* Layout shell — narrower measure keeps long lines readable. */
+
+.ghdi-shell {
+
+  width: 100%;
+
+  max-width: var(--ghdi-shell);
+
+  margin-inline: auto;
+
+  padding-inline: var(--ghdi-gutter);
+
+}
+
+
+
+.ghdi-measure { max-width: 62ch; }
+
+
+
+/* Eyebrow + title pairing used by every section header. */
+
+.ghdi-eyebrow {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  font-size: 0.75rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+
+  color: var(--ghdi-magenta);
+
+}
+
+.ghdi-eyebrow::before {
+
+  content: "";
+
+  width: 26px;
+
+  height: 2px;
+
+  border-radius: 2px;
+
+  background: currentColor;
+
+}
+
+.ghdi-eyebrow--light { color: var(--ghdi-amber); }
+
+
+
+.ghdi-title {
+
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+
+  margin: 14px 0 0;
+
+}
+
+.ghdi-title--light { color: #fff; }
+
+
+
+.ghdi-lede {
+
+  margin: 16px 0 0;
+
+  font-size: 1.05rem;
+
+  line-height: 1.75;
+
+  color: var(--ghdi-body);
+
+}
+
+.ghdi-lede--light { color: rgba(255, 255, 255, 0.8); }
+
+
+
+/* Gradient accent for a highlighted word in a headline. */
+
+.ghdi-grad {
+
+  background: linear-gradient(96deg, var(--ghdi-azure), var(--ghdi-magenta) 55%, var(--ghdi-amber));
+
+  -webkit-background-clip: text;
+
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+
+  color: transparent;
+
+}
+
+.ghdi-grad--light {
+
+  background: linear-gradient(96deg, #7fd0ff, #ff8fbe 55%, #ffcf7d);
+
+  -webkit-background-clip: text;
+
+  background-clip: text;
+
+}
+
+
+
+/* ==========================================================================
+
+   3. Buttons — brand variants layered on .btn
+
+   ========================================================================== */
+
+.btn {
+
+  --bs-btn-font-weight: 600;
+
+  --bs-btn-font-size: 0.9375rem;
+
+  --bs-btn-padding-y: 0.72rem;
+
+  --bs-btn-padding-x: 1.5rem;
+
+  --bs-btn-border-radius: var(--ghdi-r-pill);
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.5rem;
+
+  transition: transform var(--ghdi-t-fast) var(--ghdi-ease),
+
+    box-shadow var(--ghdi-t-fast) ease, background-color var(--ghdi-t-fast) ease,
+
+    border-color var(--ghdi-t-fast) ease, color var(--ghdi-t-fast) ease;
+
+}
+
+
+
+.btn-lg { --bs-btn-padding-y: 0.9rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 1rem; }
+
+.btn-sm { --bs-btn-padding-y: 0.5rem; --bs-btn-padding-x: 1.1rem; --bs-btn-font-size: 0.875rem; }
+
+
+
+/* A restrained lift-on-hover reads as expensive; a bounce does not. */
+
+.btn:hover { transform: translateY(-1px); }
+
+.btn:active { transform: translateY(0); }
+
+
+
+.ghdi-btn-magenta {
+
+  --bs-btn-bg: var(--ghdi-magenta);
+
+  --bs-btn-border-color: var(--ghdi-magenta);
+
+  --bs-btn-color: #fff;
+
+  --bs-btn-hover-bg: var(--ghdi-magenta-dark);
+
+  --bs-btn-hover-border-color: var(--ghdi-magenta-dark);
+
+  --bs-btn-hover-color: #fff;
+
+  --bs-btn-active-bg: var(--ghdi-magenta-dark);
+
+  --bs-btn-active-border-color: var(--ghdi-magenta-dark);
+
+  --bs-btn-active-color: #fff;
+
+  --bs-btn-disabled-bg: var(--ghdi-magenta);
+
+  --bs-btn-disabled-border-color: var(--ghdi-magenta);
+
+  --bs-btn-disabled-color: #fff;
+
+  --bs-btn-focus-shadow-rgb: 235, 1, 96;
+
+  box-shadow: 0 14px 30px -14px rgba(235, 1, 96, 0.65);
+
+}
+
+
+
+.ghdi-btn-navy {
+
+  --bs-btn-bg: var(--ghdi-navy);
+
+  --bs-btn-border-color: var(--ghdi-navy);
+
+  --bs-btn-color: #fff;
+
+  --bs-btn-hover-bg: var(--ghdi-navy-deep);
+
+  --bs-btn-hover-border-color: var(--ghdi-navy-deep);
+
+  --bs-btn-hover-color: #fff;
+
+  --bs-btn-active-bg: var(--ghdi-navy-dark);
+
+  --bs-btn-active-border-color: var(--ghdi-navy-dark);
+
+  --bs-btn-active-color: #fff;
+
+  --bs-btn-focus-shadow-rgb: 1, 31, 91;
+
+  box-shadow: 0 14px 30px -16px rgba(1, 31, 91, 0.6);
+
+}
+
+
+
+/* Glass button for use over photography in the hero. */
+
+.ghdi-btn-glass {
+
+  --bs-btn-bg: rgba(255, 255, 255, 0.12);
+
+  --bs-btn-border-color: rgba(255, 255, 255, 0.42);
+
+  --bs-btn-color: #fff;
+
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.22);
+
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.7);
+
+  --bs-btn-hover-color: #fff;
+
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.28);
+
+  --bs-btn-active-border-color: #fff;
+
+  --bs-btn-active-color: #fff;
+
+  --bs-btn-focus-shadow-rgb: 255, 255, 255;
+
+  backdrop-filter: blur(10px);
+
+}
+
+
+
+.ghdi-btn-outline {
+
+  --bs-btn-bg: transparent;
+
+  --bs-btn-border-color: var(--ghdi-line);
+
+  --bs-btn-color: var(--ghdi-navy);
+
+  --bs-btn-hover-bg: var(--ghdi-navy);
+
+  --bs-btn-hover-border-color: var(--ghdi-navy);
+
+  --bs-btn-hover-color: #fff;
+
+  --bs-btn-active-bg: var(--ghdi-navy);
+
+  --bs-btn-active-border-color: var(--ghdi-navy);
+
+  --bs-btn-active-color: #fff;
+
+  --bs-btn-focus-shadow-rgb: 1, 31, 91;
+
+}
+
+
+
+/* Text link with an animated underline — used for "read more" affordances. */
+
+.ghdi-link {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.4rem;
+
+  font-weight: 600;
+
+  color: var(--ghdi-azure);
+
+  background-image: linear-gradient(currentColor, currentColor);
+
+  background-size: 0% 1.5px;
+
+  background-position: 0 100%;
+
+  background-repeat: no-repeat;
+
+  transition: background-size var(--ghdi-t) var(--ghdi-ease), color var(--ghdi-t-fast) ease;
+
+  padding-bottom: 2px;
+
+}
+
+.ghdi-link:hover { color: var(--ghdi-navy); background-size: 100% 1.5px; }
+
+.ghdi-link--light { color: #fff; }
+
+.ghdi-link--light:hover { color: var(--ghdi-amber); }
+
+.ghdi-link svg { width: 1em; height: 1em; transition: transform var(--ghdi-t-fast) ease; }
+
+.ghdi-link:hover svg { transform: translateX(3px); }
+
+
+
+/* ==========================================================================
+
+   4. Topbar / navigation
+
+   A Bootstrap .navbar with brand-specific skinning. The bar is opaque navy by
+
+   default and turns translucent + blurred once the page scrolls, which keeps
+
+   the hero image readable underneath while staying legible over content.
+
+   ========================================================================== */
+
+.ghdi-topbar {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1030;
+
+  padding: 0;
+
+  background: var(--ghdi-navy);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  transition: background var(--ghdi-t) var(--ghdi-ease), box-shadow var(--ghdi-t) var(--ghdi-ease);
+
+}
+
+
+
+/* Overlays the hero on the homepage, then condenses on scroll. */
+
+.ghdi-topbar--overlay { position: fixed; left: 0; right: 0; background: transparent; border-bottom-color: transparent; }
+
+.ghdi-topbar.is-stuck {
+
+  background: rgba(1, 25, 73, 0.86);
+
+  backdrop-filter: blur(14px) saturate(140%);
+
+  box-shadow: 0 18px 40px -30px rgba(0, 0, 0, 0.9);
+
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+
+}
+
+
+
+.ghdi-topbar__inner {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  width: 100%;
+
+  max-width: var(--ghdi-shell);
+
+  margin: 0 auto;
+
+  padding: 12px var(--ghdi-gutter);
+
+}
+
+@media (max-width: 1199.98px) {
+
+  .ghdi-topbar__inner {
+
+    justify-content: flex-start;
+
+  }
+
+  .ghdi-topbar__inner > .ghdi-burger {
+
+    margin-left: auto;
+
+  }
+
+}
+
+
+
+.ghdi-brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; flex: 0 0 auto; }
+
+.ghdi-brand:hover { text-decoration: none; }
+
+
+
+.ghdi-brand__logo {
+
+  height: 44px;
+
+  width: auto;
+
+  object-fit: contain;
+
+  background: #fff;
+
+  border-radius: var(--ghdi-r-sm);
+
+  padding: 5px 8px;
+
+  box-shadow: var(--ghdi-shadow-sm);
+
+}
+
+
+
+.ghdi-brand__mark {
+
+  display: grid;
+
+  place-items: center;
+
+  width: 46px;
+
+  height: 46px;
+
+  border-radius: 14px;
+
+  background: linear-gradient(140deg, var(--ghdi-amber), var(--ghdi-magenta));
+
+  color: #fff;
+
+  font-family: Sora, Inter, sans-serif;
+
+  font-weight: 800;
+
+  font-size: 15px;
+
+  letter-spacing: 0.04em;
+
+  box-shadow: var(--ghdi-shadow-sm);
+
+}
+
+
+
+.ghdi-brand__text { display: grid; line-height: 1.15; }
+
+.ghdi-brand__name { font-family: Sora, Inter, sans-serif; font-weight: 800; font-size: 15px; color: #fff; }
+
+.ghdi-brand__sub { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+
+
+
+/* --- Desktop menu ------------------------------------------------------- */
+
+.ghdi-menu { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+
+
+
+.ghdi-menu__link {
+
+  position: relative;
+
+  padding: 10px 14px;
+
+  border-radius: var(--ghdi-r-xs);
+
+  font-size: 14.5px;
+
+  font-weight: 600;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  transition: color var(--ghdi-t-fast) ease, background var(--ghdi-t-fast) ease;
+
+}
+
+
+
+.ghdi-menu__link:hover { color: #fff; background: rgba(255, 255, 255, 0.09); text-decoration: none; }
+
+
+
+.ghdi-menu__link.is-active { color: #fff; }
+
+
+
+/* Underline indicator for the current page. */
+
+.ghdi-menu__link.is-active::after {
+
+  content: "";
+
+  position: absolute;
+
+  left: 14px;
+
+  right: 14px;
+
+  bottom: 4px;
+
+  height: 2px;
+
+  border-radius: 2px;
+
+  background: var(--ghdi-amber);
+
+}
+
+
+
+.ghdi-menu__link:focus-visible { outline: 3px solid var(--ghdi-amber); outline-offset: 2px; }
+
+
+
+/* --- Burger ------------------------------------------------------------- */
+
+.ghdi-burger {
+
+  display: inline-grid;
+
+  place-items: center;
+
+  width: 46px;
+
+  height: 46px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #fff;
+
+  cursor: pointer;
+
+  box-shadow: 0 12px 28px -22px rgba(0, 0, 0, 0.8);
+
+  backdrop-filter: blur(8px);
+
+  transition: transform var(--ghdi-t-fast) var(--ghdi-ease), background var(--ghdi-t-fast) ease, border-color var(--ghdi-t-fast) ease, box-shadow var(--ghdi-t-fast) ease;
+
+}
+
+
+
+.ghdi-burger:hover {
+
+  background: rgba(255, 255, 255, 0.18);
+
+  border-color: rgba(255, 255, 255, 0.52);
+
+  box-shadow: 0 18px 34px -24px rgba(0, 0, 0, 0.9);
+
+  transform: translateY(-1px);
+
+}
+
+.ghdi-burger svg { width: 22px; height: 22px; }
+
+.ghdi-burger:focus-visible { outline: 3px solid var(--ghdi-amber); outline-offset: 2px; }
+
+
+
+/* Desktop shows the inline menu, mobile shows the burger. */
+
+@media (min-width: 1200px) { .ghdi-burger { display: none; } }
+
+@media (max-width: 1199.98px) { .ghdi-menu { display: none; } }
+
+
+
+/* ==========================================================================
+
+   5. Drawer (mobile navigation)
+
+   Bootstrap .offcanvas re-skinned. Visibility is driven by Bootstrap's own
+
+   JS, so no [hidden] toggling is required.
+
+   ========================================================================== */
+
+.ghdi-drawer {
+
+  --bs-offcanvas-width: min(340px, 88vw);
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(246, 249, 253, 0.98));
+
+  border-right: 0;
+
+  box-shadow: 0 24px 64px -30px rgba(1, 25, 73, 0.7);
+
+}
+
+
+
+.ghdi-drawer__head {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 18px 20px;
+
+  background: linear-gradient(135deg, var(--ghdi-navy), #022a69 68%, #013a8d);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+}
+
+
+
+.ghdi-drawer__head .ghdi-brand__name { font-size: 14px; }
+
+.ghdi-drawer__head .ghdi-brand__sub { font-size: 10px; }
+
+
+
+.ghdi-drawer__close {
+
+  margin-left: auto;
+
+  display: inline-grid;
+
+  place-items: center;
+
+  width: 38px;
+
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border-radius: 11px;
+
+  border: 1px solid rgba(255, 255, 255, 0.24);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #fff;
+
+  cursor: pointer;
+
+}
+
+
+
+.ghdi-drawer__close:hover { background: rgba(255, 255, 255, 0.2); }
+
+.ghdi-drawer__close svg { width: 18px; height: 18px; }
+
+
+
+.ghdi-drawer__body { padding: 14px 12px 22px; }
+
+
+
+.ghdi-drawer__link {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 13px 14px;
+
+  border-radius: var(--ghdi-r-sm);
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: var(--ghdi-ink);
+
+  text-decoration: none;
+
+  transition: background var(--ghdi-t-fast) ease, color var(--ghdi-t-fast) ease, transform var(--ghdi-t-fast) ease;
+
+}
+
+
+
+.ghdi-drawer__link:hover {
+
+  background: var(--ghdi-surface-3);
+
+  color: var(--ghdi-navy);
+
+  text-decoration: none;
+
+  transform: translateX(2px);
+
+}
+
+
+
+.ghdi-drawer__link.is-active {
+
+  background: var(--ghdi-navy-soft);
+
+  color: var(--ghdi-navy);
+
+  box-shadow: inset 3px 0 0 var(--ghdi-magenta);
+
+}
+
+
+
+.ghdi-drawer__link:focus-visible { outline: 3px solid var(--ghdi-azure); outline-offset: -3px; }
+
+.ghdi-drawer__cta {
+
+  display: block;
+
+  margin-top: 8px;
+
+  padding: 16px;
+
+  border-radius: var(--ghdi-r-sm);
+
+  background: linear-gradient(135deg, var(--ghdi-magenta), var(--ghdi-magenta-dark));
+
+  color: #fff;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  box-shadow: 0 16px 28px -20px rgba(235, 1, 96, 0.85);
+
+  border-top: 1px solid var(--ghdi-line);
+
+}
+
+
+
+/* ==========================================================================
+
+   6. Hero carousel
+
+   Full-bleed image slideshow. Slides are stacked absolutely and crossfaded via
+
+   opacity; only the active slide is exposed to assistive tech (the JS marks the
+
+   rest inert). Copy animates in with a small upward stagger.
+
+   ========================================================================== */
+
+.ghdi-hero {
+
+  position: relative;
+
+  isolation: isolate;
+
+  overflow: hidden;
+
+  min-height: 100svh;
+
+  background: var(--ghdi-navy-dark);
+
+  color: #fff;
+
+}
+
+
+
+.ghdi-hero__slides { position: relative; min-height: inherit; }
+
+
+
+.ghdi-hero__slide {
+
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  background-color: var(--ghdi-navy-dark);
+
+  background-image: var(--ghdi-hero-img, none);
+
+  background-size: cover;
+
+  background-position: center;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: opacity 900ms var(--ghdi-ease), visibility 900ms var(--ghdi-ease);
+
+}
+
+
+
+.ghdi-hero__slide.is-active { opacity: 1; visibility: visible; z-index: 2; }
+
+
+
+/* Readability scrim over the photo. */
+
+.ghdi-hero__slide::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  background:
+
+    linear-gradient(100deg, rgba(1, 25, 73, 0.95) 0%, rgba(1, 31, 91, 0.82) 42%, rgba(1, 31, 91, 0.28) 100%),
+
+    linear-gradient(0deg, rgba(1, 19, 56, 0.9) 0%, transparent 46%);
+
+}
+
+
+
+/* Slow drift on the active photo, for a premium "alive" feel. */
+
+.ghdi-hero__slide::after {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  background-image: inherit;
+
+  background-size: cover;
+
+  background-position: center;
+
+  transform: scale(1.07);
+
+  transition: transform 9s linear;
+
+}
+
+
+
+.ghdi-hero__slide.is-active::after { transform: scale(1); }
+
+
+
+.ghdi-hero__inner {
+
+  position: relative;
+
+  z-index: 3;
+
+  width: 100%;
+
+  max-width: var(--ghdi-shell);
+
+  margin: 0 auto;
+
+  padding: 132px var(--ghdi-gutter) 120px;
+
+}
+
+
+
+.ghdi-hero__copy { max-width: 720px; }
+
+
+
+.ghdi-hero__eyebrow {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 7px 16px;
+
+  border-radius: var(--ghdi-r-pill);
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
+  backdrop-filter: blur(8px);
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+
+  color: #fff;
+
+}
+
+
+
+.ghdi-hero__eyebrow .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--ghdi-amber); }
+
+
+
+.ghdi-hero__title {
+
+  font-family: Sora, Inter, sans-serif;
+
+  font-weight: 800;
+
+  font-size: clamp(2.1rem, 5.2vw, 3.7rem);
+
+  line-height: 1.05;
+
+  letter-spacing: -0.028em;
+
+  margin: 20px 0 0;
+
+  color: #fff;
+
+  text-wrap: balance;
+
+}
+
+
+
+.ghdi-hero__title-hl {
+
+  color: #fff;
+
+  background: none;
+
+}
+
+
+
+.ghdi-hero__lead {
+
+  max-width: 620px;
+
+  margin: 20px 0 0;
+
+  font-size: clamp(1rem, 1.5vw, 1.14rem);
+
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.84);
+
+}
+
+
+
+.ghdi-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+
+
+/* Staggered entrance driven by the .ghdi-hero__anim utility class. */
+
+.ghdi-hero__anim { opacity: 0; transform: translateY(22px); filter: blur(6px); }
+
+
+
+.ghdi-hero__slide.is-active .ghdi-hero__anim {
+
+  animation: ghdiHeroIn 820ms var(--ghdi-ease) forwards;
+
+}
+
+
+
+.ghdi-hero__slide.is-active .ghdi-hero__anim:nth-child(2) { animation-delay: 90ms; }
+
+.ghdi-hero__slide.is-active .ghdi-hero__anim:nth-child(3) { animation-delay: 180ms; }
+
+.ghdi-hero__slide.is-active .ghdi-hero__anim:nth-child(4) { animation-delay: 270ms; }
+
+
+
+@keyframes ghdiHeroIn {
+
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+}
+
+
+
+/* ------------------------------------------------ Hero controls (part A) */
+
+.ghdi-hero__nav {
+
+  position: absolute;
+
+  top: auto;
+
+  bottom: 28px;
+
+  translate: 0 0;
+
+  z-index: 5;
+
+  display: grid;
+
+  place-items: center;
+
+  width: 54px;
+
+  height: 54px;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  color: #fff;
+
+  backdrop-filter: blur(10px);
+
+  cursor: pointer;
+
+  transition: background 220ms var(--ghdi-ease), border-color 220ms var(--ghdi-ease),
+
+    transform 220ms var(--ghdi-ease);
+
+}
+
+
+
+.ghdi-hero__nav:hover {
+
+  background: rgba(255, 255, 255, 0.22);
+
+  border-color: rgba(255, 255, 255, 0.55);
+
+}
+
+
+
+.ghdi-hero__nav--prev { left: 26px; }
+
+.ghdi-hero__nav--next { left: 94px; right: auto; }
+
+.ghdi-hero__nav--prev:hover { transform: translateX(-3px); }
+
+.ghdi-hero__nav--next:hover { transform: translateX(3px); }
+
+
+
+.ghdi-hero__nav:focus-visible {
+
+  outline: 3px solid var(--ghdi-amber);
+
+  outline-offset: 3px;
+
+}
+
+
+
+.ghdi-hero__nav svg { width: 22px; height: 22px; }
+
+
+
+/* Dot rail */
+
+.ghdi-hero__dots {
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 34px;
+
+  translate: -50% 0;
+
+  z-index: 5;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+
+.ghdi-hero__dot {
+
+  width: 34px;
+
+  height: 5px;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.34);
+
+  cursor: pointer;
+
+  transition: width 300ms var(--ghdi-ease), background 300ms var(--ghdi-ease);
+
+}
+
+
+
+.ghdi-hero__dot.is-active { width: 62px; background: var(--ghdi-magenta); }
+
+
+
+.ghdi-hero__dot:focus-visible {
+
+  outline: 3px solid var(--ghdi-amber);
+
+  outline-offset: 3px;
+
+}
+
+
+
+/* Slide counter */
+
+.ghdi-hero__counter {
+
+  position: absolute;
+
+  right: 26px;
+
+  bottom: 32px;
+
+  z-index: 5;
+
+  margin: 0;
+
+  font-family: var(--ghdi-font-display);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.14em;
+
+  color: rgba(255, 255, 255, 0.7);
+
+}
+
+
+
+.ghdi-hero__counter span { color: #fff; font-size: 18px; }
+
+.ghdi-hero__counter i { margin: 0 5px; color: var(--ghdi-amber); font-style: normal; }
+
+
+
+/* Autoplay progress bar — duration is published by ghdi-site.js so the fill
+
+   and the JS timer can never drift apart. */
+
+.ghdi-hero__progress {
+
+  position: absolute;
+
+  left: 0;
+
+  right: 0;
+
+  bottom: 0;
+
+  z-index: 6;
+
+  height: 3px;
+
+  background: rgba(255, 255, 255, 0.14);
+
+}
+
+
+
+.ghdi-hero__progress span {
+
+  display: block;
+
+  height: 100%;
+
+  width: 0;
+
+  background: linear-gradient(90deg, var(--ghdi-azure), var(--ghdi-magenta), var(--ghdi-amber));
+
+  animation: ghdiHeroFill var(--ghdi-hero-interval, 6500ms) linear infinite;
+
+}
+
+
+
+.ghdi-hero.is-paused .ghdi-hero__progress span { animation-play-state: paused; }
+
+
+
+@keyframes ghdiHeroFill { to { width: 100%; } }
+
+
+
+/* Up-next thumbnail rail — modern carousel affordance, bottom-left band. */
+
+.ghdi-hero__thumbs {
+
+  position: absolute;
+
+  left: 26px;
+
+  bottom: 76px;
+
+  z-index: 5;
+
+  display: flex;
+
+  gap: 10px;
+
+  max-width: min(50vw, 600px);
+
+}
+
+
+
+.ghdi-hero__thumb {
+
+  position: relative;
+
+  width: 132px;
+
+  height: 74px;
+
+  flex: 0 0 auto;
+
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  background-color: var(--ghdi-navy-dark);
+
+  background-image: var(--ghdi-hero-img);
+
+  background-size: cover;
+
+  background-position: center;
+
+  opacity: 0.6;
+
+  filter: saturate(0.75);
+
+  transition: opacity 260ms var(--ghdi-ease), transform 260ms var(--ghdi-ease),
+
+    border-color 260ms var(--ghdi-ease), filter 260ms var(--ghdi-ease),
+
+    box-shadow 260ms var(--ghdi-ease);
+
+}
+
+
+
+.ghdi-hero__thumb::after {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(180deg, rgba(1, 25, 73, 0.2), rgba(1, 25, 73, 0.88));
+
+}
+
+
+
+.ghdi-hero__thumb:hover { opacity: 1; transform: translateY(-3px); filter: saturate(1); }
+
+
+
+.ghdi-hero__thumb.is-active {
+
+  opacity: 1;
+
+  filter: saturate(1);
+
+  border-color: var(--ghdi-magenta);
+
+  box-shadow: 0 0 0 2px rgba(235, 1, 96, 0.45), 0 14px 28px -16px rgba(0, 0, 0, 0.85);
+
+}
+
+
+
+.ghdi-hero__thumb:focus-visible {
+
+  outline: 3px solid var(--ghdi-amber);
+
+  outline-offset: 3px;
+
+}
+
+
+
+.ghdi-hero__thumb-label {
+
+  position: absolute;
+
+  z-index: 1;
+
+  left: 10px;
+
+  right: 10px;
+
+  bottom: 8px;
+
+  font-size: 10.5px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+
+  text-align: left;
+
+  color: rgba(255, 255, 255, 0.92);
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+
+}
+
+
+
+/* ==========================================================================
+
+   7. Partner logo marquee (infinite, seamless)
+
+   ========================================================================== */
+
+.ghdi-marquee {
+
+  /* Declared here (not just consumed) so @keyframes can read them too —
+
+     custom properties resolve at computed-value time, and an undefined var()
+
+     inside a keyframe invalidates the whole declaration. */
+
+  --ghdi-marquee-gap: 64px;
+
+  --ghdi-marquee-duration: 42s;
+
+  position: relative;
+
+  overflow: hidden;
+
+  padding: 26px 0;
+
+}
+
+
+
+.ghdi-marquee__viewport {
+
+  display: flex;
+
+  width: max-content;
+
+  gap: var(--ghdi-marquee-gap, 64px);
+
+  animation: ghdiMarquee var(--ghdi-marquee-duration, 42s) linear infinite;
+
+  will-change: transform;
+
+}
+
+
+
+.ghdi-marquee:hover .ghdi-marquee__viewport,
+
+.ghdi-marquee:focus-within .ghdi-marquee__viewport {
+
+  animation-play-state: paused;
+
+}
+
+
+
+.ghdi-marquee__group {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--ghdi-marquee-gap, 64px);
+
+  flex: 0 0 auto;
+
+}
+
+
+
+.ghdi-marquee__item {
+
+  flex: 0 0 auto;
+
+  display: grid;
+
+  place-items: center;
+
+  height: 76px;
+
+  min-width: 132px;
+
+  padding: 10px 20px;
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  transition: transform 240ms var(--ghdi-ease), background 240ms ease, border-color 240ms ease;
+
+}
+
+
+
+.ghdi-marquee--light .ghdi-marquee__item {
+
+  background: #fff;
+
+  border-color: rgba(1, 31, 91, 0.1);
+
+  box-shadow: 0 6px 20px rgba(1, 31, 91, 0.07);
+
+}
+
+
+
+.ghdi-marquee__item:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.1); }
+
+.ghdi-marquee--light .ghdi-marquee__item:hover { background: #fff; border-color: rgba(0, 129, 210, 0.35); }
+
+
+
+.ghdi-marquee__item img {
+
+  max-height: 44px;
+
+  width: auto;
+
+  max-width: 132px;
+
+  object-fit: contain;
+
+  filter: grayscale(1);
+
+  opacity: 0.72;
+
+  transition: filter 240ms ease, opacity 240ms ease;
+
+}
+
+
+
+.ghdi-marquee__item:hover img { filter: grayscale(0); opacity: 1; }
+
+.ghdi-marquee__item:focus-visible { outline: 3px solid var(--ghdi-azure); outline-offset: 2px; }
+
+
+
+/* Monogram tile shown when a partner has no uploaded logo */
+
+.ghdi-marquee__mark {
+
+  display: inline-grid;
+
+  place-items: center;
+
+  width: 40px;
+
+  height: 40px;
+
+  border-radius: 11px;
+
+  background: linear-gradient(140deg, var(--ghdi-navy), var(--ghdi-azure));
+
+  color: #fff;
+
+  font-family: Sora, Inter, system-ui, sans-serif;
+
+  font-weight: 700;
+
+  font-size: 14px;
+
+  letter-spacing: 0.02em;
+
+  flex: 0 0 auto;
+
+}
+
+
+
+.ghdi-marquee--light .ghdi-marquee__mark { box-shadow: 0 6px 16px -8px rgba(1, 31, 91, 0.6); }
+
+
+
+.ghdi-marquee__item:has(.ghdi-marquee__mark) {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px 20px 10px 12px;
+
+  max-width: 300px;
+
+}
+
+
+
+.ghdi-marquee__name {
+
+  font-family: Sora, Inter, system-ui, sans-serif;
+
+  font-weight: 600;
+
+  font-size: 14.5px;
+
+  letter-spacing: -0.01em;
+
+  color: rgba(255, 255, 255, 0.86);
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+}
+
+
+
+.ghdi-marquee--light .ghdi-marquee__name { color: var(--ghdi-navy); }
+
+
+
+/* Edge fade (background-aware) */
+
+.ghdi-marquee--fade::before,
+
+.ghdi-marquee--fade::after {
+
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  bottom: 0;
+
+  width: 12%;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+}
+
+
+
+.ghdi-marquee--fade::before { left: 0; background: linear-gradient(90deg, var(--ghdi-marquee-fade, #011f5b), transparent); }
+
+.ghdi-marquee--fade::after { right: 0; background: linear-gradient(270deg, var(--ghdi-marquee-fade, #011f5b), transparent); }
+
+.ghdi-marquee--light.ghdi-marquee--fade::before { background: linear-gradient(90deg, var(--ghdi-marquee-fade, #fff), transparent); }
+
+.ghdi-marquee--light.ghdi-marquee--fade::after { background: linear-gradient(270deg, var(--ghdi-marquee-fade, #fff), transparent); }
+
+
+
+/* The gap fallback is load-bearing: without it the transform goes invalid at
+
+   computed-value time on wide viewports and the marquee silently freezes. */
+
+@keyframes ghdiMarquee {
+
+  from { transform: translateX(0); }
+
+  to { transform: translateX(calc(-50% - (var(--ghdi-marquee-gap, 64px) / 2))); }
+
+}
+
+
+
+/* ------------------------------------------------ Hero responsive ------- */
+
+@media (max-width: 1199px) {
+
+  .ghdi-hero__thumbs { display: none; }
+
+}
+
+
+
+@media (max-width: 991px) {
+
+  .ghdi-hero__nav { display: none; }
+
+}
+
+
+
+@media (max-width: 767px) {
+
+  .ghdi-hero__counter { display: none; }
+
+  .ghdi-hero__dots { bottom: 24px; }
+
+}
+
+
+
+/* Short viewports: drop the rail so it can never crowd the headline. */
+
+@media (max-height: 720px) {
+
+  .ghdi-hero__thumbs { display: none; }
+
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+
+  .ghdi-hero__slide,
+
+  .ghdi-hero__nav,
+
+  .ghdi-hero__dot,
+
+  .ghdi-hero__thumb { transition: none !important; }
+
+
+
+  .ghdi-hero__slide.is-active .ghdi-hero__anim { animation: none !important; opacity: 1; transform: none; filter: none; }
+
+  .ghdi-hero__progress span { animation: none !important; width: 100%; }
+
+}
+
+
+
+
+/* ================================================================ 8. Sections & cards */
+.section { padding: 88px 0; }
+.section--soft { background: var(--ghdi-surface-2); }
+.section--navy { background: var(--ghdi-primary); color: #fff; }
+
+.section-head { max-width: 720px; margin: 0 auto 44px; text-align: center; }
+.section-head .eyebrow {
+  display: inline-block;
+  font-size: 12px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ghdi-accent);
+}
+.section-head h2 {
+  font-family: var(--ghdi-font-display); font-weight: 800;
+  font-size: clamp(1.7rem, 3vw, 2.35rem); line-height: 1.16;
+  letter-spacing: -.02em; color: var(--ghdi-primary); margin: 12px 0 0;
+}
+.section--navy .section-head h2, .section--navy .section-head h2 * { color: #fff; }
+.section-head p { margin: 14px auto 0; max-width: 620px; color: var(--ghdi-text-muted); line-height: 1.7; }
+.section--navy .section-head p { color: rgba(255,255,255,.75); }
+
+.ghdi-card {
+  position: relative; display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--ghdi-border);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(1,31,91,.04);
+  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+.ghdi-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0,129,210,.4);
+  box-shadow: 0 24px 48px -24px rgba(1,31,91,.35);
+}
+.ghdi-card__media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--ghdi-primary-dark); }
+.ghdi-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.ghdi-card:hover .ghdi-card__media img { transform: scale(1.06); }
+.ghdi-card__body { display: flex; flex-direction: column; gap: 10px; padding: 22px; flex: 1; }
+.ghdi-card__title { font-family: var(--ghdi-font-display); font-size: 1.1rem; font-weight: 700; color: var(--ghdi-primary); margin: 0; line-height: 1.32; }
+.ghdi-card__title a { color: inherit; text-decoration: none; }
+.ghdi-card__title a:hover { color: var(--ghdi-accent); }
+.ghdi-card__meta { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ghdi-accent); }
+.ghdi-card__text { font-size: .95rem; line-height: 1.65; color: var(--ghdi-text-muted); margin: 0; }
+.ghdi-card__foot { margin-top: auto; padding-top: 14px; }
+
+/* ---- Media card (news / events / stories grids) ------------------------- */
+.ghdi-media-card {
+  position: relative; display: flex; flex-direction: column; height: 100%;
+  background: #fff; border: 1px solid var(--ghdi-border); border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(1,31,91,.04);
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+.ghdi-media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 48px -24px rgba(1,31,91,.35);
+}
+.ghdi-media-card__media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--ghdi-primary-dark); }
+.ghdi-media-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.ghdi-media-card:hover .ghdi-media-card__media img { transform: scale(1.06); }
+.ghdi-media-card__media--fallback {
+  display: grid; place-items: center; height: 100%;
+  background: linear-gradient(135deg, var(--ghdi-primary) 0%, var(--ghdi-primary-dark) 60%, var(--ghdi-accent) 160%);
+  color: rgba(255,255,255,.9); font-weight: 800; letter-spacing: .3em;
+  text-transform: uppercase; font-size: .8rem;
+}
+.ghdi-media-card__date {
+  position: absolute; left: 14px; bottom: -18px; z-index: 2;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 58px; padding: 8px 10px; border-radius: 12px;
+  background: var(--ghdi-accent); color: var(--ghdi-primary-dark);
+  font-weight: 800; line-height: 1.05; box-shadow: 0 10px 20px -10px rgba(1,31,91,.5);
+}
+.ghdi-media-card__date span { font-size: 1.05rem; }
+.ghdi-media-card__date small { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.ghdi-media-card__body { display: flex; flex-direction: column; gap: 9px; padding: 26px 22px 22px; flex: 1; }
+.ghdi-media-card__title { font-family: var(--ghdi-font-display); font-size: 1.06rem; font-weight: 700; margin: 0; line-height: 1.34; color: var(--ghdi-primary); }
+.ghdi-media-card__title a { color: inherit; text-decoration: none; }
+.ghdi-media-card__title a:hover { color: var(--ghdi-accent); }
+.ghdi-media-card__excerpt { margin: 0; font-size: .93rem; line-height: 1.65; color: var(--ghdi-text-muted); }
+.ghdi-media-card__more {
+  margin-top: auto; padding-top: 12px; font-size: .85rem; font-weight: 700;
+  color: var(--ghdi-azure); text-decoration: none; letter-spacing: .02em;
+}
+.ghdi-media-card__more:hover { color: var(--ghdi-accent); }
+
+/* ---- Horizontal card rail ---------------------------------------------- */
+.ghdi-rail { position: relative; }
+.ghdi-rail__controls { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 18px; }
+.ghdi-rail__btn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px;
+  border-radius: 999px; border: 1px solid var(--ghdi-border);
+  background: #fff; color: var(--ghdi-primary); cursor: pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.ghdi-rail__btn:hover:not(:disabled) { background: var(--ghdi-primary); color: #fff; border-color: var(--ghdi-primary); transform: translateY(-2px); }
+.ghdi-rail__btn:disabled { opacity: .35; cursor: not-allowed; }
+.ghdi-rail__btn:focus-visible { outline: 3px solid var(--ghdi-accent); outline-offset: 2px; }
+.ghdi-rail__track {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(272px, 1fr);
+  gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory;
+  padding-bottom: 10px; scrollbar-width: thin;
+}
+.ghdi-rail__track > * { scroll-snap-align: start; }
+
+/* ---- Stats -------------------------------------------------------------- */
+.ghdi-stat {
+  position: relative; padding: 30px 24px; border-radius: 18px; text-align: center;
+  background: #fff; border: 1px solid var(--ghdi-border);
+  box-shadow: 0 1px 2px rgba(1,31,91,.04);
+}
+.ghdi-stat__num {
+  font-family: var(--ghdi-font-display); font-weight: 800;
+  font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1; color: var(--ghdi-primary);
+  letter-spacing: -.02em;
+}
+.ghdi-stat__num sup { font-size: .5em; color: var(--ghdi-accent); }
+.ghdi-stat__label {
+  display: block; margin-top: 10px; font-size: .82rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ghdi-text-muted);
+}
+.section--navy .ghdi-stat { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); }
+.section--navy .ghdi-stat__num { color: #fff; }
+.section--navy .ghdi-stat__label { color: rgba(255,255,255,.7); }
+
+/* ---- Prose (long-form article bodies) ----------------------------------- */
+.ghdi-prose { max-width: 760px; margin: 0 auto; font-size: 1.04rem; line-height: 1.8; color: var(--ghdi-text); }
+.ghdi-prose h2 { font-family: var(--ghdi-font-display); font-size: 1.5rem; font-weight: 800; margin: 2em 0 .7em; color: var(--ghdi-primary); letter-spacing: -.01em; }
+.ghdi-prose h3 { font-family: var(--ghdi-font-display); font-size: 1.22rem; font-weight: 700; margin: 1.7em 0 .6em; color: var(--ghdi-primary); }
+.ghdi-prose p { margin: 0 0 1.15em; }
+.ghdi-prose ul, .ghdi-prose ol { margin: 1em 0 1em 1.3em; display: grid; gap: .45em; }
+.ghdi-prose strong { color: var(--ghdi-primary-dark); }
+.ghdi-prose a { color: var(--ghdi-azure); text-decoration: underline; text-underline-offset: 2px; }
+.ghdi-prose a:hover { color: var(--ghdi-accent); }
+.ghdi-prose img { max-width: 100%; height: auto; border-radius: 14px; }
+.ghdi-prose blockquote {
+  margin: 1.6em 0; padding: 14px 22px; border-left: 4px solid var(--ghdi-accent);
+  background: var(--ghdi-surface-2); border-radius: 0 12px 12px 0;
+  font-style: italic; color: var(--ghdi-primary-dark);
+}
+
+/* ================================================================ 9. Forms */
+.form-group { margin-bottom: 20px; }
+.form-group > label {
+  display: block; margin-bottom: 7px; font-size: .875rem; font-weight: 600;
+  color: var(--ghdi-primary-dark);
+}
+.form-group .req { color: var(--ghdi-accent); margin-left: 2px; }
+.form-input,
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="url"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+  display: block; width: 100%; padding: 11px 15px;
+  font-size: .95rem; color: var(--ghdi-text); background: #fff;
+  border: 1px solid var(--ghdi-border); border-radius: 12px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  appearance: none;
+}
+.form-group textarea { min-height: 132px; resize: vertical; }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.form-input:focus {
+  outline: none; border-color: var(--ghdi-azure);
+  box-shadow: 0 0 0 4px rgba(0,129,210,.15);
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: #94a3b8; }
+.form-hint { margin-top: 6px; font-size: .8rem; color: var(--ghdi-text-muted); }
+.field-errors { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.field-errors li { font-size: .82rem; font-weight: 600; color: var(--ghdi-danger, #dc2626); }
+.form-group.has-errors input,
+.form-group.has-errors select,
+.form-group.has-errors textarea { border-color: var(--ghdi-danger, #dc2626); }
+.form-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+/* Custom checkbox used by "remember me" / consent rows */
+.form-check-premium { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: var(--ghdi-text-muted); }
+.form-check-premium input { margin-top: 3px; accent-color: var(--ghdi-primary); }
+
+/* ================================================================ 10. Footer */
+.ghdi-footer { background: var(--ghdi-primary-darker, #011338); color: rgba(201,214,238,.82); }
+.ghdi-footer__inner {
+  max-width: 1240px; margin: 0 auto; padding: 66px 24px 30px;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 40px;
+}
+.ghdi-footer__title {
+  font-family: var(--ghdi-font-display); font-size: .95rem; font-weight: 700;
+  color: #fff; margin: 0 0 16px; letter-spacing: .04em;
+}
+.ghdi-footer__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ghdi-footer__links a { color: rgba(201,214,238,.82); text-decoration: none; font-size: .92rem; transition: color .2s ease, padding-left .2s ease; }
+.ghdi-footer__links a:hover { color: var(--ghdi-accent); padding-left: 4px; }
+.ghdi-footer__text { font-size: .92rem; line-height: 1.8; margin: 0; }
+.ghdi-footer__text a { color: rgba(201,214,238,.82); text-decoration: none; }
+.ghdi-footer__text a:hover { color: var(--ghdi-accent); }
+.ghdi-footer__bottom {
+  max-width: 1240px; margin: 0 auto; padding: 20px 24px 34px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between;
+  font-size: .85rem;
+}
+.ghdi-footer__bottom a { color: rgba(201,214,238,.82); text-decoration: none; }
+.ghdi-footer__bottom a:hover { color: var(--ghdi-accent); }
+@media (max-width: 991px) { .ghdi-footer__inner { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 575px) { .ghdi-footer__inner { grid-template-columns: 1fr; padding-top: 48px; } }
+
+/* Social icon row */
+.ghdi-social { display: flex; flex-wrap: wrap; gap: 10px; }
+.ghdi-social a {
+  display: inline-grid; place-items: center; width: 40px; height: 40px;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.85); background: rgba(255,255,255,.06);
+  transition: background .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
+}
+.ghdi-social a:hover { background: var(--ghdi-accent); color: var(--ghdi-primary-dark); border-color: var(--ghdi-accent); transform: translateY(-3px); }
+.ghdi-social svg { width: 18px; height: 18px; }
+
+@media print {
+  .ghdi-topbar, .offcanvas, .ghdi-hero__nav, .ghdi-hero__dots, .ghdi-hero__thumbs,
+  .ghdi-rail__controls, .ghdi-social, .skip-link { display: none !important; }
+  .ghdi-footer { background: #fff; color: #000; }
+  body { color: #000; }
+}

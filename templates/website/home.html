@@ -1,0 +1,250 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}{{ ghdi_org_name }} â€” Protecting and empowering vulnerable communities{% endblock %}
+{% block content %}
+<!-- ============ FULL-BLEED HERO CAROUSEL ============ -->
+<section class="ghdi-hero" data-hero-carousel aria-roledescription="carousel" aria-label="GHDI highlights">
+  <div class="ghdi-hero__slides">
+    {% for s in hero_slides %}
+    <article class="ghdi-hero__slide{% if forloop.first %} is-active{% endif %}" style="--ghdi-hero-img:url('{{ s.image }}')" aria-label="Slide {{ forloop.counter }} of {{ hero_slides|length }}" role="group" aria-roledescription="slide">
+      <div class="ghdi-hero__inner">
+        <div class="ghdi-hero__copy">
+          <span class="ghdi-hero__eyebrow ghdi-hero__anim"><span class="dot" aria-hidden="true"></span>{{ s.eyebrow }}</span>
+          <h1 class="ghdi-hero__title ghdi-hero__anim">{{ s.title }}{% if s.title_highlight %} <span class="ghdi-hero__title-hl">{{ s.title_highlight }}</span>{% endif %}</h1>
+          <p class="ghdi-hero__lead ghdi-hero__anim">{{ s.subtitle }}</p>
+          <div class="ghdi-hero__actions ghdi-hero__actions--overlay ghdi-hero__anim">
+            <a class="ghdi-hero__cta" href="{{ s.cta_url }}">{{ s.cta_label }}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+            <a class="ghdi-hero__cta ghdi-hero__cta--secondary" href="{{ s.secondary_url|default:'/impact/' }}">{{ s.secondary_label|default:"See our impact" }}</a>
+          </div>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <button type="button" class="ghdi-hero__nav ghdi-hero__nav--prev" data-hero-prev aria-label="Previous slide">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15.5 19 8.5 12 15.5 5"/></svg>
+  </button>
+  <button type="button" class="ghdi-hero__nav ghdi-hero__nav--next" data-hero-next aria-label="Next slide">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="8.5 5 15.5 12 8.5 19"/></svg>
+  </button>
+
+  {% if hero_slides|length > 1 %}
+  <div class="ghdi-hero__thumbs" data-hero-thumbs role="group" aria-label="Choose a highlight">
+    {% for s in hero_slides %}
+    <button type="button" class="ghdi-hero__thumb{% if forloop.first %} is-active{% endif %}" data-hero-go="{{ forloop.counter0 }}" style="--ghdi-hero-img:url('{{ s.image }}')" aria-label="Show slide {{ forloop.counter }} of {{ hero_slides|length }}">
+      <span class="ghdi-hero__thumb-label">{{ s.title_highlight|default:s.eyebrow }}</span>
+    </button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="ghdi-hero__dots" data-hero-dots role="group" aria-label="Choose slide"></div>
+
+  <div class="ghdi-hero__progress" aria-hidden="true"><span></span></div>
+
+  <p class="ghdi-hero__counter" aria-hidden="true"><span data-hero-current>1</span><i>/</i>{{ hero_slides|length }}</p>
+</section>
+
+<section class="py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-12 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Who we are</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Built on dignity, driven by community</h2>
+      <p class="mt-4 leading-relaxed text-slate-500">GHDI was founded to serve the most vulnerable people in conflict-affected and underserved communities â€” putting local voices, local institutions and locally led solutions at the centre of everything we do.</p>
+    </div>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="rounded-2xl bg-white p-8 ring-1 ring-slate-200 shadow-soft">
+        <div class="flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-azure-soft text-azure"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span><h3 class="text-lg font-semibold text-navy">Our mission</h3></div>
+        <p class="mt-4 leading-relaxed text-slate-500">{{ ghdi_org.mission }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-8 ring-1 ring-slate-200 shadow-soft">
+        <div class="flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-soft text-amber"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><h3 class="text-lg font-semibold text-navy">Our vision</h3></div>
+        <p class="mt-4 leading-relaxed text-slate-500">{{ ghdi_org.vision }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-navy-soft py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-12 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">What we do</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Thematic areas</h2>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {% for page in thematic_pages %}
+      <a href="{% url 'website:page_detail' page.slug %}" class="ghdi-theme-card">
+        {% if page.featured_image|file_url %}<img class="ghdi-theme-card__image" src="{{ page.featured_image|file_url }}" alt="" loading="lazy" decoding="async">{% else %}<span class="ghdi-theme-card__mark" aria-hidden="true">{{ page.title|initials }}</span>{% endif %}
+        <h3>{{ page.title }}</h3>
+        <p>{{ page.summary|default:page.content|striptags|truncatechars:150 }}</p>
+        <span class="ghdi-theme-card__more">Explore this area <span aria-hidden="true">→</span></span>
+      </a>
+      {% empty %}
+      <div class="rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-azure">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-azure-soft text-azure"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+        <h3 class="mt-5 text-lg font-semibold text-navy">Protection</h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">Safeguarding vulnerable women, children and older persons through case management, psychosocial support and protection outreach.</p>
+      </div>
+      <div class="rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-amber">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-soft text-amber"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <h3 class="mt-5 text-lg font-semibold text-navy">Education</h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">Improving access to safe, quality learning for out-of-school children and young people through informal learning and support.</p>
+      </div>
+      <div class="rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-magenta">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-magenta-soft text-magenta"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10h20M4 3h16M9 6v12"/></svg></span>
+        <h3 class="mt-5 text-lg font-semibold text-navy">Community Resilience</h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">Strengthening community systems and livelihoods so families can withstand shocks and recover faster from crises.</p>
+      </div>
+      <div class="rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-navy">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-navy-soft text-navy"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v3m0 0-5 6m5-6 5 6"/></svg></span>
+        <h3 class="mt-5 text-lg font-semibold text-navy">Locally Led Solutions</h3>
+        <p class="mt-2 text-sm leading-relaxed text-slate-500">Putting local actors, community structures and Nigerian institutions at the front of humanitarian decision-making.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if featured_programs %}
+<section class="section">
+  <div class="section-head"><div class="eyebrow">Programs</div><h2>Featured programs</h2></div>
+  <div class="-mx-5 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" role="region" aria-label="Featured programs" tabindex="0">
+    {% for p in featured_programs %}
+      <article class="w-[85%] flex-shrink-0 snap-start rounded-2xl bg-white p-7 ring-1 ring-slate-200 shadow-soft transition hover:-translate-y-1 hover:ring-azure md:w-auto">
+        <span class="inline-flex rounded-full bg-azure-soft px-3 py-1 text-xs font-semibold text-azure">{{ p.get_thematic_area_display }}</span>
+        <h3 class="mt-4 text-lg font-semibold leading-snug text-navy">{{ p.title }}</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-500">{{ p.description|truncatechars:140 }}</p>
+        <p class="mt-4 text-xs font-medium uppercase tracking-wider text-slate-400">{{ p.code }}</p>
+      </article>
+    {% empty %}
+      <p class="text-sm text-slate-500">Programs coming soon.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{% if impact_stats %}
+<section class="relative overflow-hidden bg-navy py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5"><div class="mb-10 text-center"><span class="text-xs font-semibold uppercase tracking-widest text-amber">Our impact</span><h2 class="mt-2 text-3xl font-bold text-white md:text-4xl" style="font-family:'Sora',sans-serif">The numbers behind our work</h2></div>
+  <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
+    {% for s in impact_stats %}
+      <div class="rounded-2xl bg-white/5 p-6 text-center ring-1 ring-white/10 stat-count" data-target="{{ s.value }}">
+        <div class="text-3xl font-bold text-amber md:text-4xl" style="font-family:'Sora',sans-serif"><span class="value">{{ s.value }}</span>{{ s.suffix }}</div>
+        <div class="mt-1 text-sm text-slate-300">{{ s.label }}</div>
+      </div>
+    {% endfor %}
+  </div>
+  </div><div class="mt-10 text-center"><a class="rounded-full border border-white/40 px-7 py-3 text-sm font-semibold text-white transition hover:bg-white/10" href="{% url 'website:impact' %}">View full impact</a></div>
+</section>
+{% endif %}
+<!-- END-HOME-3 -->
+
+{% if latest_news or latest_stories %}
+<section class="py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-10 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Latest updates</span>
+        <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">News &amp; stories</h2>
+      </div>
+      <a class="text-sm font-semibold text-azure hover:underline" href="{% url 'website:news_list' %}">View all news  </a>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" role="region" aria-label="Latest news and stories">
+      {% for a in latest_news %}
+      <article class="ghdi-story-card ghdi-story-card--news">
+        <a href="{% url 'website:news_detail' a.slug %}" class="ghdi-story-card__link">
+          {% if a.featured_image|file_url %}<div class="ghdi-story-card__media"><img src="{{ a.featured_image|file_url }}" alt="{{ a.title }}" loading="lazy" decoding="async"></div>{% else %}<div class="ghdi-story-card__media ghdi-story-card__media--news" aria-hidden="true"><span>GHDI / NEWS</span></div>{% endif %}
+          <div class="ghdi-story-card__body"><div class="ghdi-story-card__meta"><span>News</span><time datetime="{{ a.publish_at|date:'Y-m-d'|default:a.created_at|date:'Y-m-d' }}">{{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</time></div>
+          <h3>{{ a.title }}</h3><p>{{ a.summary|default:a.content|striptags|truncatewords:22 }}</p><span class="ghdi-story-card__more">Read story <span aria-hidden="true"> </span></span></div>
+        </a>
+      </article>
+      {% empty %}
+      <p class="text-sm text-slate-500">News coming soon.</p>
+      {% endfor %}
+      {% for a in latest_stories %}
+      <article class="ghdi-story-card ghdi-story-card--story">
+        <a href="{% url 'website:news_detail' a.slug %}" class="ghdi-story-card__link">
+          {% if a.featured_image|file_url %}<div class="ghdi-story-card__media"><img src="{{ a.featured_image|file_url }}" alt="{{ a.title }}" loading="lazy" decoding="async"></div>{% else %}<div class="ghdi-story-card__media ghdi-story-card__media--story" aria-hidden="true"><span>GHDI / FIELD NOTES</span></div>{% endif %}
+          <div class="ghdi-story-card__body"><div class="ghdi-story-card__meta"><span>Field story</span><time datetime="{{ a.publish_at|date:'Y-m-d'|default:a.created_at|date:'Y-m-d' }}">{{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</time></div>
+          <h3>{{ a.title }}</h3><p>{{ a.summary|default:a.content|striptags|truncatewords:22 }}</p><span class="ghdi-story-card__more">Read story <span aria-hidden="true"> </span></span></div>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if featured_video %}
+<section class="py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-10 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Featured video</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">{{ featured_video.title }}</h2>
+    </div>
+    <div class="relative aspect-video overflow-hidden rounded-2xl bg-navy shadow-soft">
+      {% with embed_url=featured_video.video_url|video_embed_url %}
+        {% if embed_url %}<iframe class="absolute inset-0 h-full w-full" src="{{ embed_url }}" title="{{ featured_video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        {% else %}<div class="absolute inset-0 grid place-items-center p-6 text-center text-white"><p>Video is currently unavailable.</p></div>{% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if upcoming_events %}
+<section class="bg-navy-soft py-20 reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-10 max-w-2xl">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Events</span>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Upcoming events</h2>
+    </div>
+    <div class="grid gap-6 md:grid-cols-3">
+      {% for e in upcoming_events %}
+      <article class="ghdi-event-card">
+        {% if e.image|file_url %}<div class="ghdi-event-card__image"><img src="{{ e.image|file_url }}" alt="{{ e.name }}" loading="lazy" decoding="async"></div>{% endif %}
+        <div class="ghdi-event-card__body"><div class="ghdi-event-card__date"><span>{{ e.date|date:"M" }}</span><strong>{{ e.date|date:"d" }}</strong><small>{{ e.date|date:"Y" }}</small></div>
+          <div class="ghdi-event-card__copy"><span class="ghdi-event-card__eyebrow">Upcoming event</span><h3>{{ e.name }}</h3><p>{{ e.date|date:"l, d F Y" }}</p><p>{% if e.start_time %}{{ e.start_time|time:"g:i A" }}{% if e.end_time %} to {{ e.end_time|time:"g:i A" }}{% endif %} - {% endif %}{{ e.venue|default:"Venue to be announced" }}{% if e.city %}, {{ e.city }}{% endif %}</p></div>
+        </div>
+      </article>
+      {% empty %}<p class="text-sm text-slate-500">No events scheduled right now.</p>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if partners %}
+<section class="py-16 bg-navy-soft reveal">
+  <div class="mx-auto max-w-6xl px-5">
+    <div class="mb-8 text-center">
+      <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Partners</span>
+      <h2 class="mt-2 text-2xl font-bold text-navy md:text-3xl" style="font-family:'Sora',sans-serif">Trusted alongside communities and partners</h2>
+    </div>
+    <div class="ghdi-marquee ghdi-marquee--light ghdi-marquee--fade" aria-label="Our partners and collaborators">
+      <div class="ghdi-marquee__viewport">
+        {% for copy in "12" %}
+        <div class="ghdi-marquee__group"{% if not forloop.first %} aria-hidden="true"{% endif %}>
+          {% for p in partners %}
+          <div class="ghdi-marquee__item" title="{{ p.name }} Â· {{ p.get_partnership_type_display }}">
+            {% if p.logo|file_url %}<img src="{{ p.logo|file_url }}" alt="{{ p.name }} logo" loading="lazy" decoding="async">{% else %}<span class="ghdi-marquee__mark" aria-hidden="true">{{ p.name|initials }}</span><span class="ghdi-marquee__name">{{ p.name }}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="relative overflow-hidden bg-navy py-20 reveal">
+  <div class="relative mx-auto max-w-6xl px-5 text-center">
+    <span class="text-xs font-semibold uppercase tracking-widest text-amber">Get in touch</span>
+    <h2 class="mt-2 text-3xl font-bold text-white md:text-4xl" style="font-family:'Sora',sans-serif">Let's work together</h2>
+    <p class="mx-auto mt-4 max-w-xl leading-relaxed text-slate-200">Whether you are a donor, partner, volunteer or a community member, we would love to hear from you.</p>
+    <a class="mt-8 inline-block rounded-full bg-magenta px-8 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:bg-magenta-dark" href="{% url 'website:contact' %}">Contact GHDI</a>
+  </div>
+</section>
+{% endblock %}

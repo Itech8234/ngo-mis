@@ -1,0 +1,95 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ object.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ object.name }}</h1>
+    <p class="sub">{{ object.code }} &middot; {{ object.program.title }} &middot; {{ object.get_status_display }}</p>
+  </div>
+  <div class="actions">
+    {% if object.status == "draft" %}
+    <form method="post" action="{% url 'programs:project_submit' object.pk %}" style="display:inline">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit" data-confirm="Submit this project plan for approval?">Submit for approval</button>
+    </form>
+    {% endif %}
+    {% if object.is_pending %}
+      {% if perms.programs.approve_project %}
+      <form method="post" action="{% url 'programs:project_approve' object.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn btn-success" type="submit" data-confirm="Approve this project?">Approve</button>
+      </form>
+      <form method="post" action="{% url 'programs:project_reject' object.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit" data-confirm="Reject this project?">Reject</button>
+      </form>
+      {% endif %}
+    {% endif %}
+    {% if perms.programs.change_project %}
+    <a class="btn btn-secondary" href="{% url 'programs:project_edit' object.pk %}">Edit</a>
+    {% endif %}
+    <a class="btn btn-ghost" href="{% url 'programs:project_list' %}">&larr; All projects</a>
+  </div>
+</div>
+
+<div class="detail-list">
+  <div class="detail-item"><div class="k">Budget</div><div class="v">{{ object.budget|cur }}</div></div>
+  <div class="detail-item"><div class="k">Spent</div><div class="v">{{ object.spent|cur }}</div></div>
+  <div class="detail-item"><div class="k">Utilisation</div><div class="v">{{ object.budget_utilisation|floatformat:0 }}%</div></div>
+  <div class="detail-item"><div class="k">Completion</div><div class="v">{{ object.completion }}%</div></div>
+  <div class="detail-item"><div class="k">Start / End</div><div class="v">{{ object.start_date|date:"d M Y"|default:"—" }} → {{ object.end_date|date:"d M Y"|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Donor</div><div class="v">{{ object.donor|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Manager</div><div class="v">{{ object.manager|default:"—" }}</div></div>
+  <div class="detail-item"><div class="k">Target beneficiaries</div><div class="v">{{ object.target_beneficiaries|num }}</div></div>
+  <div class="detail-item"><div class="k">Registered beneficiaries</div><div class="v">{{ beneficiaries_count|num }}</div></div>
+  <div class="detail-item"><div class="k">Locations</div><div class="v">{{ object.locations.count }} location(s)</div></div>
+</div>
+
+{% if object.objectives %}<div class="card mt-4"><div class="card-head"><h3>Objectives</h3></div><div class="card-body"><p class="pre-wrap">{{ object.objectives }}</p></div></div>{% endif %}
+
+<div class="card mt-4">
+  <div class="card-head">
+    <h3>Activities</h3>
+    {% if perms.programs.add_activity %}<a class="btn btn-primary btn-sm" href="{% url 'programs:activity_create' %}?project={{ object.pk }}">Add activity</a>{% endif %}
+  </div>
+  <div class="card-body flush">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Activity</th><th>Dates</th><th>Status</th><th>Participants</th><th></th></tr></thead>
+        <tbody id="activity-rows">
+          {% for activity in activities %}
+            {% include "programs/_activity_row.html" with object=activity %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not activities %}{% include "includes/empty_state.html" with title="No activities yet" body="Field activities planned under this project will appear here." action_url="/app/programs/activities/new/?project="|add:object.pk|stringformat:"s" action_label="Add Activity" %}{% endif %}
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-head"><h3>Indicators</h3></div>
+  <div class="card-body flush">
+    {% for i in indicators %}
+      <div class="feed-item">
+        <div class="feed-body">
+          <div class="feed-title">{{ i.name }}</div>
+          <div class="feed-meta">{{ i.code }} · {{ i.current|floatformat:0 }} / {{ i.target|floatformat:0 }} {{ i.unit }} · {% widthratio i.achievement 100 100 %}%</div>
+        </div>
+        <span class="badge {% if i.achievement < 70 %}badge-red{% elif i.achievement < 90 %}badge-amber{% else %}badge-green{% endif %}">{{ i.achievement|floatformat:0 }}%</span>
+      </div>
+    {% empty %}<div class="text-secondary text-sm" style="padding:20px">No indicators linked to this project.</div>{% endfor %}
+  </div>
+</div>
+
+{% if documents %}
+<div class="card mt-4">
+  <div class="card-head"><h3>Documents</h3></div>
+  <div class="card-body flush">
+    {% for d in documents %}
+      <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ d.title }}</div><div class="feed-meta">{{ d.created_at|date:"d M Y" }}</div></div><a class="btn btn-ghost btn-sm" href="{{ d.get_absolute_url }}">Open</a></div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

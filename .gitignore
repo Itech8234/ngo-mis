@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+db.sqlite3
+media/
+private_media/
+_static/
+node_modules/
+tailwind.exe
+_*.txt
+_*.log

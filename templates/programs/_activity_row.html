@@ -1,0 +1,37 @@
+{% comment %}
+Activity row: inline status editing via a plain POST to programs:activity_update.
+The view redirects back to the project page (POST/Redirect/GET), so the change
+survives a refresh and works without JavaScript.
+{% endcomment %}
+{% load ghdi_extras %}
+<tr id="activity-{{ object.pk }}">
+  <td>
+    <a class="cell-main" href="{{ object.get_absolute_url }}">{{ object.name }}</a>
+    <div class="cell-sub">{{ object.location|default:"—" }} · resp. {{ object.responsible|default:"—" }}</div>
+  </td>
+  <td class="text-xs">{{ object.start_date|date:"d M"|default:"—" }} → {{ object.end_date|date:"d M Y"|default:"—" }}</td>
+  <td>
+    <form method="post" action="{% url 'programs:activity_update' object.pk %}">
+      {% csrf_token %}
+      {% if form and form.errors %}<span class="text-xs text-danger">Invalid</span>{% endif %}
+      <label class="visually-hidden" for="status-{{ object.pk }}">Status for {{ object.name }}</label>
+      <select class="form-input" id="status-{{ object.pk }}" name="status"
+              onchange="this.form.requestSubmit()" style="padding:4px 8px;font-size:12.5px;width:auto">
+        <option value="planned" {% if object.status == "planned" %}selected{% endif %}>Planned</option>
+        <option value="approved" {% if object.status == "approved" %}selected{% endif %}>Approved</option>
+        <option value="in_progress" {% if object.status == "in_progress" %}selected{% endif %}>In Progress</option>
+        <option value="completed" {% if object.status == "completed" %}selected{% endif %}>Completed</option>
+        <option value="delayed" {% if object.status == "delayed" %}selected{% endif %}>Delayed</option>
+        <option value="cancelled" {% if object.status == "cancelled" %}selected{% endif %}>Cancelled</option>
+      </select>
+      <noscript><button class="btn btn-secondary btn-sm" type="submit">Save</button></noscript>
+    </form>
+  </td>
+  <td>
+    <span class="text-sm">{{ object.actual_participants }} / {{ object.expected_participants }}</span>
+    {% if object.is_delayed %}<span class="badge badge-red">Delayed</span>{% endif %}
+  </td>
+  <td><div class="row-actions">
+    {% if perms.programs.change_activity %}<a class="btn btn-ghost btn-sm" href="{% url 'programs:activity_edit' object.pk %}">Edit</a>{% endif %}
+  </div></td>
+</tr>

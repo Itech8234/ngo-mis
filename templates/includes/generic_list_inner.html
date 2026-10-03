@@ -1,0 +1,43 @@
+{% comment %}GHDI generic object list template. Variables: object_list, page_title, page_obj(user's list view passes page_obj? uses default) {% endcomment %}
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ page_title }}</h1>
+    {% if query or request.GET %}<p class="sub">Filtered results</p>{% endif %}
+  </div>
+</div>
+
+<form method="get" class="flex gap-2 mb-4">
+  <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search {{ page_title|lower }}..." aria-label="Search">
+  {% for key, value in request.GET.items %}{% if key != "q" and key != "page" and value %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
+  <button class="btn btn-secondary" type="submit">Search</button>
+</form>
+
+<div class="card">
+  <div class="card-body flush">
+    {% if object_list %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              {% for field in object_list.0|fieldnames %}<th>{{ field }}</th>{% endfor %}
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for obj in object_list %}
+            <tr>
+              {% for value in obj|fieldvalues %}<td>{{ value }}</td>{% endfor %}
+              <td><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{{ obj.get_absolute_url }}">View</a></div></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {% include "includes/empty_state.html" with title="No "|add:page_title|add:" yet" body="Records created by your organization will appear here." %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

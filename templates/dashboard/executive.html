@@ -1,0 +1,165 @@
+{% extends "base.html" %}{% load ghdi_extras charts %}
+{% block title %}Executive Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ greeting }}</h1>
+    <p class="sub">Here's what requires your attention today.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{% url 'audit:feed' %}">Activity feed</a>
+    <a class="btn btn-primary" href="{% url 'reports:hub' %}">Reports</a>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  {% include "includes/kpi.html" with label="Active Programs" value=kpis.active_programs|num icon="layers" color="teal" %}
+  {% include "includes/kpi.html" with label="Active Projects" value=kpis.active_projects|num icon="briefcase" color="blue" %}
+  {% include "includes/kpi.html" with label="Beneficiaries Reached" value=kpis.beneficiaries|num icon="users" color="teal" %}
+  {% include "includes/kpi.html" with label="Portfolio" value=kpis.portfolio|cur icon="handshake" color="violet" %}
+  {% include "includes/kpi.html" with label="Funds Received" value=kpis.income|cur icon="wallet" color="emerald" %}
+  {% include "includes/kpi.html" with label="Funds Spent" value=kpis.expenditure|cur icon="pie" color="amber" %}
+  {% include "includes/kpi.html" with label="Available Balance" value=kpis.balance|cur icon="box" color="teal" %}
+  {% include "includes/kpi.html" with label="Active Staff" value=kpis.staff|num icon="idcard" color="blue" %}
+  {% include "includes/kpi.html" with label="Locations" value=kpis.locations|num icon="map-pin" color="gray" %}
+  {% include "includes/kpi.html" with label="Donors" value=kpis.donors|num icon="network" color="violet" %}
+  {% include "includes/kpi.html" with label="Pending Approvals" value=kpis.pending_approvals|num icon="alert" color="amber" %}
+</div>
+
+<!-- END-EXEC-1 -->
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Income vs Expenditure (6 months)</h3></div>
+    <div class="card-body">
+      {% line_chart income_trend %}
+      <div class="chart-legend">
+        <span class="lg"><span class="swatch" style="background:#0d9488"></span>Income (₦)</span>
+        <span class="lg"><span class="swatch" style="background:#f59e0b"></span>Expenditure</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Budget vs Actual</h3></div>
+    <div class="card-body">
+      {% if budget_data %}
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Budget</th><th>Planned</th><th>Actual</th><th>Utilisation</th></tr></thead>
+            <tbody>
+              {% for name, planned, actual in budget_data %}
+              {% with p=planned|floatformat:0 a=actual|floatformat:0 %}
+              <tr>
+                <td class="cell-main">{{ name }}</td>
+                <td>{{ planned|cur }}</td>
+                <td>{{ actual|cur }}</td>
+                <td>
+                  <div class="flex items-center justify-between gap-2" style="min-width:120px">
+                    <div class="progress" style="width:64px"><div class="progress-bar {% if a > p %}red{% else %}green{% endif %}" style="width:{% widthratio actual planned 100 %}%"></div></div>
+                    <span class="text-xs">{% widthratio actual planned 100 %}%</span>
+                  </div>
+                </td>
+              </tr>
+              {% endwith %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {% include "includes/empty_state.html" with title="No approved budgets" body="Approved budgets will appear here." %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- END-EXEC-2 -->
+
+<div class="grid-3 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Beneficiaries by Gender</h3></div>
+    <div class="card-body">{% doughnut_chart gender_data %}</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Beneficiaries by Age</h3></div>
+    <div class="card-body">{% doughnut_chart age_data %}</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Program Performance</h3></div>
+    <div class="card-body">
+      {% for title, budget, spent, util in program_perf %}
+        <div class="metric-row">
+          <span class="m-label truncate">{{ title }}</span>
+          <span class="m-value">{{ util|floatformat:0 }}%</span>
+          <div class="progress" style="width:80px"><div class="progress-bar {% if util > 95 %}red{% elif util > 80 %}amber{% else %}green{% endif %}" style="width:{{ util }}%"></div></div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm">No active programs yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>Attention Required</h3></div>
+    <div class="card-body flush">
+      {% if pending.txn or pending.expense or pending.procurement or pending.leave %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">Pending approvals</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ pending.txn }} transaction(s) · {{ pending.expense }} payment request(s) · {{ pending.procurement }} procurement request(s) · {{ pending.leave }} leave request(s)</div>
+          </div>
+          <a class="btn btn-secondary btn-sm" href="{% url 'finance:transaction_list' %}">Review</a>
+        </div>
+      {% endif %}
+      {% for project in expiring_projects %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ project.name }}</div>
+            <div class="text-secondary" style="font-size:13.5px">Ends {{ project.end_date|date:"d M Y" }} ({{ project.end_date|days_until }} days)</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ project.get_absolute_url }}">Open</a>
+        </div>
+      {% endfor %}
+      {% for risk in high_risks %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title"><span class="badge badge-red">High risk</span> {{ risk.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">Score {{ risk.score }} · {{ risk.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ risk.get_absolute_url }}">Open</a>
+        </div>
+      {% endfor %}
+      {% for incident in critical_incidents %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title"><span class="badge badge-red">{{ incident.get_severity_display }}</span> {{ incident.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ incident.date|date:"d M Y" }} · {{ incident.get_status_display }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ incident.get_absolute_url }}">Open</a>
+        </div>
+      {% endfor %}
+      {% if not pending.txn and not pending.expense and not pending.procurement and not pending.leave and not expiring_projects and not high_risks and not critical_incidents %}
+        <div class="text-secondary text-sm" style="padding:20px">All clear — nothing requires your attention right now.</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Recent Activity</h3></div>
+    <div class="card-body flush">
+      {% for entry in recent_feed %}
+        <div class="feed-item">
+          <div class="feed-icon" style="width:30px;height:30px;border-radius:9px;background:var(--ghdi-gray-soft)"></div>
+          <div class="feed-body">
+            <div class="feed-title"><span class="badge {{ entry.action_badge }}">{{ entry.get_action_display }}</span> {{ entry.object_repr|truncatechars:40 }}</div>
+            <div class="feed-meta">{{ entry.username|default:"System" }} · {{ entry.created_at|timesince }} ago · {{ entry.module }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No activity recorded yet.</div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'audit:feed' %}">View full activity feed &rarr;</a></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

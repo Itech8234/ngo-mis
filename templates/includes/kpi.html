@@ -1,0 +1,13 @@
+{% comment %}
+KPI card. Usage:
+{% include "includes/kpi.html" with label="Active Programs" value=active_programs icon="layers" color="teal" sub="Across Yobe State" %}
+Color: teal|emerald|blue|amber|red|gray|violet
+{% endcomment %}
+<div class="kpi">
+  <div class="kpi-icon" style="background: var(--ghdi-{% if color == 'emerald' %}emerald-soft{% elif color == 'blue' %}blue-soft{% elif color == 'amber' %}amber-soft{% elif color == 'red' %}red-soft{% elif color == 'violet' %}violet-soft{% else %}primary-soft{% endif %}); color: var(--ghdi-{% if color == 'emerald' %}emerald{% elif color == 'blue' %}blue{% elif color == 'amber' %}amber{% elif color == 'red' %}red{% elif color == 'violet' %}violet{% else %}primary{% endif %})">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{% include "includes/icons.html" with name=icon %}</svg>
+  </div>
+  <div class="kpi-label">{{ label }}</div>
+  <div class="kpi-value">{{ value }}</div>
+  {% if sub %}<div class="kpi-sub">{{ sub }}</div>{% endif %}
+</div>

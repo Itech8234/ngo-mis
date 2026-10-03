@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Thematic Areas · CMS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Thematic areas</h1><p class="sub">Create and manage the focus areas shown on the public site.</p></div>
+  {% if create_url %}<a class="btn btn-primary" href="{{ create_url }}">Add thematic area</a>{% endif %}
+</div>
+<form method="get" class="flex gap-2 mb-4">
+  <input class="form-input" type="search" name="q" value="{{ query }}" placeholder="Search thematic areas" aria-label="Search thematic areas">
+  <button class="btn btn-secondary" type="submit">Search</button>
+</form>
+<div class="card"><div class="card-body flush"><div class="table-wrap">
+  <table class="table"><thead><tr><th>Area</th><th>Slug</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for area in object_list %}
+      <tr><td class="cell-main">{{ area.title }}</td><td>/{{ area.slug }}/</td><td><span class="badge status-{{ area.status }}">{{ area.get_status_display }}</span></td><td>{{ area.updated_at|date:"d M Y" }}</td><td><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{% url 'cms:page_detail' area.pk %}">Customize content</a>{% if perms.cms.change_page %}<a class="btn btn-ghost btn-sm" href="{% url 'cms:page_edit' area.pk %}">Edit settings</a>{% endif %}</div></td></tr>
+    {% empty %}<tr><td colspan="5"><div class="empty-state"><strong>No thematic areas yet</strong><p>Create one to add a customizable focus area to the public homepage.</p>{% if create_url %}<a class="btn btn-primary" href="{{ create_url }}">Create thematic area</a>{% endif %}</div></td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div></div>
+{% endblock %}

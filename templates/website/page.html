@@ -1,0 +1,116 @@
+{% extends "website/base_site.html" %}
+{% load ghdi_extras %}
+{% block title %}{% firstof page.seo_title page.title %} — {{ ghdi_org_name }}{% endblock %}
+{% block seo %}
+<meta name="description" content="{{ page.seo_description|default:page.summary }}">
+<meta property="og:title" content="{{ page.title }}">
+<meta property="og:description" content="{{ page.seo_description|default:page.summary }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if page.featured_image|file_url %}<meta property="og:image" content="{{ request.build_absolute_uri }}{{ page.featured_image|file_url }}">{% endif %}
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+{% block content %}
+{% include "website/_page_hero.html" with hero_kicker="# About Us" hero_title=page.title hero_intro=page.summary hero_image=page.featured_image|media_url hero_cta_label="Work with us" hero_cta_url="/contact/" hero_cta2_label="Explore programs" hero_cta2_url="/programs/" %}
+
+<section class="py-5 py-lg-5">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-start">
+      <div class="col-lg-8">
+        {% if page.featured_image|file_url %}
+        <div class="card border-0 shadow-sm overflow-hidden mb-4">
+          <img src="{{ page.featured_image|file_url }}" alt="{{ page.title }}" class="img-fluid w-100" style="max-height: 430px; object-fit: cover;" loading="lazy" decoding="async">
+        </div>
+        {% endif %}
+
+        <article class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <div class="text-body" style="line-height: 1.9; font-size: 1.02rem;">
+              {{ page.content|linebreaks }}
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <span class="badge rounded-pill bg-primary-subtle text-primary fw-semibold px-3 py-2 mb-3">Organisation</span>
+            <h2 class="h4 mb-3 fw-bold text-primary">{{ ghdi_org_name }}</h2>
+            <p class="text-secondary mb-0">{{ ghdi_org.mission|default:"A humanitarian and development initiative protecting and empowering vulnerable communities in northeast Nigeria." }}</p>
+
+            <dl class="row mt-4 g-3 small mb-0">
+              <div class="col-12">
+                <dt class="text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em; font-size: 0.68rem;">Head office</dt>
+                <dd class="mb-0 text-primary fw-semibold">{{ ghdi_org.address|default:"Damaturu, Yobe State, Nigeria" }}</dd>
+              </div>
+              <div class="col-12">
+                <dt class="text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em; font-size: 0.68rem;">Email</dt>
+                <dd class="mb-0"><a href="mailto:{{ ghdi_org.email|default:'info@ghdi.org.ng' }}" class="text-decoration-none text-primary">{{ ghdi_org.email|default:"info@ghdi.org.ng" }}</a></dd>
+              </div>
+              {% if ghdi_org.registration_number %}
+              <div class="col-12">
+                <dt class="text-uppercase text-muted fw-semibold" style="letter-spacing:0.08em; font-size: 0.68rem;">Registration</dt>
+                <dd class="mb-0 text-primary fw-semibold">{{ ghdi_org.registration_number }}</dd>
+              </div>
+              {% endif %}
+            </dl>
+
+            <div class="mt-4">
+              <a class="btn btn-primary" href="{% url 'website:contact' %}">Contact us</a>
+            </div>
+          </div>
+        </div>
+
+        <nav class="card border-0 shadow-sm" aria-label="More about GHDI">
+          <div class="card-body p-4">
+            <h2 class="h5 fw-bold text-primary mb-3">More about GHDI</h2>
+            <div class="list-group list-group-flush">
+              <a class="list-group-item list-group-item-action border-0 px-0" href="{% url 'website:governance' %}">Governance &amp; accountability</a>
+              <a class="list-group-item list-group-item-action border-0 px-0" href="{% url 'website:leadership' %}">Leadership team</a>
+              <a class="list-group-item list-group-item-action border-0 px-0" href="{% url 'website:impact' %}">Our impact</a>
+              <a class="list-group-item list-group-item-action border-0 px-0" href="{% url 'website:partners' %}">Partners</a>
+              <a class="list-group-item list-group-item-action border-0 px-0" href="{% url 'website:careers' %}">Careers</a>
+            </div>
+          </div>
+        </nav>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% if sections %}
+<section class="bg-body-tertiary py-5 py-lg-5">
+  <div class="container">
+    <div class="mb-4 mb-lg-5 max-w-2xl">
+      <span class="text-uppercase small fw-bold text-primary" style="letter-spacing:0.14em;">In detail</span>
+      <h2 class="mt-2 h2 fw-bold text-primary">{{ page.title }} — at a glance</h2>
+    </div>
+    <div class="row g-4">
+      {% for s in sections %}
+      <div class="col-md-6 col-xl-4">
+        <article class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <h3 class="h5 fw-bold text-primary mb-3">{{ s.heading }}</h3>
+            <p class="mb-0 text-secondary">{{ s.body|truncatechars:260 }}</p>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="bg-primary text-white py-5 py-lg-5" style="background: linear-gradient(135deg, #011f5b 0%, #062d72 48%, #0e2f77 100%);">
+  <div class="container text-center">
+    <span class="text-uppercase small fw-bold text-warning" style="letter-spacing:0.14em;">Get in touch</span>
+    <h2 class="mt-3 h2 fw-bold text-white">Partner with GHDI</h2>
+    <p class="mx-auto mt-3 mb-0 text-white-50" style="max-width: 640px; line-height: 1.8;">Whether you are a donor, partner, volunteer or community member, we would like to hear from you.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+      <a class="btn btn-primary btn-lg" href="{% url 'website:contact' %}">Contact GHDI</a>
+      <a class="btn btn-outline-light btn-lg" href="{% url 'website:programs' %}">Explore our programs</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

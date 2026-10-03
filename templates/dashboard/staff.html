@@ -1,0 +1,118 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ greeting }}</h1>
+    <p class="sub">Everything assigned to you, in one place.</p>
+  </div>
+</div>
+
+{% if request.user.employee_profile %}
+<section class="card" style="margin-bottom:1.25rem"><div class="card-head"><div><h3>People self-service</h3><p class="sub">Attendance, leave and your personnel file.</p></div></div><div class="card-body actions"><a class="btn btn-secondary" href="{% url 'hr:my_attendance' %}">My attendance</a><a class="btn btn-secondary" href="{% url 'hr:my_documents' %}">My HR documents</a>{% if perms.hr.view_leaverequest %}<a class="btn btn-secondary" href="{% url 'hr:leave_list' %}">My leave requests</a>{% endif %}{% if perms.hr.add_leaverequest %}<a class="btn btn-primary" href="{% url 'hr:leave_create' %}">Request leave</a>{% endif %}</div></section>
+{% endif %}
+
+{% if announcements %}
+<div class="card mb-6">
+  <div class="card-head"><h3>Announcements</h3></div>
+  <div class="card-body flush">
+    {% for a in announcements %}
+      <div class="feed-item">
+        <div class="feed-icon" style="background:var(--ghdi-violet-soft)"></div>
+        <div class="feed-body">
+          <div class="feed-title">{{ a.title }}</div>
+          <div class="text-secondary" style="font-size:13.5px">{{ a.body|truncatechars:120 }}</div>
+          <div class="feed-meta">{{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-icon" style="background:var(--ghdi-primary-soft);color:var(--ghdi-primary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div><div class="kpi-label">Open Tasks</div><div class="kpi-value">{{ my_tasks|length }}</div><div class="kpi-sub">{{ overdue_tasks|length }} overdue</div></div>
+  <div class="kpi"><div class="kpi-icon" style="background:var(--ghdi-blue-soft);color:var(--ghdi-blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="kpi-label">Meetings (upcoming)</div><div class="kpi-value">{{ my_meetings|length }}</div></div>
+  <div class="kpi"><div class="kpi-icon" style="background:var(--ghdi-emerald-soft);color:var(--ghdi-emerald)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m12 2 8.5 4.5v11L12 22l-8.5-4.5v-11z"/></svg></div><div class="kpi-label">Projects (managed)</div><div class="kpi-value">{{ my_projects|length }}</div></div>
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head">
+      <h3>My Tasks</h3>
+      <a class="text-sm text-primary" href="{% url 'collaboration:task_list' %}">All tasks</a>
+    </div>
+    <div class="card-body flush">
+      {% for t in my_tasks %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ t.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">
+              <span class="badge status-{{ t.priority }}">{{ t.get_priority_display }}</span>
+              {% if t.is_overdue %}<span class="badge badge-red">Overdue</span>{% endif %}
+              Due {{ t.due_date|date:"d M Y"|default:"anytime" }}
+            </div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ t.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No open tasks assigned to you.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <h3>My Meetings</h3>
+      <a class="text-sm text-primary" href="{% url 'collaboration:meeting_list' %}">All meetings</a>
+    </div>
+    <div class="card-body flush">
+      {% for m in my_meetings %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ m.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ m.date|date:"d M Y" }} · {{ m.location|default:"Location TBC" }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ m.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No upcoming meetings.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 mt-6">
+  <div class="card">
+    <div class="card-head"><h3>My Leave</h3></div>
+    <div class="card-body flush">
+      {% for l in my_leave %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ l.leave_type }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ l.start_date|date:"d M" }} – {{ l.end_date|date:"d M Y" }} · <span class="badge status-{{ l.status }}">{{ l.get_status_display }}</span></div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No leave requests.</div>
+      {% endfor %}
+      <div style="padding:12px 20px"><a class="btn btn-secondary btn-sm" href="{% url 'hr:leave_create' %}">Request leave</a></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Shared Documents</h3></div>
+    <div class="card-body flush">
+      {% for d in documents %}
+        <div class="feed-item">
+          <div class="feed-body">
+            <div class="feed-title">{{ d.title }}</div>
+            <div class="text-secondary" style="font-size:13.5px">{{ d.category|default:"General" }} · {{ d.created_at|date:"d M Y" }}</div>
+          </div>
+          <a class="btn btn-ghost btn-sm" href="{{ d.get_absolute_url }}">Open</a>
+        </div>
+      {% empty %}
+        <div class="text-secondary text-sm" style="padding:20px">No shared documents yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
