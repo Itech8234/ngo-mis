@@ -1,1 +1,2 @@
 {% extends "ghdi/generic_detail.html" %}
+{% block detail_actions %}{{ block.super }}{% if perms.cms.change_mediaitem %}<a class="btn btn-secondary" href="{% url 'cms:media_edit' object.pk %}">Edit media</a>{% endif %}{% if perms.cms.delete_mediaitem %}<form method="post" action="{% url 'cms:media_delete' object.pk %}" onsubmit="return confirm('Delete this media item?');" class="d-inline">{% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button></form>{% endif %}{% endblock %}

@@ -6,9 +6,21 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .models import (
-    AttendanceRecord, DisciplinaryRecord, Employee, HRDocument, LeaveBalance, LeaveRequest, PerformanceReview,
+    AttendanceRecord, Department, DisciplinaryRecord, Employee, HRDocument, LeaveBalance, LeaveRequest, PerformanceReview,
     Training, Vacancy,
 )
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ["name", "code", "description", "head", "image", "is_active"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 4})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["head"].queryset = Employee.objects.filter(status=Employee.Status.ACTIVE).order_by("first_name", "last_name")
+        self.fields["head"].required = False
 
 
 class EmployeeForm(forms.ModelForm):

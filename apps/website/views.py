@@ -8,18 +8,38 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 from .forms import ContactForm
+
+
+class _EmptyPageSections:
+    @staticmethod
+    def all():
+        return []
+
+
+_EMPTY_PRESENTATION = SimpleNamespace(
+    title="", summary="", content="", featured_image="", seo_title="",
+    seo_description="", sections=_EmptyPageSections(),
+)
 
 
 def _published_pages():
     from apps.cms.models import Page
 
-    return Page.objects.filter(status="published")
+    return Page.objects.filter(status="published").filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now()))
+
+
+def _cms_presentation(slug):
+    """Published editorial copy for a fixed public route, when an editor adds it."""
+    from apps.cms.models import Page
+
+    return _published_pages().filter(slug=slug).first() or _EMPTY_PRESENTATION
 
 
 def home(request):
-    from apps.cms.models import CarouselSlide, Event, ImpactStat, NewsArticle
+    from apps.cms.models import CarouselSlide, Event, ImpactStat, MediaItem, NewsArticle
     from apps.cms.models import Page as CmsPage
     from apps.partners.models import Partner
     from apps.programs.models import Program
@@ -42,32 +62,38 @@ def home(request):
     ]
     from apps.core.templatetags.ghdi_extras import video_embed_url
 
-    featured_video = next(
+    featured_video = MediaItem.objects.filter(media_type=MediaItem.MediaType.VIDEO, is_public=True, is_featured=True).order_by("sort_order", "-created_at").first()
+    if not featured_video:
+      featured_video = next(
         (
             article
             for article in NewsArticle.objects.filter(status="published")
+            .filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now()))
             .exclude(video_url="")
             .order_by("-publish_at", "-created_at")
             if video_embed_url(article.video_url)
         ),
         None,
-    )
+      )
     context = {
         "page_title": "Home",
+        "site_page": _cms_presentation("home"),
         "featured_programs": Program.objects.filter(status="active")[:3],
         "thematic_pages": CmsPage.objects.filter(
             page_type="thematic", status="published"
         ).filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())).order_by("nav_order", "title"),
         "impact_stats": ImpactStat.objects.filter(is_active=True)[:6],
-        "latest_news": NewsArticle.objects.filter(status="published", category="news").order_by("-publish_at").select_related("author")[:3],
-        "latest_stories": NewsArticle.objects.filter(status="published", category="story").order_by("-publish_at").select_related("author")[:3],
+        "latest_news": NewsArticle.objects.filter(status="published", category="news").filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())).order_by("-publish_at", "-created_at").select_related("author")[:3],
+        "latest_stories": NewsArticle.objects.filter(status="published", category="story").filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())).order_by("-publish_at", "-created_at").select_related("author")[:3],
+        "latest_videos": MediaItem.objects.filter(media_type=MediaItem.MediaType.VIDEO, is_public=True).order_by("sort_order", "-created_at")[:3],
+        "gallery_preview": MediaItem.objects.filter(media_type=MediaItem.MediaType.IMAGE, is_public=True).order_by("sort_order", "-created_at")[:6],
         "upcoming_events": Event.objects.filter(status="upcoming").order_by("date")[:3],
         # Logo wall: show every published partner — those with an uploaded logo
         # render the logo image, the rest render a branded monogram lockup, so
         # the marquee is never empty just because artwork is pending.
         "partners": Partner.objects.filter(show_on_website=True)[:12],
         "featured_video": featured_video,
-        "about": CmsPage.objects.filter(slug="about-us", status="published").first(),
+        "about": _cms_presentation("about-us"),
         "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order"),
         # Published CMS slides take priority; bundled slides keep the homepage
         # presentable until editors add their first slide.
@@ -129,7 +155,7 @@ def page_detail(request, slug):
     from apps.cms.models import Page as CmsPage
 
     page = get_object_or_404(CmsPage, slug=slug)
-    if not page.is_live and not request.user.is_authenticated:
+    if not page.is_live and not request.user.has_perm("cms.view_page"):
         from django.http import Http404
 
         raise Http404("Page not found")
@@ -188,7 +214,7 @@ def _render_cms_page(request, slug, fallback):
     from apps.cms.models import Page as CmsPage
 
     page = CmsPage.objects.filter(slug=slug).first()
-    if page is not None and not page.is_live and not request.user.is_authenticated:
+    if page is not None and not page.is_live and not request.user.has_perm("cms.view_page"):
         page = None
     context = {
         "page": page if page is not None else fallback,
@@ -309,14 +335,16 @@ def terms(request):
 def news_list(request, category=None):
     from apps.cms.models import NewsArticle
 
-    articles = NewsArticle.objects.filter(status="published").order_by("-publish_at")
+    articles = NewsArticle.objects.filter(status="published").filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())).order_by("-publish_at", "-created_at")
     if category:
         articles = articles.filter(category=category)
     featured = articles.filter(is_featured=True).first()
+    page_content = _cms_presentation("stories" if category == "story" else "news")
+    section_title = page_content.title or ("Impact stories" if category == "story" else "News & updates")
     return render(
         request,
         "website/news_list.html",
-        {"articles": articles[:24], "featured": featured, "category": category, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
+        {"articles": articles[:24], "featured": featured, "category": category, "section_title": section_title, "site_page": page_content, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
     )
 
 
@@ -328,28 +356,48 @@ def news_detail(request, slug):
     from apps.cms.models import NewsArticle
 
     article = get_object_or_404(NewsArticle, slug=slug)
-    if not article.is_live and not request.user.is_authenticated:
+    if not article.is_live and not request.user.has_perm("cms.view_newsarticle"):
         from django.http import Http404
 
         raise Http404("Article not found")
     article.views += 1
     article.save(update_fields=["views"])
-    related = NewsArticle.objects.filter(status="published", category=article.category).exclude(pk=article.pk)[:3]
+    related = NewsArticle.objects.filter(status="published", category=article.category).filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now())).exclude(pk=article.pk)[:3]
     return render(request, "website/news_detail.html", {"article": article, "related": related, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
 
 
 def events_list(request):
     from apps.cms.models import Event
 
-    upcoming = Event.objects.filter(status="upcoming").order_by("date")
+    upcoming = Event.objects.filter(status="upcoming", date__gte=timezone.localdate()).order_by("date")
     past = Event.objects.filter(status="completed").order_by("-date")[:6]
-    return render(request, "website/events.html", {"upcoming": upcoming, "past": past, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
+    return render(request, "website/events.html", {"upcoming": upcoming, "past": past, "site_page": _cms_presentation("events"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
+
+
+def gallery(request):
+    from apps.cms.models import MediaItem
+
+    items = MediaItem.objects.filter(media_type=MediaItem.MediaType.IMAGE, is_public=True).exclude(file="")
+    category = request.GET.get("category", "").strip()
+    if category:
+        items = items.filter(category=category)
+    categories = MediaItem.objects.filter(media_type=MediaItem.MediaType.IMAGE, is_public=True).exclude(category="").values_list("category", flat=True).distinct().order_by("category")
+    page_obj = Paginator(items.order_by("sort_order", "-created_at"), 18).get_page(request.GET.get("page"))
+    return render(request, "website/gallery.html", {"page_obj": page_obj, "categories": categories, "category": category, "site_page": _cms_presentation("gallery"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
+
+
+def videos(request):
+    from apps.cms.models import MediaItem
+
+    items = MediaItem.objects.filter(media_type=MediaItem.MediaType.VIDEO, is_public=True).order_by("sort_order", "-created_at")
+    page_obj = Paginator(items, 12).get_page(request.GET.get("page"))
+    return render(request, "website/videos.html", {"page_obj": page_obj, "site_page": _cms_presentation("videos"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
 
 
 def event_detail(request, slug):
     from apps.cms.models import Event
 
-    event = get_object_or_404(Event, slug=slug)
+    event = get_object_or_404(Event.objects.exclude(status=Event.Status.CANCELLED), slug=slug)
     return render(request, "website/event_detail.html", {"event": event, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
 
 
@@ -367,7 +415,8 @@ def impact(request):
     context = {
         "page_title": "Our Impact",
         "stats": stats,
-        "stories": NewsArticle.objects.filter(status="published", category="story")[:3],
+        "stories": NewsArticle.objects.filter(status="published", category="story").filter(Q(publish_at__isnull=True) | Q(publish_at__lte=timezone.now()))[:3],
+        "site_page": _cms_presentation("impact"),
         "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order"),
     }
     return render(request, "website/impact.html", context)
@@ -379,7 +428,7 @@ def public_programs(request):
     return render(
         request,
         "website/programs.html",
-        {"programs": Program.objects.filter(status="active"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
+        {"programs": Program.objects.filter(status="active"), "site_page": _cms_presentation("programs"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
     )
 
 
@@ -389,7 +438,7 @@ def partners_public(request):
     return render(
         request,
         "website/partners.html",
-        {"partners": Partner.objects.filter(show_on_website=True), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
+        {"partners": Partner.objects.filter(show_on_website=True), "site_page": _cms_presentation("partners"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
     )
 
 
@@ -404,6 +453,7 @@ def leadership(request):
             "leaders": members.filter(category="leadership"),
             "board": members.filter(category="board"),
             "management": members.filter(category="management"),
+            "site_page": _cms_presentation("leadership"),
             "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order"),
         },
     )
@@ -431,7 +481,7 @@ def donate(request):
     return render(
         request,
         "website/donate.html",
-        {"form": form, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
+        {"form": form, "site_page": _cms_presentation("donate"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")},
     )
 
 
@@ -439,7 +489,7 @@ def careers(request):
     from apps.hr.models import Vacancy
 
     vacancies = Vacancy.objects.filter(status="open", is_public=True).order_by("-created_at")
-    return render(request, "website/careers.html", {"vacancies": vacancies, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
+    return render(request, "website/careers.html", {"vacancies": vacancies, "site_page": _cms_presentation("careers"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
 
 
 def contact(request):
@@ -448,7 +498,7 @@ def contact(request):
         form.save()
         messages.success(request, "Thank you for reaching out. Our team will respond shortly.")
         return redirect("website:contact")
-    return render(request, "website/contact.html", {"form": form, "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
+    return render(request, "website/contact.html", {"form": form, "site_page": _cms_presentation("contact"), "nav_pages": _published_pages().filter(show_in_nav=True).order_by("nav_order")})
 
 
 from django.conf import settings

@@ -1,8 +1,9 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}News &amp; updates — {{ ghdi_org_name }}{% endblock %}
+{% block title %}{{ site_page.seo_title|default:section_title }} &mdash; {{ ghdi_org_name }}{% endblock %}
 {% block content %}
-{% include "website/_page_hero.html" with hero_kicker="# News & update" hero_title="News & updates" hero_intro="Announcements, field updates and results from across GHDI programs and the communities we serve." hero_cta_label="Subscribe for updates" hero_cta_url="/contact/" %}
+{% include "website/_page_hero.html" with hero_kicker="# News & updates" hero_title=section_title hero_intro=site_page.summary|default:"Announcements, field updates and results from across GHDI programs and the communities we serve." hero_cta_label="Subscribe for updates" hero_cta_url="/contact/" hero_image=site_page.featured_image|media_url %}
+{% include "website/_cms_page_body.html" with page_content=site_page %}
 
 <section class="py-20">
   <div class="mx-auto max-w-6xl px-5">
@@ -16,7 +17,7 @@
     {% if featured %}
     <article class="ghdi-media-card" style="margin-bottom:56px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
-        <div class="ghdi-media-card__media" style="aspect-ratio:auto;min-height:290px">
+        <div class="ghdi-media-card__media">
           {% if featured.featured_image|file_url %}
           <img src="{{ featured.featured_image|file_url }}" alt="{{ featured.title }}" loading="lazy" decoding="async">
           {% else %}

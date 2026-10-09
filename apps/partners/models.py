@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 
 from apps.core.models import OwnedModel
+from apps.core.validators import FileSizeValidator
 
 
 class Donor(models.Model):
@@ -118,7 +119,7 @@ class Partner(OwnedModel):
     projects = models.ManyToManyField("programs.Project", blank=True, related_name="partners")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     show_on_website = models.BooleanField(default=False, help_text="Display on the public partners page")
-    logo = models.ImageField(upload_to="partners/", blank=True)
+    logo = models.ImageField(upload_to="partners/", blank=True, validators=[FileSizeValidator()])
     description = models.TextField(blank=True)
 
     class Meta:

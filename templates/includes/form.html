@@ -24,6 +24,9 @@ enctype (optional "multipart/form-data").
           </select>
         {% elif field.field.widget.input_type == "textarea" %}
           <textarea class="form-input" name="{{ field.name }}" id="{{ field.id_for_label }}" rows="{{ field.field.widget.attrs.rows|default:4 }}" {% if field.field.required %}required{% endif %}>{{ field.value|default:"" }}</textarea>
+        {% elif field.field.widget.input_type == "file" %}
+          {{ field }}
+          {% if field.value %}<div class="form-hint">Current file: {{ field.value.name }}</div>{% endif %}
         {% elif field.field.widget.input_type == "checkbox" %}
           <div class="flex items-center gap-2 mt-2">
             <input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %}>

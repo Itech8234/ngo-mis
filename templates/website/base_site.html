@@ -19,12 +19,20 @@
     } catch (e) { /* storage disabled */ }
   })();
 </script>
-{% block seo %}
-<meta name="description" content="{{ ghdi_org.tagline|default:'GHDI is a humanitarian and development NGO protecting and empowering vulnerable communities in Yobe State, Nigeria.' }}">
-<meta property="og:title" content="{{ ghdi_org_name }}">
-<meta property="og:description" content="{{ ghdi_org.tagline|default:'Humanitarian and development NGO - Nigeria.' }}">
+{% block seo %}{% if site_page %}
+<meta name="description" content="{{ site_page.seo_description|default:site_page.summary|default:ghdi_org.tagline|default:'Protecting Dignity. Strengthening Communities.'|striptags|truncatechars:300 }}">
+<meta property="og:title" content="{{ site_page.seo_title|default:site_page.title|default:ghdi_org_name }}">
+<meta property="og:description" content="{{ site_page.seo_description|default:site_page.summary|default:ghdi_org.tagline|default:'Protecting Dignity. Strengthening Communities.'|striptags|truncatechars:300 }}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if site_page.featured_image|file_url %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ site_page.featured_image|file_url }}">{% endif %}
+{% else %}
+<meta name="description" content="{{ ghdi_org.tagline|default:'Protecting Dignity. Strengthening Communities.'|striptags|truncatechars:300 }}">
+<meta property="og:title" content="{{ ghdi_org_name }}">
+<meta property="og:description" content="{{ ghdi_org.tagline|default:'Protecting Dignity. Strengthening Communities.'|striptags|truncatechars:300 }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% endif %}
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
 {% endblock %}
@@ -61,9 +69,17 @@
     </a>
 
     <div class="ghdi-menu d-none d-xl-flex">
-      {% for item in site_nav %}{% if item.primary and item.url != '/donate/' %}
-      <a href="{{ item.url }}" class="ghdi-menu__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
-      {% endif %}{% endfor %}
+      <a href="{% url 'website:home' %}" class="ghdi-menu__link{% if request.path == '/' %} is-active{% endif %}"{% if request.path == '/' %} aria-current="page"{% endif %}>Home</a>
+      <div class="dropdown ghdi-menu__dropdown"><button class="ghdi-menu__link{% if '/about/' in request.path or '/leadership/' in request.path or '/governance/' in request.path or '/careers/' in request.path %} is-active{% endif %}" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About<span class="ghdi-dropdown-arrow" aria-hidden="true"></span></button>
+        <ul class="dropdown-menu"><li><a class="dropdown-item" href="{% url 'website:about' %}">Who we are</a></li><li><a class="dropdown-item" href="{% url 'website:leadership' %}">Leadership</a></li><li><a class="dropdown-item" href="{% url 'website:governance' %}">Governance</a></li><li><a class="dropdown-item" href="{% url 'website:careers' %}">Careers</a></li>{% for p in site_nav_pages %}{% if p.page_type != 'thematic' %}<li><a class="dropdown-item" href="{% url 'website:page_detail' p.slug %}">{{ p.title }}</a></li>{% endif %}{% endfor %}</ul>
+      </div>
+      <div class="dropdown ghdi-menu__dropdown"><button class="ghdi-menu__link{% if '/programs/' in request.path %} is-active{% endif %}" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Programs<span class="ghdi-dropdown-arrow" aria-hidden="true"></span></button>
+        <ul class="dropdown-menu"><li><a class="dropdown-item" href="{% url 'website:programs' %}">All programs</a></li>{% for p in site_nav_pages %}{% if p.page_type == 'thematic' %}<li><a class="dropdown-item" href="{% url 'website:page_detail' p.slug %}">{{ p.title }}</a></li>{% endif %}{% endfor %}</ul>
+      </div>
+      {% for item in site_nav %}<a href="{{ item.url }}" class="ghdi-menu__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
+      <div class="dropdown ghdi-menu__dropdown"><button class="ghdi-menu__link{% if '/news/' in request.path or '/stories/' in request.path or '/events/' in request.path or '/gallery/' in request.path or '/videos/' in request.path %} is-active{% endif %}" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Explore<span class="ghdi-dropdown-arrow" aria-hidden="true"></span></button>
+        <ul class="dropdown-menu"><li><a class="dropdown-item" href="{% url 'website:news_list' %}">News</a></li><li><a class="dropdown-item" href="{% url 'website:stories' %}">Impact stories</a></li><li><a class="dropdown-item" href="{% url 'website:events_list' %}">Events</a></li><li><a class="dropdown-item" href="{% url 'website:gallery' %}">Gallery</a></li><li><a class="dropdown-item" href="{% url 'website:videos' %}">Videos</a></li></ul>
+      </div>
     </div>
 
     <a class="btn ghdi-btn-magenta ms-auto d-none d-xl-inline-flex" href="{% url 'website:donate' %}">Donate</a>
@@ -87,13 +103,11 @@
     </button>
   </div>
   <div class="ghdi-drawer__body">
-    {% for item in site_nav %}{% if item.url != '/donate/' %}
-    <a href="{{ item.url }}" class="ghdi-drawer__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
-    {% endif %}{% endfor %}
-    <a href="{% url 'website:leadership' %}" class="ghdi-drawer__link">Leadership</a>
-    <a href="{% url 'website:careers' %}" class="ghdi-drawer__link">Careers</a>
-    <a href="{% url 'website:governance' %}" class="ghdi-drawer__link">Governance</a>
-    {% for p in nav_pages %}<a href="{% url 'website:page_detail' p.slug %}" class="ghdi-drawer__link">{{ p.title }}</a>{% endfor %}
+    <a href="{% url 'website:home' %}" class="ghdi-drawer__link">Home</a>
+    <details class="ghdi-drawer__group"><summary>About</summary><a href="{% url 'website:about' %}" class="ghdi-drawer__link">Who we are</a><a href="{% url 'website:leadership' %}" class="ghdi-drawer__link">Leadership</a><a href="{% url 'website:governance' %}" class="ghdi-drawer__link">Governance</a><a href="{% url 'website:careers' %}" class="ghdi-drawer__link">Careers</a>{% for p in site_nav_pages %}{% if p.page_type != 'thematic' %}<a href="{% url 'website:page_detail' p.slug %}" class="ghdi-drawer__link">{{ p.title }}</a>{% endif %}{% endfor %}</details>
+    <details class="ghdi-drawer__group"><summary>Programs</summary><a href="{% url 'website:programs' %}" class="ghdi-drawer__link">All programs</a>{% for p in site_nav_pages %}{% if p.page_type == 'thematic' %}<a href="{% url 'website:page_detail' p.slug %}" class="ghdi-drawer__link">{{ p.title }}</a>{% endif %}{% endfor %}</details>
+    {% for item in site_nav %}<a href="{{ item.url }}" class="ghdi-drawer__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
+    <a href="{% url 'website:news_list' %}" class="ghdi-drawer__link">News</a><a href="{% url 'website:stories' %}" class="ghdi-drawer__link">Impact stories</a><a href="{% url 'website:events_list' %}" class="ghdi-drawer__link">Events</a><a href="{% url 'website:gallery' %}" class="ghdi-drawer__link">Gallery</a><a href="{% url 'website:videos' %}" class="ghdi-drawer__link">Videos</a>
     <a href="{% url 'accounts:login' %}" class="ghdi-drawer__link">Staff portal</a>
     <a class="ghdi-drawer__cta" href="{% url 'website:donate' %}">Donate</a>
   </div>
@@ -125,7 +139,7 @@
         {% endwith %}
         <span class="ghdi-footer__title mb-2">{{ ghdi_acronym }}</span>
       </a>
-      <p class="ghdi-footer__text">{{ ghdi_org.tagline|default:"Protecting and empowering vulnerable communities in Yobe State." }}</p>
+      <p class="ghdi-footer__text">{{ ghdi_org.tagline|default:"Protecting Dignity. Strengthening Communities." }}</p>
       {% if ghdi_org.registration_number %}
       <p class="ghdi-footer__text">{{ ghdi_org.registration_number }}</p>
       {% endif %}
@@ -136,7 +150,7 @@
         {% for item in site_nav %}{% if item.primary and item.url != '/donate/' %}
         <li><a href="{{ item.url }}">{{ item.label }}</a></li>
         {% endif %}{% endfor %}
-        <li><a href="{% url 'website:stories' %}">Stories</a></li>
+        <li><a href="{% url 'website:news_list' %}">News</a></li><li><a href="{% url 'website:stories' %}">Stories</a></li><li><a href="{% url 'website:events_list' %}">Events</a></li><li><a href="{% url 'website:gallery' %}">Gallery</a></li><li><a href="{% url 'website:videos' %}">Videos</a></li>
       </ul>
     </nav>
     <nav aria-label="Organisation">
@@ -147,7 +161,7 @@
         <li><a href="{% url 'website:governance' %}">Governance</a></li>
         <li><a href="{% url 'website:partners' %}">Partners</a></li>
         <li><a href="{% url 'website:careers' %}">Careers</a></li>
-        {% for p in nav_pages %}<li><a href="{% url 'website:page_detail' p.slug %}">{{ p.title }}</a></li>{% endfor %}
+        {% for p in site_nav_pages %}<li><a href="{% url 'website:page_detail' p.slug %}">{{ p.title }}</a></li>{% endfor %}
       </ul>
     </nav>
     <div>

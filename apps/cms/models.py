@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.core.models import OwnedModel
-from apps.core.validators import FileSizeValidator, FileTypeValidator
+from apps.core.validators import ALLOWED_EXTENSIONS, FileSizeValidator, FileTypeValidator, IMAGE_EXTENSIONS
 
 
 class PageStatus(models.TextChoices):
@@ -15,6 +15,17 @@ class PageStatus(models.TextChoices):
     SCHEDULED = "scheduled", "Scheduled"
     PUBLISHED = "published", "Published"
     ARCHIVED = "archived", "Archived"
+
+
+FIXED_SITE_PAGE_ROUTES = {
+    "home": "website:home", "about-us": "website:about", "governance": "website:governance",
+    "programs": "website:programs", "impact": "website:impact", "partners": "website:partners",
+    "leadership": "website:leadership", "careers": "website:careers", "news": "website:news_list",
+    "stories": "website:stories", "events": "website:events_list", "gallery": "website:gallery",
+    "videos": "website:videos", "contact": "website:contact", "donate": "website:donate",
+    "privacy-policy": "website:privacy", "terms-of-use": "website:terms",
+}
+FIXED_SITE_PAGE_SLUGS = set(FIXED_SITE_PAGE_ROUTES)
 
 
 class Page(OwnedModel):
@@ -33,7 +44,7 @@ class Page(OwnedModel):
         default="standard",
         db_index=True,
     )
-    featured_image = models.ImageField(upload_to="cms/pages/", blank=True)
+    featured_image = models.ImageField(upload_to="cms/pages/", blank=True, validators=[FileSizeValidator()])
     summary = models.TextField(blank=True)
     content = models.TextField(blank=True, help_text="Main page content. Use blank lines to separate paragraphs.")
     status = models.CharField(max_length=12, choices=PageStatus.choices, default=PageStatus.DRAFT, db_index=True)
@@ -50,6 +61,13 @@ class Page(OwnedModel):
     class Meta:
         ordering = ("nav_order", "title")
 
+    def save(self, *args, **kwargs):
+        # These slugs are fixed route content; their links are already placed in
+        # the public navigation, so editors cannot accidentally duplicate them.
+        if self.slug in FIXED_SITE_PAGE_SLUGS:
+            self.show_in_nav = False
+        super().save(*args, **kwargs)
+
     @property
     def is_live(self):
         if self.status != PageStatus.PUBLISHED:
@@ -63,6 +81,9 @@ class Page(OwnedModel):
         return True
 
     def get_absolute_url(self):
+        fixed_route = FIXED_SITE_PAGE_ROUTES.get(self.slug)
+        if fixed_route:
+            return reverse(fixed_route)
         return reverse("website:page_detail", args=[self.slug])
 
     def __str__(self):
@@ -75,7 +96,7 @@ class PageSection(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name="sections")
     heading = models.CharField(max_length=200, blank=True)
     body = models.TextField(blank=True, help_text="Plain text; blank lines create paragraphs.")
-    image = models.ImageField(upload_to="cms/sections/", blank=True)
+    image = models.ImageField(upload_to="cms/sections/", blank=True, validators=[FileSizeValidator()])
     sort_order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
@@ -98,7 +119,7 @@ class NewsArticle(OwnedModel):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
     category = models.CharField(max_length=15, choices=Category.choices, default=Category.NEWS, db_index=True)
-    featured_image = models.ImageField(upload_to="cms/news/", blank=True)
+    featured_image = models.ImageField(upload_to="cms/news/", blank=True, validators=[FileSizeValidator()])
     summary = models.TextField(blank=True)
     content = models.TextField(blank=True, help_text="Plain text; blank lines create paragraphs.")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="articles")
@@ -156,7 +177,7 @@ class Event(models.Model):
     venue = models.CharField(max_length=200, blank=True)
     city = models.CharField(max_length=120, default="Damaturu")
     registration_link = models.URLField(blank=True)
-    image = models.ImageField(upload_to="cms/events/", blank=True)
+    image = models.ImageField(upload_to="cms/events/", blank=True, validators=[FileSizeValidator()])
     organizer = models.CharField(max_length=160, blank=True, default="GHDI")
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.UPCOMING)
     is_featured = models.BooleanField(default=False)
@@ -187,17 +208,42 @@ class MediaItem(models.Model):
         REPORT = "report", "Report"
 
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to="media_library/", validators=[FileSizeValidator(), FileTypeValidator()])
+    file = models.FileField(upload_to="media_library/", blank=True, validators=[FileSizeValidator(), FileTypeValidator(ALLOWED_EXTENSIONS | {"mp4", "webm", "ogv"})])
+    video_url = models.URLField(blank=True, help_text="YouTube or Vimeo URL for a video item.")
+    thumbnail = models.ImageField(upload_to="cms/media-thumbnails/", blank=True, validators=[FileSizeValidator()])
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE, db_index=True)
     category = models.CharField(max_length=100, blank=True)
     tags = models.CharField(max_length=255, blank=True)
     alt_text = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
+    is_public = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    sort_order = models.PositiveSmallIntegerField(default=0)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ("-created_at",)
+        ordering = ("sort_order", "-created_at")
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.media_type == self.MediaType.VIDEO and not (self.video_url or self.file):
+            raise ValidationError({"video_url": "Add a YouTube/Vimeo URL or upload a video file."})
+        if self.media_type == self.MediaType.VIDEO and self.video_url:
+            from apps.core.templatetags.ghdi_extras import video_embed_url
+            if not video_embed_url(self.video_url):
+                raise ValidationError({"video_url": "Use a valid YouTube or Vimeo video URL."})
+        if self.media_type == self.MediaType.IMAGE and not self.file:
+            raise ValidationError({"file": "Upload an image for a gallery item."})
+        if self.media_type == self.MediaType.IMAGE and self.file:
+            extension = self.file.name.rsplit(".", 1)[-1].lower() if "." in self.file.name else ""
+            if extension not in IMAGE_EXTENSIONS - {"svg"}:
+                raise ValidationError({"file": "Gallery images must be JPG, PNG, GIF or WebP files."})
+
+    @property
+    def public_image(self):
+        return self.thumbnail if self.thumbnail else self.file
 
     def get_absolute_url(self):
         return reverse("cms:media_detail", args=[self.pk])
@@ -238,7 +284,7 @@ class CarouselSlide(models.Model):
     title = models.CharField(max_length=160)
     title_highlight = models.CharField(max_length=160, blank=True)
     subtitle = models.TextField(blank=True)
-    image = models.ImageField(upload_to="cms/carousel/")
+    image = models.ImageField(upload_to="cms/carousel/", validators=[FileSizeValidator()])
     image_alt = models.CharField(max_length=200, blank=True)
     cta_label = models.CharField(max_length=60, blank=True)
     cta_url = models.CharField(max_length=500, blank=True, help_text="Internal path (for example /programs/) or HTTPS URL.")
@@ -280,7 +326,7 @@ class TeamMember(models.Model):
     role = models.CharField(max_length=160)
     category = models.CharField(max_length=12, choices=Category.choices, default=Category.LEADERSHIP, db_index=True)
     bio = models.TextField(blank=True)
-    photo = models.ImageField(upload_to="cms/team/", blank=True)
+    photo = models.ImageField(upload_to="cms/team/", blank=True, validators=[FileSizeValidator()])
     email = models.EmailField(blank=True)
     order = models.PositiveSmallIntegerField(default=0)
 

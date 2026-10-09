@@ -2065,6 +2065,30 @@ textarea:focus-visible,
 }
 .ghdi-media-card__more:hover { color: var(--ghdi-accent); }
 
+/* Accessible Bootstrap dropdowns and the CMS-managed public media system. */
+.ghdi-menu__dropdown { position: relative; }
+.ghdi-menu__dropdown > .ghdi-menu__link { border: 0; background: transparent; cursor: pointer; font-family: inherit; }
+.ghdi-dropdown-arrow { display: inline-block; width: 7px; height: 7px; margin: 0 0 3px 8px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform .18s ease; }
+.ghdi-menu__dropdown.show .ghdi-dropdown-arrow { margin-bottom: -1px; transform: rotate(225deg); }
+.ghdi-menu__dropdown .dropdown-menu { min-width: 220px; margin-top: 6px; padding: 8px; border: 1px solid rgba(225,233,242,.95); border-radius: 14px; box-shadow: 0 18px 45px rgba(1,31,91,.2); }
+.ghdi-menu__dropdown .dropdown-item { padding: 9px 12px; border-radius: 8px; color: #173354; font-size: 13px; font-weight: 600; }
+.ghdi-menu__dropdown .dropdown-item:hover,.ghdi-menu__dropdown .dropdown-item:focus { color: #092c59; background: #eef5fb; }
+.ghdi-menu__dropdown > .ghdi-menu__link:focus-visible { outline: 3px solid var(--ghdi-amber); outline-offset: 2px; }
+.ghdi-drawer__group { border-bottom: 1px solid rgba(255,255,255,.12); }
+.ghdi-drawer__group summary { padding: 14px 16px; color: #fff; font-weight: 700; cursor: pointer; list-style: none; }
+.ghdi-drawer__group summary::-webkit-details-marker { display: none; }
+.ghdi-drawer__group summary::after { content: "⌄"; float: right; color: var(--ghdi-amber); transition: transform .18s ease; }
+.ghdi-drawer__group[open] summary::after { transform: rotate(180deg); }
+.ghdi-drawer__group .ghdi-drawer__link { padding-left: 28px; }
+.ghdi-media-card__media,.ghdi-story-card__media,.ghdi-event-card__image { aspect-ratio: 16 / 10; height: auto; }
+.ghdi-media-card__media img,.ghdi-story-card__media img,.ghdi-event-card__image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ghdi-media-card__body,.ghdi-story-card__body { min-width: 0; }
+.ghdi-story-card__body h3,.ghdi-media-card__title { overflow-wrap: anywhere; }
+.ghdi-theme-card__image { width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 12px; }
+.cms-route-feature { margin: 0 0 2rem; overflow: hidden; border-radius: 18px; aspect-ratio: 16 / 9; background: #e8edf2; }
+.cms-route-feature img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 575.98px) { .ghdi-media-card__media,.ghdi-story-card__media,.ghdi-event-card__image { aspect-ratio: 4 / 3; } }
+
 /* ---- Horizontal card rail ---------------------------------------------- */
 .ghdi-rail { position: relative; }
 .ghdi-rail__controls { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 18px; }

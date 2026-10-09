@@ -63,7 +63,25 @@ class EventForm(forms.ModelForm):
 class MediaItemForm(forms.ModelForm):
     class Meta:
         model = MediaItem
-        fields = ["title", "file", "media_type", "category", "tags", "alt_text", "description"]
+        fields = [
+            "title", "file", "video_url", "thumbnail", "media_type", "category",
+            "tags", "alt_text", "description", "is_public", "is_featured", "sort_order",
+        ]
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+    def clean(self):
+        cleaned = super().clean()
+        video_url = cleaned.get("video_url", "")
+        upload = cleaned.get("file")
+        if cleaned.get("media_type") == MediaItem.MediaType.VIDEO and upload:
+            extension = upload.name.rsplit(".", 1)[-1].lower() if "." in upload.name else ""
+            if extension not in {"mp4", "webm", "ogv"}:
+                self.add_error("file", "Video uploads must be MP4, WebM or OGV. You can also add a YouTube/Vimeo link.")
+        if cleaned.get("media_type") == MediaItem.MediaType.VIDEO and video_url:
+            from apps.core.templatetags.ghdi_extras import video_embed_url
+            if not video_embed_url(video_url):
+                self.add_error("video_url", "Use a YouTube or Vimeo URL.")
+        return cleaned
 
 
 class ImpactStatForm(forms.ModelForm):

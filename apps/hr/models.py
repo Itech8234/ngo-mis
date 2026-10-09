@@ -17,6 +17,8 @@ class Department(models.Model):
     code = models.CharField(max_length=20, unique=True)
     head = models.ForeignKey("Employee", null=True, blank=True, on_delete=models.SET_NULL, related_name="led_departments")
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to="hr/departments/", blank=True, validators=[FileSizeValidator()])
+    is_active = models.BooleanField(default=True, db_index=True)
 
     class Meta:
         ordering = ("name",)
@@ -51,7 +53,7 @@ class Employee(OwnedModel):
     employee_id = models.CharField(max_length=20, unique=True, editable=False)
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
-    photo = models.ImageField(upload_to="employees/", blank=True)
+    photo = models.ImageField(upload_to="employees/", blank=True, validators=[FileSizeValidator()])
     gender = models.CharField(max_length=1, choices=Gender.choices, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     email = models.EmailField(blank=True)

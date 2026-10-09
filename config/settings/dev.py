@@ -1,6 +1,5 @@
 """Development settings - SQLite database, console email, verbose errors."""
 from .base import *  # noqa: F401,F403
-from .base import env
 
 DEBUG = True
 # The shared settings may have read production flags from .env before this
@@ -16,7 +15,3 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-# Honour DATABASE_URL when provided even in development.
-if env("DATABASE_URL"):
-    DATABASES = {"default": parse_database_url(env("DATABASE_URL"))}

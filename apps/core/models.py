@@ -3,6 +3,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from apps.core.validators import FileSizeValidator
+
 
 class TimeStampedModel(models.Model):
     """Abstract base providing creation/update audit timestamps."""
@@ -123,9 +125,9 @@ class OrganizationSetting(models.Model):
     acronym = models.CharField(max_length=20, default="GHDI")
     tagline = models.CharField(
         max_length=200,
-        default="Protecting and empowering vulnerable communities in Yobe State",
+        default="Protecting Dignity. Strengthening Communities.",
     )
-    logo = models.ImageField(upload_to="org/", blank=True)
+    logo = models.ImageField(upload_to="org/", blank=True, validators=[FileSizeValidator()])
     address = models.CharField(
         max_length=255, default="No. 1 Garkuwa Close, Damaturu, Yobe State, Nigeria"
     )

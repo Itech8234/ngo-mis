@@ -1,1 +1,9 @@
-{% extends "ghdi/generic_form.html" %}
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}{{ page_title|default:"Media item" }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ page_title|default:"Media item" }}</h1><p class="sub">Manage images, albums and video links shown on the public website.</p></div></div>
+<section class="card" style="max-width:960px"><div class="card-body">
+{% if object and object.file|file_url %}<div class="mb-4">{% if object.media_type == "video" %}<video controls preload="metadata" style="max-width:100%;max-height:300px"{% if object.thumbnail|file_url %} poster="{{ object.thumbnail|file_url }}"{% endif %}><source src="{{ object.file|file_url }}"></video>{% else %}<img src="{{ object.file|file_url }}" alt="{{ object.alt_text|default:object.title }}" style="max-width:100%;max-height:320px;object-fit:contain;border-radius:14px">{% endif %}</div>{% endif %}
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="alert alert-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}<div class="form-grid">{% for field in form %}<div class="form-group {% if field.name == 'description' %}colspan-2{% endif %}"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="req"> *</span>{% endif %}</label>{% if field.field.widget.input_type == 'checkbox' %}<div class="flex items-center gap-2 mt-2">{{ field }}<span>{{ field.help_text }}</span></div>{% else %}{{ field }}{% if field.help_text %}<div class="form-hint">{{ field.help_text }}</div>{% endif %}{% endif %}{% if field.errors %}<ul class="field-errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}</div>{% endfor %}</div><div class="form-actions"><button type="submit" class="btn btn-primary">Save media</button><a class="btn btn-secondary" href="{% url 'cms:media_list' %}">Cancel</a></div></form>
+</div></section>
+{% endblock %}

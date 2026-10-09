@@ -1,13 +1,13 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}{{ article.title }} — {{ ghdi_org_name }}{% endblock %}
+{% block title %}{{ article.seo_title|default:article.title }} &mdash; {{ ghdi_org_name }}{% endblock %}
 {% block seo %}
-<meta name="description" content="{{ article.summary }}">
-<meta property="og:title" content="{{ article.title }}">
-<meta property="og:description" content="{{ article.summary }}">
+<meta name="description" content="{{ article.seo_description|default:article.summary|striptags|truncatechars:300 }}">
+<meta property="og:title" content="{{ article.seo_title|default:article.title }}">
+<meta property="og:description" content="{{ article.seo_description|default:article.summary|striptags|truncatechars:300 }}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
-{% if article.featured_image|file_url %}<meta property="og:image" content="{{ request.build_absolute_uri }}{{ article.featured_image|file_url }}">{% endif %}
+{% if article.featured_image|file_url %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ article.featured_image|file_url }}">{% endif %}
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
 {% endblock %}
 {% block content %}

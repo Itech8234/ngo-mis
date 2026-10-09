@@ -1,8 +1,9 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}Events — {{ ghdi_org_name }}{% endblock %}
+{% block title %}{{ site_page.seo_title|default:site_page.title|default:"Events" }} &mdash; {{ ghdi_org_name }}{% endblock %}
 {% block content %}
-{% include "website/_page_hero.html" with hero_kicker="# Events" hero_title="Events" hero_intro="Community meetings, trainings, launches and field visits across GHDI's areas of operation." hero_cta_label="Enquire about an event" hero_cta_url="/contact/" %}
+{% include "website/_page_hero.html" with hero_kicker="# Events" hero_title=site_page.title|default:"Events" hero_intro=site_page.summary|default:"Community meetings, trainings, launches and field visits across GHDI's areas of operation." hero_cta_label="Enquire about an event" hero_cta_url="/contact/" hero_image=site_page.featured_image|media_url %}
+{% include "website/_cms_page_body.html" with page_content=site_page %}
 
 {% if upcoming %}
 <section class="py-20">

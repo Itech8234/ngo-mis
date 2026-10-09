@@ -59,6 +59,7 @@ ROLE_PERMISSIONS = {
     ],
 
     Role.HR: [
+        "hr.view_department", "hr.add_department", "hr.change_department", "hr.delete_department",
         "hr.view_employee", "hr.add_employee", "hr.change_employee",
         "hr.view_sensitive", "hr.view_leaverequest", "hr.add_leaverequest",
         "hr.approve_leave", "hr.view_vacancy", "hr.add_vacancy", "hr.change_vacancy",
@@ -143,7 +144,7 @@ ROLE_PERMISSIONS = {
     Role.CONTENT: [
         "cms.view_page", "cms.add_page", "cms.change_page", "cms.delete_page",
         "cms.view_newsarticle", "cms.add_newsarticle", "cms.change_newsarticle",
-        "cms.delete_newsarticle", "cms.view_event", "cms.add_event",
+        "cms.delete_newsarticle", "cms.publish_article", "cms.view_event", "cms.add_event",
         "cms.change_event", "cms.delete_event", "cms.view_mediaitem",
         "cms.add_mediaitem", "cms.change_mediaitem", "cms.delete_mediaitem", "cms.view_impactstat",
         "cms.add_impactstat", "cms.change_impactstat", "cms.delete_impactstat",

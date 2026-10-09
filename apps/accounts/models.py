@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 
+from apps.core.validators import FileSizeValidator
+
 
 class Role(models.TextChoices):
     """Primary GHDI roles. Permissions per role live in accounts.permissions."""
@@ -25,7 +27,7 @@ class User(AbstractUser):
     email = models.EmailField("email address", unique=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STAFF, db_index=True)
     phone = models.CharField(max_length=50, blank=True)
-    photo = models.ImageField(upload_to="avatars/", blank=True)
+    photo = models.ImageField(upload_to="avatars/", blank=True, validators=[FileSizeValidator()])
     job_title = models.CharField(max_length=120, blank=True)
     two_factor_enabled = models.BooleanField(default=False, help_text="Architecture placeholder for TOTP two-factor authentication.")
 

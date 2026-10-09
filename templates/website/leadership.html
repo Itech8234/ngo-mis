@@ -1,8 +1,9 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}Leadership &amp; governance — {{ ghdi_org_name }}{% endblock %}
+{% block title %}{{ site_page.seo_title|default:site_page.title|default:"Leadership" }} &mdash; {{ ghdi_org_name }}{% endblock %}
 {% block content %}
-{% include "website/_page_hero.html" with hero_kicker="# Leadership & governance" hero_title="Leadership & governance" hero_intro="GHDI is led by an independent board and a management team accountable to the communities we serve." hero_cta_label="Read our governance" hero_cta_url="/governance/" %}
+{% include "website/_page_hero.html" with hero_kicker="# Leadership & governance" hero_title=site_page.title|default:"Leadership & governance" hero_intro=site_page.summary|default:"GHDI is led by an independent board and a management team accountable to the communities we serve." hero_cta_label="Read our governance" hero_cta_url="/governance/" hero_image=site_page.featured_image|media_url %}
+{% include "website/_cms_page_body.html" with page_content=site_page %}
 
 {% if board %}
 <section class="py-20">

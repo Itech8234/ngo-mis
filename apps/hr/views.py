@@ -21,7 +21,7 @@ from apps.core.models import OrganizationSetting
 from apps.core.services import WorkflowService, notify
 
 from .forms import (
-    AttendanceForm, DisciplinaryRecordForm, EmployeeForm, HRDocumentForm, LeaveBalanceForm, LeaveRequestForm,
+    AttendanceForm, DepartmentForm, DisciplinaryRecordForm, EmployeeForm, HRDocumentForm, LeaveBalanceForm, LeaveRequestForm,
     LeaveReviewForm, PerformanceReviewForm, TrainingForm, VacancyForm,
 )
 from .models import (
@@ -31,6 +31,49 @@ from .models import (
 )
 
 User = get_user_model()
+
+
+@login_required
+@permission_required("hr.view_department", raise_exception=True)
+def department_list(request):
+    departments = Department.objects.select_related("head").annotate(staff_count=Count("employees"))
+    query = request.GET.get("q", "").strip()
+    if query:
+        departments = departments.filter(Q(name__icontains=query) | Q(code__icontains=query) | Q(description__icontains=query))
+    return render(request, "hr/department_list.html", {"departments": departments, "query": query})
+
+
+@login_required
+@permission_required("hr.add_department", raise_exception=True)
+def department_create(request):
+    form = DepartmentForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Department created.")
+        return redirect("hr:department_list")
+    return render(request, "hr/department_form.html", {"form": form, "page_title": "Add department"})
+
+
+@login_required
+@permission_required("hr.change_department", raise_exception=True)
+def department_edit(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    form = DepartmentForm(request.POST or None, request.FILES or None, instance=department)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Department updated.")
+        return redirect("hr:department_list")
+    return render(request, "hr/department_form.html", {"form": form, "department": department, "page_title": "Edit department"})
+
+
+@login_required
+@permission_required("hr.delete_department", raise_exception=True)
+@require_POST
+def department_delete(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    department.delete()
+    messages.success(request, "Department deleted. Staff records remain and are marked unassigned.")
+    return redirect("hr:department_list")
 
 
 class EmployeeListView(GHDIListView):

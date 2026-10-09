@@ -45,41 +45,6 @@ def env_int(name, default):
         return default
 
 
-def parse_database_url(url):
-    """Parse a postgres:// or sqlite:// DATABASE_URL without extra dependencies."""
-    if url.startswith("sqlite://"):
-        name = url.replace("sqlite://", "") or str(BASE_DIR / "db.sqlite3")
-        return {"ENGINE": "django.db.backends.sqlite3", "NAME": name}
-    from urllib.parse import parse_qs, unquote, urlparse
-
-    parsed = urlparse(url)
-    database = {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": unquote(parsed.path.lstrip("/")),
-        "USER": unquote(parsed.username or ""),
-        "PASSWORD": unquote(parsed.password or ""),
-        "HOST": parsed.hostname or "localhost",
-        "PORT": str(parsed.port or 5432),
-        "CONN_MAX_AGE": 60,
-    }
-    query_options = parse_qs(parsed.query)
-    options = {
-        name: values[-1]
-        for name, values in query_options.items()
-        if name in {"sslmode", "sslrootcert", "connect_timeout"} and values
-    }
-    # Supabase requires SSL for hosted database connections. Preserve an
-    # explicit URL setting, and default hosted Supabase URLs to encrypted use.
-    if "sslmode" not in options and (
-        (parsed.hostname or "").endswith(".supabase.co")
-        or (parsed.hostname or "").endswith(".supabase.com")
-    ):
-        options["sslmode"] = "require"
-    if options:
-        database["OPTIONS"] = options
-    return database
-
-
 # ---------------------------------------------------------------------------
 # Core Django configuration
 # ---------------------------------------------------------------------------

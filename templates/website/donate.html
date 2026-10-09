@@ -1,8 +1,9 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}Support GHDI — {{ ghdi_org_name }}{% endblock %}
+{% block title %}{{ site_page.seo_title|default:site_page.title|default:"Support GHDI" }} &mdash; {{ ghdi_org_name }}{% endblock %}
 {% block content %}
-{% include "website/_page_hero.html" with hero_kicker="Support our work" hero_title="Give with confidence" hero_intro="Your gift funds protection, education and community resilience for vulnerable people in northeast Nigeria — delivered by teams who live and work in the communities they serve." hero_cta_label="Talk to our team" hero_cta_url="/contact/" hero_cta2_label="See our impact" hero_cta2_url="/impact/" %}
+{% include "website/_page_hero.html" with hero_kicker="Support our work" hero_title=site_page.title|default:"Give with confidence" hero_intro=site_page.summary|default:"Your gift funds protection, education and community resilience for vulnerable people in northeast Nigeria." hero_cta_label="Talk to our team" hero_cta_url="/contact/" hero_cta2_label="See our impact" hero_cta2_url="/impact/" hero_image=site_page.featured_image|media_url %}
+{% include "website/_cms_page_body.html" with page_content=site_page %}
 
 <section class="py-16 md:py-20">
   <div class="mx-auto max-w-6xl px-5">

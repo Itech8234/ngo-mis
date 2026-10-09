@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
 from apps.core.generic import GHDIListView, GHDICreateView, GHDIUpdateView, GHDidDetailView
 
@@ -15,7 +16,7 @@ from .forms import (
 )
 from .models import (
     CarouselSlide, ContactMessage, Event, ImpactStat, MediaItem, NewsArticle, Page,
-    PageSection, TeamMember,
+    PageSection, PageStatus, TeamMember,
 )
 from apps.partners.models import Partner
 from apps.partners.views import PartnerCreateView as BasePartnerCreateView, PartnerListView as BasePartnerListView, PartnerUpdateView as BasePartnerUpdateView
@@ -24,6 +25,9 @@ from apps.partners.views import PartnerCreateView as BasePartnerCreateView, Part
 @login_required
 @permission_required("cms.view_page", raise_exception=True)
 def cms_dashboard(request):
+    from apps.hr.models import Department, Employee
+    from apps.programs.models import Program, Project
+
     context = {
         "page_title": "CMS Dashboard",
         "pages": Page.objects.count(),
@@ -32,15 +36,40 @@ def cms_dashboard(request):
         "published_articles": NewsArticle.objects.filter(status="published").count(),
         "events": Event.objects.count(),
         "media": MediaItem.objects.count(),
+        "videos": MediaItem.objects.filter(media_type=MediaItem.MediaType.VIDEO).count(),
+        "gallery_items": MediaItem.objects.filter(media_type=MediaItem.MediaType.IMAGE).count(),
         "team": TeamMember.objects.count(),
+        "staff": Employee.objects.filter(status=Employee.Status.ACTIVE).count(),
+        "departments": Department.objects.count(),
+        "programs": Program.objects.count(),
+        "projects": Project.objects.count(),
         "partners": Partner.objects.count(),
         "stats": ImpactStat.objects.count(),
         "messages_pending": ContactMessage.objects.filter(is_handled=False).count(),
         "recent_articles": NewsArticle.objects.order_by("-created_at")[:6],
         "recent_pages": Page.objects.order_by("-updated_at")[:6],
         "recent_messages": ContactMessage.objects.order_by("-created_at")[:6],
+        "recent_events": Event.objects.order_by("-created_at")[:6],
+        "recent_publications": NewsArticle.objects.filter(status="published").order_by("-publish_at", "-created_at")[:6],
     }
     return render(request, "cms/dashboard.html", context)
+
+
+@login_required
+@permission_required("cms.view_page", raise_exception=True)
+def site_pages(request):
+    """Index editable presentation content for every public landing route."""
+    registry = [
+        ("Homepage", "home", "/"), ("About", "about-us", "/about/"), ("Governance", "governance", "/governance/"),
+        ("Programs", "programs", "/programs/"), ("Impact", "impact", "/impact/"), ("Partners", "partners", "/partners/"),
+        ("Leadership", "leadership", "/leadership/"), ("Careers", "careers", "/careers/"), ("News", "news", "/news/"),
+        ("Impact stories", "stories", "/stories/"), ("Events", "events", "/events/"), ("Gallery", "gallery", "/gallery/"),
+        ("Videos", "videos", "/videos/"), ("Contact", "contact", "/contact/"), ("Support / donations", "donate", "/donate/"),
+        ("Privacy policy", "privacy-policy", "/privacy-policy/"), ("Terms of use", "terms-of-use", "/terms-of-use/"),
+    ]
+    existing = {page.slug: page for page in Page.objects.filter(slug__in=[slug for _, slug, _ in registry])}
+    rows = [{"title": title, "slug": slug, "route": route, "page": existing.get(slug)} for title, slug, route in registry]
+    return render(request, "cms/site_pages.html", {"site_pages": rows, "page_title": "Website pages"})
 
 
 class PageListView(GHDIListView):
@@ -84,6 +113,14 @@ class PageCreateView(GHDICreateView):
     permission_required = "cms.add_page"
     template_name = "cms/page_form.html"
     title = "New Page"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        slug = self.request.GET.get("slug", "").strip()
+        title = self.request.GET.get("page_title", "").strip()
+        if slug and not Page.objects.filter(slug=slug).exists():
+            initial.update({"slug": slug, "title": title or slug.replace("-", " ").title(), "status": "draft"})
+        return initial
 
     def get_success_url(self):
         return reverse("cms:page_detail", args=[self.object.pk])
@@ -174,6 +211,23 @@ class NewsListView(GHDIListView):
     permission_required = "cms.view_newsarticle"
     search_fields = ("title", "summary")
     title = "News & Stories"
+    template_name = "cms/news_list.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        category = self.request.GET.get("category", "")
+        status = self.request.GET.get("status", "")
+        if category in NewsArticle.Category.values:
+            qs = qs.filter(category=category)
+        if status in PageStatus.values:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = NewsArticle.Category.choices
+        context["statuses"] = PageStatus.choices
+        return context
 
 
 class NewsDetailView(GHDidDetailView):
@@ -303,6 +357,25 @@ class EventListView(GHDIListView):
     permission_required = "cms.view_event"
     search_fields = ("name", "venue")
     title = "Events"
+    template_name = "cms/event_list.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status = self.request.GET.get("status", "")
+        start_date = self.request.GET.get("start_date", "")
+        end_date = self.request.GET.get("end_date", "")
+        if status in Event.Status.values:
+            qs = qs.filter(status=status)
+        if parsed_start := parse_date(start_date):
+            qs = qs.filter(date__gte=parsed_start)
+        if parsed_end := parse_date(end_date):
+            qs = qs.filter(date__lte=parsed_end)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["statuses"] = Event.Status.choices
+        return context
 
 
 class EventCreateView(GHDICreateView):
@@ -331,7 +404,7 @@ class MediaListView(GHDIListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        media_type = self.request.GET.get("type")
+        media_type = self.request.GET.get("type") or getattr(self, "default_type", "")
         if media_type:
             qs = qs.filter(media_type=media_type)
         return qs
@@ -340,6 +413,16 @@ class MediaListView(GHDIListView):
         context = super().get_context_data(**kwargs)
         context["types"] = MediaItem.MediaType.choices
         return context
+
+
+class GalleryMediaListView(MediaListView):
+    default_type = MediaItem.MediaType.IMAGE
+    title = "Gallery"
+
+
+class VideoMediaListView(MediaListView):
+    default_type = MediaItem.MediaType.VIDEO
+    title = "Videos"
 
 
 class MediaDetailView(GHDidDetailView):
@@ -354,6 +437,13 @@ class MediaCreateView(GHDICreateView):
     permission_required = "cms.add_mediaitem"
     template_name = "cms/media_form.html"
     title = "Upload Media"
+
+    def get_initial(self):
+        initial = super().get_initial()
+        media_type = self.request.GET.get("media_type")
+        if media_type in MediaItem.MediaType.values:
+            initial["media_type"] = media_type
+        return initial
 
     def form_valid(self, form):
         form.instance.uploaded_by = self.request.user

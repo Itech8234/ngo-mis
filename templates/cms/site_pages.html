@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Website pages{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--cms"><div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">Public website editor</span><h1>Website pages</h1><p>Edit the title, introduction, featured image, body copy and search metadata used across public landing pages. News, events, programs, staff, partners, videos and gallery entries remain managed in their dedicated sections.</p></div></section>
+<section class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Page</th><th>Public address</th><th>Content status</th><th>Action</th></tr></thead><tbody>
+{% for row in site_pages %}<tr><td class="cell-main">{{ row.title }}</td><td><a href="{{ row.route }}">{{ row.route }}</a></td><td>{% if row.page %}<span class="badge status-{{ row.page.status }}">{{ row.page.get_status_display }}</span>{% else %}<span class="badge status-draft">Using site defaults</span>{% endif %}</td><td><div class="row-actions">{% if row.page %}{% if perms.cms.change_page %}<a class="btn btn-primary btn-sm" href="{% url 'cms:page_edit' row.page.pk %}">Edit page</a>{% else %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:page_detail' row.page.pk %}">View details</a>{% endif %}{% elif perms.cms.add_page %}<a class="btn btn-secondary btn-sm" href="{% url 'cms:page_create' %}?slug={{ row.slug }}&amp;page_title={{ row.title|urlencode }}">Add page content</a>{% else %}<span class="text-secondary">Not configured</span>{% endif %}</div></td></tr>{% endfor %}
+</tbody></table></div></section>
+<p class="mt-4 text-sm text-secondary">Publishing page content replaces the built in introduction for that section. Page-specific records continue to load automatically from the CMS and their existing modules.</p>
+{% endblock %}

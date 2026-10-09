@@ -1,84 +1,38 @@
 {% extends "base.html" %}{% load ghdi_extras %}
 {% block title %}CMS Dashboard{% endblock %}
 {% block content %}
-<div class="page-head">
-  <div><h1>CMS Dashboard</h1><p class="sub">Manage the GHDI public website without touching code</p></div>
-  <div class="actions">
-    <a class="btn btn-secondary" href="{% url 'cms:page_list' %}">Pages</a>
-    <a class="btn btn-primary" href="{% url 'cms:page_create' %}">New page</a>
-    {% if perms.cms.view_page %}<a class="btn btn-secondary" href="{% url 'cms:thematic_list' %}">Thematic areas</a>{% endif %}
-    {% if perms.cms.change_page or perms.cms.add_page %}<a class="btn btn-secondary" href="{% url 'cms:about_page_manage' %}">Manage About page</a>{% endif %}
-  </div>
-</div>
-
+<section class="dashboard-hero dashboard-hero--cms">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">GHDI public website</span><h1>Content workspace</h1><p>Publish stories, manage the website and review the latest content in one place.</p></div>
+  <div class="dashboard-hero__actions">{% if perms.cms.add_newsarticle %}<a class="btn btn-primary" href="{% url 'cms:news_create' %}">Write news</a>{% endif %}{% if perms.cms.add_event %}<a class="btn btn-secondary" href="{% url 'cms:event_create' %}">Add event</a>{% endif %}</div>
+</section>
 <div class="kpi-grid">
-  {% include "includes/kpi.html" with label="Pages" value=pages icon="file" color="teal" %}
-  {% include "includes/kpi.html" with label="Published" value=published_pages icon="check" color="emerald" %}
-  {% include "includes/kpi.html" with label="News Articles" value=articles icon="rss" color="blue" %}
-  {% include "includes/kpi.html" with label="Published News" value=published_articles icon="check" color="emerald" %}
+  {% include "includes/kpi.html" with label="Published pages" value=published_pages icon="file" color="teal" %}
+  {% include "includes/kpi.html" with label="News & stories" value=articles icon="rss" color="blue" %}
   {% include "includes/kpi.html" with label="Events" value=events icon="calendar" color="violet" %}
-  {% include "includes/kpi.html" with label="Media Items" value=media icon="upload" color="amber" %}
-  {% include "includes/kpi.html" with label="Team Members" value=team icon="users" color="blue" %}
-  {% include "includes/kpi.html" with label="Impact Stats" value=stats icon="chart" color="gray" %}
-  {% include "includes/kpi.html" with label="Partners" value=partners icon="users" color="violet" %}
+  {% include "includes/kpi.html" with label="Videos" value=videos icon="video" color="amber" %}
+  {% include "includes/kpi.html" with label="Gallery images" value=gallery_items icon="image" color="teal" %}
+  {% include "includes/kpi.html" with label="Active staff" value=staff icon="users" color="blue" %}
+  {% include "includes/kpi.html" with label="Departments" value=departments icon="layers" color="violet" %}
+  {% include "includes/kpi.html" with label="Programs" value=programs icon="target" color="emerald" %}
+  {% include "includes/kpi.html" with label="Projects" value=projects icon="briefcase" color="amber" %}
 </div>
-
 <div class="grid-3 mt-6">
-  <div class="card">
-    <div class="card-head"><h3>Quick links</h3></div>
-    <div class="card-body">
-      <div class="flex-col gap-2">
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:news_create' %}">Write news</a>
-        {% if perms.cms.add_page %}<a class="btn btn-ghost btn-block" href="{% url 'cms:thematic_create' %}">Add thematic area</a>{% endif %}
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:event_create' %}">Create event</a>
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:media_create' %}">Upload media</a>
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:carousel_list' %}">Manage homepage carousel</a>
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:impact_create' %}">Add impact stat</a>
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:team_create' %}">Add team member</a>
-        <a class="btn btn-ghost btn-block" href="{% url 'cms:partner_list' %}">Manage partners &amp; logos</a>
-      </div>
-      <div class="alert alert-warning mt-4">{% if messages_pending %}{{ messages_pending }} contact message(s) awaiting response.{% else %}No pending contact messages.{% endif %}</div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head"><h3>Recent articles</h3></div>
-    <div class="card-body flush">
-      {% for a in recent_articles %}
-        <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ a.title }}</div><div class="feed-meta">{{ a.get_status_display }} · {{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</div></div><a class="btn btn-ghost btn-sm" href="{% url 'cms:news_edit' a.pk %}">Edit</a></div>
-      {% empty %}<div class="text-secondary text-sm" style="padding:20px">No articles yet.</div>{% endfor %}
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head"><h3>Latest messages</h3></div>
-    <div class="card-body flush">
-      {% for m in recent_messages %}
-        <div class="feed-item"><div class="feed-body"><div class="feed-title">{{ m.name }}</div><div class="feed-meta">{{ m.subject|truncatechars:40 }} · {{ m.created_at|date:"d M Y" }}</div></div></div>
-      {% empty %}<div class="text-secondary text-sm" style="padding:20px">No contact messages yet.</div>{% endfor %}
-      <div style="padding:12px 20px"><a class="text-sm text-primary" href="{% url 'cms:message_list' %}">All messages &rarr;</a></div>
-    </div>
-  </div>
+  <section class="card"><div class="card-head"><h2>Manage content</h2></div><div class="card-body"><div class="cms-quick-actions">
+    {% if perms.cms.add_newsarticle %}<a class="btn btn-ghost btn-block" href="{% url 'cms:news_create' %}">Add news or story</a>{% endif %}
+    {% if perms.cms.add_event %}<a class="btn btn-ghost btn-block" href="{% url 'cms:event_create' %}">Add event</a>{% endif %}
+    {% if perms.cms.add_mediaitem %}<a class="btn btn-ghost btn-block" href="{% url 'cms:media_create' %}?media_type=image">Add gallery image</a><a class="btn btn-ghost btn-block" href="{% url 'cms:media_create' %}?media_type=video">Add video</a>{% endif %}
+    {% if perms.cms.add_page %}<a class="btn btn-ghost btn-block" href="{% url 'cms:thematic_create' %}">Add thematic area</a>{% endif %}
+    {% if perms.cms.view_carouselslide %}<a class="btn btn-ghost btn-block" href="{% url 'cms:carousel_list' %}">Manage homepage hero</a>{% endif %}
+    {% if perms.hr.view_department %}<a class="btn btn-ghost btn-block" href="{% url 'hr:department_list' %}">Manage departments</a>{% endif %}
+    {% if perms.hr.add_employee %}<a class="btn btn-ghost btn-block" href="{% url 'hr:employee_create' %}">Add staff</a>{% endif %}
+    {% if perms.accounts.add_user %}<a class="btn btn-ghost btn-block" href="{% url 'accounts:user_create' %}">Invite staff by email</a>{% endif %}
+    {% if perms.cms.view_page %}<a class="btn btn-ghost btn-block" href="{% url 'cms:site_pages' %}">Edit public page content</a><a class="btn btn-ghost btn-block" href="{% url 'cms:page_list' %}">All pages</a><a class="btn btn-ghost btn-block" href="{% url 'cms:thematic_list' %}">Thematic areas</a>{% endif %}
+    {% if perms.cms.view_newsarticle %}<a class="btn btn-ghost btn-block" href="{% url 'cms:news_list' %}">News and stories</a>{% endif %}
+    {% if perms.cms.view_event %}<a class="btn btn-ghost btn-block" href="{% url 'cms:event_list' %}">Events</a>{% endif %}
+    {% if perms.cms.view_mediaitem %}<a class="btn btn-ghost btn-block" href="{% url 'cms:gallery_list' %}">Manage gallery</a><a class="btn btn-ghost btn-block" href="{% url 'cms:video_list' %}">Manage videos</a><a class="btn btn-ghost btn-block" href="{% url 'cms:media_list' %}">Full media library</a>{% endif %}
+  </div><div class="alert alert-warning mt-4">{% if messages_pending %}{{ messages_pending }} contact message(s) need review.{% else %}No pending contact messages.{% endif %}</div>{% if perms.cms.view_contactmessage %}<a class="text-sm text-primary" href="{% url 'cms:message_list' %}">Open contact inbox →</a>{% endif %}</div></section>
+  {% if perms.cms.view_newsarticle %}<section class="card"><div class="card-head"><h2>Recent publications</h2><a class="text-sm text-primary" href="{% url 'cms:news_list' %}">All articles</a></div><div class="card-body flush">{% for a in recent_publications %}<div class="feed-item"><div class="feed-body"><div class="feed-title">{{ a.title }}</div><div class="feed-meta">{{ a.get_category_display }} · {{ a.publish_at|date:"d M Y"|default:a.created_at|date:"d M Y" }}</div></div>{% if perms.cms.change_newsarticle %}<a class="btn btn-ghost btn-sm" href="{% url 'cms:news_edit' a.pk %}">Edit</a>{% endif %}</div>{% empty %}<div class="empty-state">No published articles yet.</div>{% endfor %}</div></section>{% endif %}
+  {% if perms.cms.view_event %}<section class="card"><div class="card-head"><h2>Recent events</h2><a class="text-sm text-primary" href="{% url 'cms:event_list' %}">All events</a></div><div class="card-body flush">{% for event in recent_events %}<div class="feed-item"><div class="feed-body"><div class="feed-title">{{ event.name }}</div><div class="feed-meta">{{ event.date|date:"d M Y" }} · {{ event.get_status_display }}</div></div>{% if perms.cms.change_event %}<a class="btn btn-ghost btn-sm" href="{% url 'cms:event_edit' event.pk %}">Edit</a>{% endif %}</div>{% empty %}<div class="empty-state">No events yet.</div>{% endfor %}</div></section>{% endif %}
 </div>
-
-<div class="card mt-6">
-  <div class="card-head"><h3>Pages</h3></div>
-  <div class="card-body flush">
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th>Title</th><th>Slug</th><th>Type</th><th>Status</th><th>Updated</th><th></th></tr></thead>
-        <tbody>
-          {% for p in recent_pages %}
-          <tr>
-            <td class="cell-main">{{ p.title }}</td>
-            <td>/{{ p.slug }}/</td>
-            <td>{{ p.get_page_type_display }}</td>
-            <td><span class="badge status-{{ p.status }}">{{ p.get_status_display }}</span></td>
-            <td>{{ p.updated_at|date:"d M Y" }}</td>
-            <td><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{% url 'cms:page_edit' p.pk %}">Edit</a></div></td>
-          </tr>
-          {% empty %}<tr><td colspan="6">{% include "includes/empty_state.html" with title="No pages yet" %}</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+<section class="card mt-6"><div class="card-head"><h2>Recent CMS activity</h2></div><div class="card-body flush">{% for a in recent_articles %}<div class="feed-item"><div class="feed-body"><div class="feed-title">{{ a.title }}</div><div class="feed-meta">{{ a.get_status_display }} · {{ a.created_at|date:"d M Y" }}</div></div><a class="btn btn-secondary btn-sm" href="{% url 'cms:news_edit' a.pk %}">Edit</a></div>{% empty %}<div class="empty-state">No article activity yet.</div>{% endfor %}</div></section>
 {% endblock %}

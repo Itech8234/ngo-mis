@@ -5,6 +5,10 @@ from . import views
 app_name = "hr"
 
 urlpatterns = [
+    path("departments/", views.department_list, name="department_list"),
+    path("departments/new/", views.department_create, name="department_create"),
+    path("departments/<int:pk>/edit/", views.department_edit, name="department_edit"),
+    path("departments/<int:pk>/delete/", views.department_delete, name="department_delete"),
     # Employees
     path("employees/", views.EmployeeListView.as_view(), name="employee_list"),
     path("employees/new/", views.EmployeeCreateView.as_view(), name="employee_create"),

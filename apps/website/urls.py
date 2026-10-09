@@ -19,6 +19,8 @@ urlpatterns = [
     path("stories/", views.stories, name="stories"),
     path("events/", views.events_list, name="events_list"),
     path("events/<slug:slug>/", views.event_detail, name="event_detail"),
+    path("gallery/", views.gallery, name="gallery"),
+    path("videos/", views.videos, name="videos"),
     path("donate/", views.donate, name="donate"),
     path("contact/", views.contact, name="contact"),
     # Permanent institutional/legal addresses — served by dedicated views that

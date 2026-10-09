@@ -1,6 +1,6 @@
 {% extends "website/base_site.html" %}
 {% load ghdi_extras %}
-{% block title %}{{ ghdi_org_name }} â€” Protecting and empowering vulnerable communities{% endblock %}
+{% block title %}{{ site_page.seo_title|default:ghdi_org_name }} &mdash; Protecting Dignity. Strengthening Communities.{% endblock %}
 {% block content %}
 <!-- ============ FULL-BLEED HERO CAROUSEL ============ -->
 <section class="ghdi-hero" data-hero-carousel aria-roledescription="carousel" aria-label="GHDI highlights">
@@ -45,13 +45,14 @@
 
   <p class="ghdi-hero__counter" aria-hidden="true"><span data-hero-current>1</span><i>/</i>{{ hero_slides|length }}</p>
 </section>
+{% include "website/_cms_page_body.html" with page_content=site_page %}
 
 <section class="py-20 reveal">
   <div class="mx-auto max-w-6xl px-5">
     <div class="mb-12 max-w-2xl">
       <span class="text-xs font-semibold uppercase tracking-widest text-magenta">Who we are</span>
-      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Built on dignity, driven by community</h2>
-      <p class="mt-4 leading-relaxed text-slate-500">GHDI was founded to serve the most vulnerable people in conflict-affected and underserved communities â€” putting local voices, local institutions and locally led solutions at the centre of everything we do.</p>
+      <h2 class="mt-2 text-3xl font-bold text-navy md:text-4xl" style="font-family:'Sora',sans-serif">Protecting Dignity. Strengthening Communities.</h2>
+      <p class="mt-4 leading-relaxed text-slate-500">{{ site_page.summary|default:"GHDI was founded to serve the most vulnerable people in conflict-affected and underserved communities &mdash; putting local voices, local institutions and locally led solutions at the centre of everything we do." }}</p>
     </div>
     <div class="grid gap-6 md:grid-cols-2">
       <div class="rounded-2xl bg-white p-8 ring-1 ring-slate-200 shadow-soft">
@@ -187,12 +188,17 @@
     <div class="relative aspect-video overflow-hidden rounded-2xl bg-navy shadow-soft">
       {% with embed_url=featured_video.video_url|video_embed_url %}
         {% if embed_url %}<iframe class="absolute inset-0 h-full w-full" src="{{ embed_url }}" title="{{ featured_video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        {% elif featured_video.file|file_url %}<video class="absolute inset-0 h-full w-full object-cover" controls preload="none" title="{{ featured_video.title }}"{% if featured_video.thumbnail|file_url %} poster="{{ featured_video.thumbnail|file_url }}"{% endif %}><source src="{{ featured_video.file|file_url }}">Your browser does not support video playback.</video>
         {% else %}<div class="absolute inset-0 grid place-items-center p-6 text-center text-white"><p>Video is currently unavailable.</p></div>{% endif %}
       {% endwith %}
     </div>
+    {% if latest_videos %}<div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{% for video in latest_videos %}<a class="ghdi-card" href="{% url 'website:videos' %}"><div class="ghdi-card__media">{% if video.thumbnail|file_url %}<img src="{{ video.thumbnail|file_url }}" alt="{{ video.title }}" loading="lazy" decoding="async">{% else %}<div class="ghdi-media-card__media--fallback"><span>Video</span></div>{% endif %}</div><div class="ghdi-card__body"><h3 class="ghdi-card__title">{{ video.title }}</h3><p class="ghdi-card__text">{{ video.description|truncatewords:18 }}</p></div></a>{% endfor %}</div>{% endif %}
+    <div class="mt-6 text-end"><a class="text-sm font-semibold text-azure" href="{% url 'website:videos' %}">View all videos →</a></div>
   </div>
 </section>
 {% endif %}
+
+{% if gallery_preview %}<section class="py-16 reveal"><div class="mx-auto max-w-6xl px-5"><div class="mb-8 flex flex-wrap items-end justify-between gap-4"><div><span class="text-xs font-semibold uppercase tracking-widest text-magenta">In our communities</span><h2 class="mt-2 text-3xl font-bold text-navy" style="font-family:'Sora',sans-serif">Recent moments</h2></div><a class="text-sm font-semibold text-azure" href="{% url 'website:gallery' %}">Explore the gallery →</a></div><div class="row g-3">{% for item in gallery_preview %}<div class="col-6 col-md-4"><a class="home-gallery-tile" href="{% url 'website:gallery' %}" aria-label="View {{ item.title }} in the gallery">{% with image=item.public_image|file_url %}{% if image %}<img src="{{ image }}" alt="{{ item.alt_text|default:item.title }}" loading="lazy" decoding="async">{% endif %}{% endwith %}</a></div>{% endfor %}</div></div></section>{% endif %}
 
 {% if upcoming_events %}
 <section class="bg-navy-soft py-20 reveal">
@@ -211,6 +217,7 @@
       </article>
       {% empty %}<p class="text-sm text-slate-500">No events scheduled right now.</p>{% endfor %}
     </div>
+    <div class="mt-8 text-end"><a class="text-sm font-semibold text-azure" href="{% url 'website:events_list' %}">View all events →</a></div>
   </div>
 </section>
 {% endif %}
@@ -248,3 +255,4 @@
   </div>
 </section>
 {% endblock %}
+{% block extra_css %}<style>.home-gallery-tile{display:block;overflow:hidden;border-radius:16px;aspect-ratio:4/3;background:#e8edf2}.home-gallery-tile img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}.home-gallery-tile:hover img{transform:scale(1.04)}@media(prefers-reduced-motion:reduce){.home-gallery-tile img{transition:none}}</style>{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% load ghdi_extras %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<section class="dashboard-hero dashboard-hero--hr">
+  <div class="dashboard-hero__copy"><span class="dashboard-hero__eyebrow">People and structure</span><h1>Departments</h1><p>Manage teams, department leads and staff assignments.</p></div>
+  {% if perms.hr.add_department %}<div class="dashboard-hero__actions"><a class="btn btn-primary" href="{% url 'hr:department_create' %}">Add department</a></div>{% endif %}
+</section>
+<section class="card">
+  <div class="card-body"><form method="get" class="hr-filter-bar" role="search"><label class="sr-only" for="department-q">Search departments</label><input class="form-input" id="department-q" type="search" name="q" value="{{ query }}" placeholder="Search name, code or description"><button class="btn btn-primary">Search</button>{% if query %}<a class="btn btn-ghost" href="{% url 'hr:department_list' %}">Clear</a>{% endif %}</form></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Department</th><th>Code</th><th>Head</th><th>Staff</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  {% for department in departments %}<tr><td class="cell-main">{% if department.image|file_url %}<img src="{{ department.image|file_url }}" alt="" width="42" height="42" style="object-fit:cover;border-radius:10px;vertical-align:middle;margin-right:8px">{% endif %}{{ department.name }}</td><td>{{ department.code }}</td><td>{{ department.head.full_name|default:"Not assigned" }}</td><td>{{ department.staff_count }}</td><td><span class="badge {% if department.is_active %}status-active{% else %}status-inactive{% endif %}">{% if department.is_active %}Active{% else %}Inactive{% endif %}</span></td><td><div class="row-actions">{% if perms.hr.change_department %}<a class="btn btn-secondary btn-sm" href="{% url 'hr:department_edit' department.pk %}">Edit</a>{% endif %}{% if perms.hr.delete_department %}<form method="post" action="{% url 'hr:department_delete' department.pk %}" onsubmit="return confirm('Delete this department? Staff records will remain unassigned.');">{% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">Delete</button></form>{% endif %}</div></td></tr>
+  {% empty %}<tr><td colspan="6">{% include "includes/empty_state.html" with title="No departments found" body="Create a department to organise staff records." %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

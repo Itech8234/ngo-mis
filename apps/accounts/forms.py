@@ -61,7 +61,7 @@ class UserCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         from apps.hr.models import Department
 
-        self.fields["department"].queryset = Department.objects.order_by("name")
+        self.fields["department"].queryset = Department.objects.filter(is_active=True).order_by("name")
 
     class Meta:
         model = User
